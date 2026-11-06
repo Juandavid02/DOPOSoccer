@@ -1,0 +1,71 @@
+# ============================================================================
+# .gitignore — POOBSoccer / HeadSoccer
+#
+# Regla general: no se versiona nada que se genere al compilar, ejecutar o
+# abrir el proyecto en un IDE. Sí se versionan el código fuente, la
+# documentación y las dependencias de lib/.
+# ============================================================================
+
+# ---------------------------------------------------------------------------
+# Compilación y artefactos generados
+# ---------------------------------------------------------------------------
+# Salida de javac (el proyecto compila con: javac -d bin ...)
+/bin/
+
+# Salida de Maven y Gradle (por si se agregan más adelante)
+/target/
+/build/
+/.gradle/
+
+# Salida de IDEs (IntelliJ, Eclipse, VS Code)
+/out/
+*.class
+
+# ---------------------------------------------------------------------------
+# IDEs y editores
+# ---------------------------------------------------------------------------
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Eclipse
+.settings/
+.classpath
+.project
+.metadata/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# ---------------------------------------------------------------------------
+# Sistema operativo
+# ---------------------------------------------------------------------------
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ---------------------------------------------------------------------------
+# Logs, temporales y respaldos
+# ---------------------------------------------------------------------------
+*.log
+*.tmp
+*.bak
+
+# Volcados de error de la JVM
+hs_err_pid*.log
+replay_pid*.log
+
+# ---------------------------------------------------------------------------
+# Documentación interna
+# ---------------------------------------------------------------------------
+# Plan de mini ciclos: documento de trabajo local, no se versiona.
+mini-ciclos-pooBSoccer.md
+/doc/mini-ciclos-pooBSoccer.md
+
+# ---------------------------------------------------------------------------
+# Dependencias
+# ---------------------------------------------------------------------------
+# lib/ SÍ se versiona: contiene el JUnit Platform Console Standalone que usa
+# el proyecto para ejecutar las pruebas sin Maven ni Gradle.
+# lib/junit-platform-console-standalone-1.10.2.jar
