@@ -15,7 +15,7 @@ import domain.MotivoFin;
 import domain.ParametrosJuego;
 import domain.Partido;
 import domain.Personaje;
-import domain.Poder;
+import domain.PoderAuraAzul;
 import domain.TipoPartido;
 
 /**
@@ -244,34 +244,11 @@ public class PartidoTest
     }
 
     /**
-     * Crea un personaje de prueba.
+     * Crea un personaje de prueba con un poder real.
      */
     private Personaje crearPersonaje()
     {
-        return new Personaje("Polar", "Canadá", new PoderFake());
-    }
-
-    /**
-     * Poder falso para las pruebas.
-     */
-    private static class PoderFake implements Poder
-    {
-        @Override
-        public String getNombre()
-        {
-            return "Prueba";
-        }
-
-        @Override
-        public double getDuracion()
-        {
-            return 1.0;
-        }
-
-        @Override
-        public void aplicarPoder(Jugador jugador)
-        {
-        }
+        return new Personaje("Polar", "Canadá", new PoderAuraAzul());
     }
 
     @AfterEach

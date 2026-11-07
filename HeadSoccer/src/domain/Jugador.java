@@ -20,8 +20,7 @@ public class Jugador {
      * puntos) y del personaje elegido. Las estadísticas son del jugador, no
      * del personaje.
      */
-    public Jugador(ConfiguracionJugador configuracion, Personaje personaje, BarraPoder barraPoder,
-                   Lado lado, double posicionX, double posicionY) {
+    public Jugador(ConfiguracionJugador configuracion, Personaje personaje, BarraPoder barraPoder, Lado lado, double posicionX, double posicionY) {
         if (configuracion == null) {
             throw new IllegalArgumentException("La configuración del jugador no puede ser nula");
         }
@@ -156,7 +155,6 @@ public class Jugador {
         if (balon == null) {
             return;
         }
-
         double distanciaX = balon.getX() - posicionX;
         double distanciaY = balon.getY() - posicionY;
         double distancia = Math.sqrt(distanciaX * distanciaX + distanciaY * distanciaY);
@@ -164,10 +162,8 @@ public class Jugador {
         if (distancia > alcance || distancia == 0) {
             return;
         }
-        // El kick representa daño al rival, no la fuerza del balón.
-        // La potencia del disparo es constante (ver PDF final).
         double potencia = ParametrosJuego.POTENCIA_PATADA_BASE;
-        // La patada se dirige del jugador hacia el balón.
+        //IA generativa para poder realizar el calculo de la patada al balon
         double angulo = Math.atan2(distanciaY, distanciaX);
         balon.aplicarImpulso(potencia * Math.cos(angulo), potencia * Math.sin(angulo));
     }

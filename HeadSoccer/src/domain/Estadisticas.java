@@ -45,9 +45,6 @@ public class Estadisticas {
         return ParametrosJuego.VIDA_BASE * (1 + ParametrosJuego.INCREMENTO_POR_PUNTO * (survival - 1));
     }
 
-    /**
-     * Daño base de una patada normal: {@code 10 * multiplicadorKick}.
-     */
     public double getDanoPatada() {
         return ParametrosJuego.DANO_PATADA_BASE * getMultiplicadorKick();
     }

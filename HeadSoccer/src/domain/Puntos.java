@@ -1,12 +1,5 @@
 package domain;
 
-/**
- * Puntos acumulados por un jugador.
- *
- * <p>El ganador de un partido recibe {@link ParametrosJuego#PUNTOS_GANADOR}
- * y el perdedor {@link ParametrosJuego#PUNTOS_PERDEDOR}. Con esos puntos se
- * compran mejoras de estadísticas al inicio de los partidos.</p>
- */
 public class Puntos {
     private int total;
 
@@ -39,11 +32,6 @@ public class Puntos {
         return total >= costo;
     }
 
-    /**
-     * Gasta {@code costo} puntos si alcanzan.
-     *
-     * @return {@code true} si se pudo pagar; {@code false} en caso contrario
-     */
     public boolean gastar(int costo) {
         if (!puedePagar(costo)) {
             return false;

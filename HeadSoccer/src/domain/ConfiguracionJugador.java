@@ -1,12 +1,5 @@
 package domain;
 
-/**
- * Datos de configuración de un jugador antes de iniciar un partido.
- *
- * <p>Agrupa el nombre, las estadísticas propias del jugador (speed, jump,
- * kick y survival) y sus puntos acumulados. Las estadísticas pertenecen al
- * jugador, no al personaje, tal como pide el PDF final.</p>
- */
 public class ConfiguracionJugador {
     private final String nombre;
     private final Estadisticas estadisticas;

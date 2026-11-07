@@ -5,8 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import domain.Personaje;
-import domain.Poder;
-import domain.Jugador;
+import domain.PoderAuraAzul;
 
 /**
  * Clase de pruebas PersonajeTest.
@@ -27,7 +26,7 @@ public class PersonajeTest
     @BeforeEach
     public void setUp()
     {
-        personaje = new Personaje("Polar", "Canadá", new PoderFake());
+        personaje = new Personaje("Polar", "Canadá", new PoderAuraAzul());
     }
 
     /** Se puede crear un personaje con todos los datos válidos. */
@@ -56,7 +55,7 @@ public class PersonajeTest
     public void shouldReturnRequestedPower()
     {
         assertNotNull(personaje.getPoder());
-        assertEquals("Prueba", personaje.getPoder().getNombre());
+        assertEquals("Aura Azul", personaje.getPoder().getNombre());
     }
 
     /** El nombre no puede ser nulo. */
@@ -64,7 +63,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithNullName()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje(null, "Canadá", new PoderFake()));
+                () -> new Personaje(null, "Canadá", new PoderAuraAzul()));
         assertEquals("El nombre no puede ser nulo o vacío", e.getMessage());
     }
 
@@ -73,7 +72,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithEmptyName()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje("", "Canadá", new PoderFake()));
+                () -> new Personaje("", "Canadá", new PoderAuraAzul()));
         assertEquals("El nombre no puede ser nulo o vacío", e.getMessage());
     }
 
@@ -82,7 +81,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithBlankName()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje("   ", "Canadá", new PoderFake()));
+                () -> new Personaje("   ", "Canadá", new PoderAuraAzul()));
         assertEquals("El nombre no puede ser nulo o vacío", e.getMessage());
     }
 
@@ -91,7 +90,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithNullCountry()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje("Polar", null, new PoderFake()));
+                () -> new Personaje("Polar", null, new PoderAuraAzul()));
         assertEquals("El país no puede ser nulo o vacío", e.getMessage());
     }
 
@@ -100,7 +99,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithEmptyCountry()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje("Polar", "", new PoderFake()));
+                () -> new Personaje("Polar", "", new PoderAuraAzul()));
         assertEquals("El país no puede ser nulo o vacío", e.getMessage());
     }
 
@@ -111,29 +110,6 @@ public class PersonajeTest
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> new Personaje("Polar", "Canadá", null));
         assertEquals("El poder no puede ser nulo", e.getMessage());
-    }
-
-    /**
-     * Poder falso para las pruebas de Personaje.
-     */
-    private static class PoderFake implements Poder
-    {
-        @Override
-        public String getNombre()
-        {
-            return "Prueba";
-        }
-
-        @Override
-        public double getDuracion()
-        {
-            return 0.0;
-        }
-
-        @Override
-        public void aplicarPoder(Jugador jugador)
-        {
-        }
     }
 
     @AfterEach

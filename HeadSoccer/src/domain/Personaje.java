@@ -1,12 +1,5 @@
 package domain;
 
-/**
- * Personaje (país) que elige un jugador.
- *
- * <p>Cada personaje representa un país y tiene un tiro de poder único
- * (Anexo 1 del PDF). Las estadísticas NO van aquí: son del jugador y viven
- * en {@link ConfiguracionJugador} / {@link Estadisticas}.</p>
- */
 public class Personaje {
     private final String nombre;
     private final String pais;

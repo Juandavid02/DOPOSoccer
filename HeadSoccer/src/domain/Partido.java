@@ -13,8 +13,7 @@ public class Partido {
     private double tiempoRestante;
     private ResultadoPartido resultado;
 
-    public Partido(Modalidad modalidad, TipoPartido tipo, Personaje p1, Personaje p2,
-                   ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2) {
+    public Partido(Modalidad modalidad, TipoPartido tipo, Personaje p1, Personaje p2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2) {
         if (modalidad == null) {
             throw new IllegalArgumentException("La modalidad no puede ser nula");
         }
