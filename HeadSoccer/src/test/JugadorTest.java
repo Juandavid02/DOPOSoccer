@@ -7,17 +7,18 @@ import org.junit.jupiter.api.Test;
 import domain.Balon;
 import domain.BarraPoder;
 import domain.Cancha;
+import domain.ConfiguracionJugador;
 import domain.Estadisticas;
 import domain.Jugador;
 import domain.Lado;
 import domain.ParametrosJuego;
 import domain.Personaje;
-import domain.Poder;
+import domain.PoderAuraAzul;
 
 /**
  * Clase de pruebas JugadorTest.
- * Pruebas del jugador: posición, movimiento, salto, gravedad,
- * patada y uso de las estadísticas del personaje.
+ * Pruebas del jugador: posición, movimiento, salto, gravedad, patada y uso
+ * de sus propias estadísticas (speed, jump, kick, survival).
  *
  * @author Juan David Rojas Heredia
  * @version 06-11-2026
@@ -27,30 +28,16 @@ public class JugadorTest
     private Cancha cancha;
     private Jugador jugador;
 
-    /**
-     * Constructor de la clase de pruebas JugadorTest.
-     */
     public JugadorTest()
     {
     }
 
-    /**
-     * Prepara el escenario de pruebas.
-     * Se ejecuta antes de cada método de prueba.
-     */
     @BeforeEach
     public void setUp()
     {
         cancha = new Cancha();
-        jugador = new Jugador(
-                "Juan",
-                crearPersonaje(3, 4, 5),
-                new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER,
-                        ParametrosJuego.RECARGA_BARRA_PODER),
-                Lado.IZQUIERDO,
-                100,
-                ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR
-        );
+        jugador = crearJugador("Juan", 3, 4, 5, 6, Lado.IZQUIERDO, 100,
+                ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR);
     }
 
     /** El jugador inicia en la posición indicada y sin velocidad. */
@@ -151,16 +138,14 @@ public class JugadorTest
         assertEquals(0, jugador.getBarraPoder().getCarga(), 0.0001);
     }
 
-    /** Un personaje con más salto alcanza mayor velocidad vertical. */
+    /** Un jugador con más jump alcanza mayor velocidad vertical. */
     @Test
-    public void shouldUseCharacterJumpStat()
+    public void shouldUsePlayerJumpStat()
     {
-        Jugador saltadorBajo = new Jugador(
-                "Bajo", crearPersonaje(3, 1, 3),
-                new BarraPoder(100, 10), Lado.IZQUIERDO, 100, 680);
-        Jugador saltadorAlto = new Jugador(
-                "Alto", crearPersonaje(3, 5, 3),
-                new BarraPoder(100, 10), Lado.IZQUIERDO, 100, 680);
+        Jugador saltadorBajo = crearJugador("Bajo", 3, 1, 3, 1,
+                Lado.IZQUIERDO, 100, 680);
+        Jugador saltadorAlto = crearJugador("Alto", 3, 5, 3, 1,
+                Lado.IZQUIERDO, 100, 680);
 
         saltadorBajo.saltar();
         saltadorAlto.saltar();
@@ -192,24 +177,33 @@ public class JugadorTest
         assertEquals(0, balon.getVelocidadY(), 0.0001);
     }
 
-    /** Un personaje con más fuerza patea más fuerte. */
+    /** El kick no cambia la fuerza con la que sale el balón (PDF final). */
     @Test
-    public void shouldUseCharacterStrengthStat()
+    public void shouldNotChangeBallPowerWithKickStat()
     {
-        Jugador debil = new Jugador(
-                "Debil", crearPersonaje(3, 3, 1),
-                new BarraPoder(100, 10), Lado.IZQUIERDO, 100, 680);
-        Jugador fuerte = new Jugador(
-                "Fuerte", crearPersonaje(3, 3, 5),
-                new BarraPoder(100, 10), Lado.IZQUIERDO, 100, 680);
+        Jugador kickBajo = crearJugador("Bajo", 3, 3, 1, 1,
+                Lado.IZQUIERDO, 100, 680);
+        Jugador kickAlto = crearJugador("Alto", 3, 3, 10, 1,
+                Lado.IZQUIERDO, 100, 680);
 
-        Balon balonDebil = new Balon(110, 680, ParametrosJuego.RADIO_BALON);
-        Balon balonFuerte = new Balon(110, 680, ParametrosJuego.RADIO_BALON);
+        Balon balonKickBajo = new Balon(110, 680, ParametrosJuego.RADIO_BALON);
+        Balon balonKickAlto = new Balon(110, 680, ParametrosJuego.RADIO_BALON);
 
-        debil.patear(balonDebil);
-        fuerte.patear(balonFuerte);
+        kickBajo.patear(balonKickBajo);
+        kickAlto.patear(balonKickAlto);
 
-        assertTrue(balonFuerte.getVelocidadX() > balonDebil.getVelocidadX());
+        assertEquals(balonKickBajo.getVelocidadX(), balonKickAlto.getVelocidadX(), 0.0001);
+    }
+
+    /** El jugador expone sus estadísticas propias y sus puntos. */
+    @Test
+    public void shouldExposePlayerStatisticsAndPoints()
+    {
+        assertEquals(3, jugador.getEstadisticas().getSpeed());
+        assertEquals(4, jugador.getEstadisticas().getJump());
+        assertEquals(5, jugador.getEstadisticas().getKick());
+        assertEquals(6, jugador.getEstadisticas().getSurvival());
+        assertEquals(0, jugador.getPuntos().getTotal());
     }
 
     /** Reiniciar devuelve al jugador a la posición indicada. */
@@ -229,44 +223,33 @@ public class JugadorTest
     }
 
     /**
-     * Crea un personaje de prueba con las estadísticas indicadas.
+     * Crea un jugador de prueba con sus propias estadísticas.
      */
-    private Personaje crearPersonaje(int velocidad, int salto, int fuerza)
+    private Jugador crearJugador(String nombre, int speed, int jump, int kick, int survival,
+                                 Lado lado, double x, double y)
     {
-        return new Personaje(
-                "Polar", "Canadá",
-                new Estadisticas(velocidad, salto, fuerza),
-                new PoderFake()
+        ConfiguracionJugador configuracion = new ConfiguracionJugador(
+                nombre, new Estadisticas(speed, jump, kick, survival));
+
+        return new Jugador(
+                configuracion,
+                crearPersonaje(),
+                new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER,
+                        ParametrosJuego.RECARGA_BARRA_PODER),
+                lado,
+                x,
+                y
         );
     }
 
     /**
-     * Poder falso para las pruebas.
+     * Crea un personaje de prueba con un poder real.
      */
-    private static class PoderFake implements Poder
+    private Personaje crearPersonaje()
     {
-        @Override
-        public String getNombre()
-        {
-            return "Prueba";
-        }
-
-        @Override
-        public double getDuracion()
-        {
-            return 1.0;
-        }
-
-        @Override
-        public void aplicarPoder(Jugador jugador)
-        {
-        }
+        return new Personaje("Polar", "Canadá", new PoderAuraAzul());
     }
 
-    /**
-     * Libera el escenario de pruebas.
-     * Se ejecuta después de cada método de prueba.
-     */
     @AfterEach
     public void tearDown()
     {

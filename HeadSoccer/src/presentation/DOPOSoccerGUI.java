@@ -3,13 +3,13 @@ package presentation;
 import javax.swing.*;
 import java.awt.*;
 
-public class HeadSoccerGUI extends JFrame {
+public class DOPOSoccerGUI extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
 
-    public HeadSoccerGUI() {
-        super("HeadSoccer");
+    public DOPOSoccerGUI() {
+        super("DOPOSoccer");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -19,7 +19,7 @@ public class HeadSoccerGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        HeadSoccerGUI gui = new HeadSoccerGUI();
+        DOPOSoccerGUI gui = new DOPOSoccerGUI();
         gui.setVisible(true);
     }
 

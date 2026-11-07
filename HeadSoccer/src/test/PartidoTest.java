@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import domain.Balon;
+import domain.ConfiguracionJugador;
 import domain.EstadoPartido;
 import domain.Estadisticas;
 import domain.Jugador;
@@ -14,7 +15,7 @@ import domain.MotivoFin;
 import domain.ParametrosJuego;
 import domain.Partido;
 import domain.Personaje;
-import domain.Poder;
+import domain.PoderAuraAzul;
 import domain.TipoPartido;
 
 /**
@@ -29,27 +30,20 @@ public class PartidoTest
 {
     private Partido partido;
 
-    /**
-     * Constructor de la clase de pruebas PartidoTest.
-     */
     public PartidoTest()
     {
     }
 
-    /**
-     * Prepara el escenario de pruebas.
-     * Se ejecuta antes de cada método de prueba.
-     */
     @BeforeEach
     public void setUp()
     {
         partido = new Partido(
                 Modalidad.PvsP,
                 TipoPartido.TIEMPO,
-                crearPersonaje(3, 4, 5),
-                crearPersonaje(4, 3, 4),
-                "Ana",
-                "Luis"
+                crearPersonaje(),
+                crearPersonaje(),
+                new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
+                new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5))
         );
     }
 
@@ -96,7 +90,7 @@ public class PartidoTest
                 balon.getY(), 0.0001);
     }
 
-    /** Los nombres de los jugadores son los del usuario. */
+    /** Los nombres de los jugadores son los de la configuración. */
     @Test
     public void shouldKeepPlayerNames()
     {
@@ -250,44 +244,13 @@ public class PartidoTest
     }
 
     /**
-     * Crea un personaje de prueba con las estadísticas indicadas.
+     * Crea un personaje de prueba con un poder real.
      */
-    private Personaje crearPersonaje(int velocidad, int salto, int fuerza)
+    private Personaje crearPersonaje()
     {
-        return new Personaje(
-                "Polar", "Canadá",
-                new Estadisticas(velocidad, salto, fuerza),
-                new PoderFake()
-        );
+        return new Personaje("Polar", "Canadá", new PoderAuraAzul());
     }
 
-    /**
-     * Poder falso para las pruebas.
-     */
-    private static class PoderFake implements Poder
-    {
-        @Override
-        public String getNombre()
-        {
-            return "Prueba";
-        }
-
-        @Override
-        public double getDuracion()
-        {
-            return 1.0;
-        }
-
-        @Override
-        public void aplicarPoder(Jugador jugador)
-        {
-        }
-    }
-
-    /**
-     * Libera el escenario de pruebas.
-     * Se ejecuta después de cada método de prueba.
-     */
     @AfterEach
     public void tearDown()
     {

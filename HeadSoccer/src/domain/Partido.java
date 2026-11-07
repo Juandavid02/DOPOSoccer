@@ -13,7 +13,7 @@ public class Partido {
     private double tiempoRestante;
     private ResultadoPartido resultado;
 
-    public Partido(Modalidad modalidad, TipoPartido tipo, Personaje p1, Personaje p2, String nombreJugador1, String nombreJugador2) {
+    public Partido(Modalidad modalidad, TipoPartido tipo, Personaje p1, Personaje p2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2) {
         if (modalidad == null) {
             throw new IllegalArgumentException("La modalidad no puede ser nula");
         }
@@ -26,23 +26,23 @@ public class Partido {
         if (p2 == null) {
             throw new IllegalArgumentException("El personaje 2 no puede ser nulo");
         }
-        if (nombreJugador1 == null || nombreJugador1.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre del jugador 1 no puede ser nulo o vacío");
+        if (configuracion1 == null) {
+            throw new IllegalArgumentException("La configuración del jugador 1 no puede ser nula");
         }
-        if (nombreJugador2 == null || nombreJugador2.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre del jugador 2 no puede ser nulo o vacío");
+        if (configuracion2 == null) {
+            throw new IllegalArgumentException("La configuración del jugador 2 no puede ser nula");
         }
 
         this.modalidad = modalidad;
         this.tipo = tipo;
         this.cancha = new Cancha();
         this.jugadores = List.of(
-                new Jugador(nombreJugador1, p1,
+                new Jugador(configuracion1, p1,
                         new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER, ParametrosJuego.RECARGA_BARRA_PODER),
                         Lado.IZQUIERDO,
                         ParametrosJuego.ANCHO_CANCHA / 4.0,
                         ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR),
-                new Jugador(nombreJugador2, p2,
+                new Jugador(configuracion2, p2,
                         new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER, ParametrosJuego.RECARGA_BARRA_PODER),
                         Lado.DERECHO,
                         ParametrosJuego.ANCHO_CANCHA * 3.0 / 4.0,

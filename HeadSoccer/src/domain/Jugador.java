@@ -4,6 +4,8 @@ public class Jugador {
     private final String nombre;
 
     private final Personaje personaje;
+    private final Estadisticas estadisticas;
+    private final Puntos puntos;
     private final BarraPoder barraPoder;
     private final Lado lado;
 
@@ -13,9 +15,14 @@ public class Jugador {
     private double velocidadY;
     private boolean enSuelo;
 
-    public Jugador(String nombre, Personaje personaje, BarraPoder barraPoder, Lado lado, double posicionX, double posicionY) {
-        if (nombre == null || nombre.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre no puede ser nulo o vacío");
+    /**
+     * Crea un jugador a partir de su configuración (nombre, estadísticas y
+     * puntos) y del personaje elegido. Las estadísticas son del jugador, no
+     * del personaje.
+     */
+    public Jugador(ConfiguracionJugador configuracion, Personaje personaje, BarraPoder barraPoder, Lado lado, double posicionX, double posicionY) {
+        if (configuracion == null) {
+            throw new IllegalArgumentException("La configuración del jugador no puede ser nula");
         }
         if (personaje == null) {
             throw new IllegalArgumentException("El personaje no puede ser nulo");
@@ -27,8 +34,10 @@ public class Jugador {
             throw new IllegalArgumentException("El lado no puede ser nulo");
         }
 
-        this.nombre = nombre;
+        this.nombre = configuracion.getNombre();
         this.personaje = personaje;
+        this.estadisticas = configuracion.getEstadisticas();
+        this.puntos = configuracion.getPuntos();
         this.barraPoder = barraPoder;
         this.lado = lado;
         this.posicionX = posicionX;
@@ -44,6 +53,14 @@ public class Jugador {
 
     public Personaje getPersonaje() {
         return personaje;
+    }
+
+    public Estadisticas getEstadisticas() {
+        return estadisticas;
+    }
+
+    public Puntos getPuntos() {
+        return puntos;
     }
 
     public BarraPoder getBarraPoder() {
@@ -129,7 +146,7 @@ public class Jugador {
         if (!enSuelo) {
             return;
         }
-        int salto = personaje.getEstadisticas().getSalto();
+        int salto = estadisticas.getJump();
         velocidadY = -(ParametrosJuego.IMPULSO_SALTO_BASE + salto * ParametrosJuego.IMPULSO_SALTO_POR_NIVEL);
         enSuelo = false;
     }
@@ -138,7 +155,6 @@ public class Jugador {
         if (balon == null) {
             return;
         }
-
         double distanciaX = balon.getX() - posicionX;
         double distanciaY = balon.getY() - posicionY;
         double distancia = Math.sqrt(distanciaX * distanciaX + distanciaY * distanciaY);
@@ -146,12 +162,10 @@ public class Jugador {
         if (distancia > alcance || distancia == 0) {
             return;
         }
-        int fuerza = personaje.getEstadisticas().getFuerza();
-        double potencia = ParametrosJuego.POTENCIA_PATADA_BASE + fuerza * ParametrosJuego.POTENCIA_PATADA_POR_NIVEL;
-        // IA generativo ayuda a calcular el ángulo de la patada para que sea más realista
+        double potencia = ParametrosJuego.POTENCIA_PATADA_BASE;
+        //IA generativa para poder realizar el calculo de la patada al balon
         double angulo = Math.atan2(distanciaY, distanciaX);
-        balon.aplicarImpulso(potencia * Math.cos(angulo),potencia * Math.sin(angulo)
-        );        
+        balon.aplicarImpulso(potencia * Math.cos(angulo), potencia * Math.sin(angulo));
     }
 
     public void reiniciar(double posicionX, double posicionY) {
