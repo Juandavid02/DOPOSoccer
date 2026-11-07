@@ -54,7 +54,7 @@ public class MenuView extends JPanel {
      * Prepara los botones principales en una grilla de dos columnas.
      */
     private void prepareViewBotones() {
-        botonContinuar = crearBoton(RUTA_BOTONES + "Continuar.png", 380);
+        botonContinuar = crearBoton(RUTA_BOTONES + "ContinuarPartida.png", 380);
         botonPvsP = crearBoton(RUTA_BOTONES + "PvsP.png", 380);
         botonPractica = crearBoton(RUTA_BOTONES + "PvsM.png", 380);
         botonConfiguracion = crearBoton(RUTA_BOTONES + "Configuracion.png", 380);

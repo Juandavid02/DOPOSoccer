@@ -34,7 +34,7 @@ public class MenuController {
         view.getBotonPvsP().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gui.mostrarProximamente("Multijugador Local (PvsP)");
+                gui.iniciarSeleccionPerfil();
             }
         });
         view.getBotonPractica().addActionListener(new ActionListener() {

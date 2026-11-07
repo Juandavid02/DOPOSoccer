@@ -12,6 +12,8 @@ public class DOPOSoccerGUI extends JFrame {
     private static final String CARTA_INICIO = "inicio";
     private static final String CARTA_MENU = "menu";
     private static final String CARTA_PERFIL = "perfil";
+    private static final String CARTA_SELECCION_PERFIL = "seleccionPerfil";
+    private static final String CARTA_CONFIGURACION = "configuracionPartido";
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
@@ -19,7 +21,11 @@ public class DOPOSoccerGUI extends JFrame {
     private MenuView menuView;
     private PerfilView perfilView;
     private PerfilController perfilController;
+    private SeleccionPerfilView seleccionPerfilView;
+    private SeleccionPerfilController seleccionPerfilController;
+    private ConfiguracionPartidoView configuracionPartidoView;
     private final List<PerfilJugador> perfiles = new ArrayList<>();
+    private boolean perfilVuelveASeleccion;
 
     public DOPOSoccerGUI() {
         super("DOPOSoccer");
@@ -46,6 +52,8 @@ public class DOPOSoccerGUI extends JFrame {
         prepareViewInicio();
         prepareViewMenu();
         prepareViewPerfil();
+        prepareViewSeleccionPerfil();
+        prepareViewConfiguracionPartido();
         mostrarInicio();
     }
 
@@ -64,10 +72,22 @@ public class DOPOSoccerGUI extends JFrame {
         mainPanel.add(perfilView, CARTA_PERFIL);
     }
 
+    private void prepareViewSeleccionPerfil() {
+        seleccionPerfilView = new SeleccionPerfilView();
+        mainPanel.add(seleccionPerfilView, CARTA_SELECCION_PERFIL);
+    }
+
+    private void prepareViewConfiguracionPartido() {
+        configuracionPartidoView = new ConfiguracionPartidoView();
+        mainPanel.add(configuracionPartidoView, CARTA_CONFIGURACION);
+    }
+
     private void prepareController() {
         new InicioController(this, inicioView);
         new MenuController(this, menuView);
+        seleccionPerfilController = new SeleccionPerfilController(this, seleccionPerfilView, perfiles);
         perfilController = new PerfilController(this, perfilView, perfiles);
+        new ConfiguracionPartidoController(this, configuracionPartidoView);
     }
 
     public void mostrarInicio() {
@@ -80,10 +100,43 @@ public class DOPOSoccerGUI extends JFrame {
         menuView.getBotonPrincipal().requestFocusInWindow();
     }
 
+    public void iniciarSeleccionPerfil() {
+        seleccionPerfilController.reiniciar();
+        cardLayout.show(mainPanel, CARTA_SELECCION_PERFIL);
+        seleccionPerfilView.repaint();
+    }
+
+    public void mostrarSeleccionPerfil() {
+        seleccionPerfilController.refrescar();
+        cardLayout.show(mainPanel, CARTA_SELECCION_PERFIL);
+        seleccionPerfilView.repaint();
+    }
+
     public void mostrarPerfil() {
+        mostrarPerfil(false);
+    }
+
+    public void mostrarPerfilDesdeSeleccion() {
+        mostrarPerfil(true);
+    }
+
+    private void mostrarPerfil(boolean volverASeleccion) {
+        perfilVuelveASeleccion = volverASeleccion;
         perfilController.refrescar();
         cardLayout.show(mainPanel, CARTA_PERFIL);
         perfilView.repaint();
+    }
+
+    public void volverDePerfil() {
+        if (perfilVuelveASeleccion) {
+            mostrarSeleccionPerfil();
+        } else {
+            mostrarMenu();
+        }
+    }
+
+    public void mostrarConfiguracionPartido() {
+        cardLayout.show(mainPanel, CARTA_CONFIGURACION);
     }
 
     public void mostrarProximamente(String pantalla) {

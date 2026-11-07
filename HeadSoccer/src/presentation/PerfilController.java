@@ -34,7 +34,7 @@ public class PerfilController {
         view.getBotonAtras().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gui.mostrarMenu();
+                gui.volverDePerfil();
             }
         });
         view.getBotonCrear().addActionListener(new ActionListener() {
