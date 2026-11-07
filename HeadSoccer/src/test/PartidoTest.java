@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import domain.Balon;
 import domain.ConfiguracionJugador;
+import domain.ConfiguracionPartido;
 import domain.EstadoPartido;
 import domain.Estadisticas;
 import domain.Jugador;
@@ -22,7 +23,7 @@ import domain.TipoPartido;
 /**
  * Clase de pruebas PartidoTest.
  * Pruebas del partido: estado inicial, jugadores, balón, goles,
- * reinicio, pausa, tiempo y resultado final.
+ * reinicio, pausa, tiempo, reglas y resultado final.
  *
  * @author Juan David Rojas Heredia
  * @version 06-11-2026
@@ -38,15 +39,7 @@ public class PartidoTest
     @BeforeEach
     public void setUp()
     {
-        partido = new Partido(
-                Modalidad.PvsP,
-                TipoPartido.TIEMPO,
-                crearPersonaje(),
-                crearPersonaje(),
-                new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
-                new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5)),
-                Resolucion.R1280x720
-        );
+        partido = crearPartido(TipoPartido.TIEMPO, 1, 3);
     }
 
     /** El partido inicia 0–0. */
@@ -189,21 +182,62 @@ public class PartidoTest
     {
         partido.actualizar(1);
 
-        assertTrue(partido.getTiempoRestante() < ParametrosJuego.TIEMPO_PARTIDO);
+        assertTrue(partido.getTiempoRestante() < 60.0);
         assertEquals(EstadoPartido.EN_CURSO, partido.getEstado());
     }
 
-    /** Cuando el tiempo llega a cero, el partido termina. */
+    /** Sin empate, el partido termina al agotarse el tiempo. */
     @Test
     public void shouldFinishWhenTimeRunsOut()
     {
-        partido.actualizar(61);
+        partido.sumarGol(1);
+        partido.actualizar(60);
 
         assertEquals(EstadoPartido.TERMINADO, partido.getEstado());
         assertNotNull(partido.getResultado());
         assertEquals(MotivoFin.TIEMPO, partido.getResultado().getMotivoFin());
-        assertEquals(ParametrosJuego.TIEMPO_PARTIDO,
-                partido.getResultado().getTiempoTotal());
+        assertEquals(60.0, partido.getResultado().getTiempoTotal(), 0.0001);
+    }
+
+    /** Con empate al agotarse el tiempo, se entra en muerte súbita. */
+    @Test
+    public void shouldEnterSuddenDeathWhenTied()
+    {
+        partido.actualizar(60);
+
+        assertEquals(EstadoPartido.EN_CURSO, partido.getEstado());
+        assertEquals(0.0, partido.getTiempoRestante(), 0.0001);
+        assertTrue(partido.getMarcador().hayEmpate());
+    }
+
+    /** Un gol en muerte súbita termina el partido por gol de oro. */
+    @Test
+    public void shouldFinishByGoldenGoal()
+    {
+        partido.actualizar(60);
+        partido.sumarGol(1);
+        partido.actualizar(0.016);
+
+        assertEquals(EstadoPartido.TERMINADO, partido.getEstado());
+        assertEquals(MotivoFin.GOL_DE_ORO, partido.getResultado().getMotivoFin());
+    }
+
+    /** En un partido por goles, termina al alcanzar el objetivo. */
+    @Test
+    public void shouldFinishByGoals()
+    {
+        Partido porGoles = crearPartido(TipoPartido.GOLES, 1, 3);
+
+        porGoles.sumarGol(1);
+        porGoles.sumarGol(1);
+        porGoles.actualizar(0.016);
+        assertEquals(EstadoPartido.EN_CURSO, porGoles.getEstado());
+
+        porGoles.sumarGol(1);
+        porGoles.actualizar(0.016);
+
+        assertEquals(EstadoPartido.TERMINADO, porGoles.getEstado());
+        assertEquals(MotivoFin.GOLES, porGoles.getResultado().getMotivoFin());
     }
 
     /** El jugador 1 se mueve cuando el partido está en curso. */
@@ -243,6 +277,23 @@ public class PartidoTest
         } catch (IllegalArgumentException e) {
             assertEquals("El número de jugador debe ser 1 o 2", e.getMessage());
         }
+    }
+
+    /**
+     * Crea un partido de prueba.
+     */
+    private Partido crearPartido(TipoPartido tipo, int tiempoMinutos, int goles)
+    {
+        ConfiguracionPartido configuracion = new ConfiguracionPartido(
+                Modalidad.PvsP, tipo, Resolucion.R1280x720, tiempoMinutos, goles);
+
+        return new Partido(
+                configuracion,
+                crearPersonaje(),
+                crearPersonaje(),
+                new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
+                new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5))
+        );
     }
 
     /**
