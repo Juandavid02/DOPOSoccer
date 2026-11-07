@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import domain.Balon;
 import domain.Cancha;
 import domain.ParametrosJuego;
+import domain.Resolucion;
 
 /**
  * Clase de pruebas BalonTest.
@@ -35,7 +36,7 @@ public class BalonTest
     @BeforeEach
     public void setUp()
     {
-        cancha = new Cancha();
+        cancha = new Cancha(Resolucion.R1280x720);
         balon = new Balon(640, 300, ParametrosJuego.RADIO_BALON);
     }
 

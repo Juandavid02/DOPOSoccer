@@ -12,8 +12,9 @@ public class Partido {
     private EstadoPartido estado;
     private double tiempoRestante;
     private ResultadoPartido resultado;
+    private final Resolucion resolucion;
 
-    public Partido(Modalidad modalidad, TipoPartido tipo, Personaje p1, Personaje p2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2) {
+    public Partido(Modalidad modalidad, TipoPartido tipo, Personaje p1, Personaje p2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2, Resolucion resolucion) {
         if (modalidad == null) {
             throw new IllegalArgumentException("La modalidad no puede ser nula");
         }
@@ -35,20 +36,21 @@ public class Partido {
 
         this.modalidad = modalidad;
         this.tipo = tipo;
-        this.cancha = new Cancha();
+        this.resolucion = resolucion;
+        this.cancha = new Cancha(resolucion);
         this.jugadores = List.of(
                 new Jugador(configuracion1, p1,
                         new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER, ParametrosJuego.RECARGA_BARRA_PODER),
                         Lado.IZQUIERDO,
-                        ParametrosJuego.ANCHO_CANCHA / 4.0,
-                        ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR),
+                        cancha.getAncho() / 4.0,
+                        cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR),
                 new Jugador(configuracion2, p2,
                         new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER, ParametrosJuego.RECARGA_BARRA_PODER),
                         Lado.DERECHO,
-                        ParametrosJuego.ANCHO_CANCHA * 3.0 / 4.0,
-                        ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR)
+                        cancha.getAncho() * 3.0 / 4.0,
+                        cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR)
         );
-        this.balon = new Balon(ParametrosJuego.ANCHO_CANCHA / 2.0, ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_BALON, ParametrosJuego.RADIO_BALON);
+        this.balon = new Balon(cancha.getAncho() / 2.0, cancha.getSuelo() - ParametrosJuego.RADIO_BALON, ParametrosJuego.RADIO_BALON);
         this.marcador = new Marcador();
         this.estado = EstadoPartido.LISTO;
         this.tiempoRestante = ParametrosJuego.TIEMPO_PARTIDO;
@@ -90,7 +92,7 @@ public class Partido {
         if (!puedeJugar()) {
             return;
         }
-        jugador(jugador).mover(dx);
+        jugador(jugador).mover(dx, cancha);
     }
 
     public void saltar(int jugador) {
@@ -112,9 +114,9 @@ public class Partido {
     }
 
     public void reiniciarDespuesDeGol() {
-        balon.reiniciar(ParametrosJuego.ANCHO_CANCHA / 2.0, ParametrosJuego.ALTO_CANCHA / 2.0);
-        jugador(1).reiniciar(ParametrosJuego.ANCHO_CANCHA / 4.0, ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR);
-        jugador(2).reiniciar(ParametrosJuego.ANCHO_CANCHA * 3.0 / 4.0, ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR);
+        balon.reiniciar(cancha.getAncho() / 2.0, cancha.getAlto() / 2.0);
+        jugador(1).reiniciar(cancha.getAncho() / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
+        jugador(2).reiniciar(cancha.getAncho() * 3.0 / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
     }
 
     public void pausar() {

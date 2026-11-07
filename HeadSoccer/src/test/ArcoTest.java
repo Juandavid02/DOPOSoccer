@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import domain.Arco;
 import domain.Balon;
 import domain.ParametrosJuego;
+import domain.Resolucion;
 
 /**
  * Clase de pruebas ArcoTest.
@@ -35,7 +36,7 @@ public class ArcoTest
     public void setUp()
     {
         arco = new Arco(-ParametrosJuego.ANCHO_ARCO,
-                ParametrosJuego.SUELO_Y - ParametrosJuego.ALTO_ARCO);
+                Resolucion.R1280x720.getSuelo() - ParametrosJuego.ALTO_ARCO);
     }
 
     /** El arco informa la posición y el tamaño con los que fue creado. */
@@ -43,7 +44,7 @@ public class ArcoTest
     public void shouldReturnRequestedPositionAndSize()
     {
         assertEquals(-ParametrosJuego.ANCHO_ARCO, arco.getX(), 0.0001);
-        assertEquals(ParametrosJuego.SUELO_Y - ParametrosJuego.ALTO_ARCO,
+        assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.ALTO_ARCO,
                 arco.getY(), 0.0001);
         assertEquals(ParametrosJuego.ANCHO_ARCO, arco.getAncho(), 0.0001);
         assertEquals(ParametrosJuego.ALTO_ARCO, arco.getAlto(), 0.0001);

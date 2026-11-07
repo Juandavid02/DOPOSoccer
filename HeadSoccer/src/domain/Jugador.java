@@ -15,6 +15,8 @@ public class Jugador {
     private double velocidadY;
     private boolean enSuelo;
 
+    private final Vida vida;
+
     /**
      * Crea un jugador a partir de su configuración (nombre, estadísticas y
      * puntos) y del personaje elegido. Las estadísticas son del jugador, no
@@ -37,6 +39,7 @@ public class Jugador {
         this.nombre = configuracion.getNombre();
         this.personaje = personaje;
         this.estadisticas = configuracion.getEstadisticas();
+        this.vida = new Vida(this.estadisticas.getVidaMax());
         this.puntos = configuracion.getPuntos();
         this.barraPoder = barraPoder;
         this.lado = lado;
@@ -45,6 +48,7 @@ public class Jugador {
         this.velocidadX = 0;
         this.velocidadY = 0;
         this.enSuelo = true;
+        
     }
 
     public String getNombre() {
@@ -69,6 +73,10 @@ public class Jugador {
 
     public Lado getLado() {
         return lado;
+    }
+
+    public Vida getVida() {
+        return vida;
     }
 
     public double getPosicionX() {
@@ -133,12 +141,13 @@ public class Jugador {
         }
     }
 
-    public void mover(double dx) {
+    public void mover(double dx, Cancha cancha) {
         posicionX += dx;
+        double ancho = cancha.getAncho();
         if (posicionX < ParametrosJuego.RADIO_JUGADOR) {
             posicionX = ParametrosJuego.RADIO_JUGADOR;
-        } else if (posicionX > ParametrosJuego.ANCHO_CANCHA - ParametrosJuego.RADIO_JUGADOR) {
-            posicionX = ParametrosJuego.ANCHO_CANCHA - ParametrosJuego.RADIO_JUGADOR;
+        } else if (posicionX > ancho - ParametrosJuego.RADIO_JUGADOR) {
+            posicionX = ancho - ParametrosJuego.RADIO_JUGADOR;
         }
     }
 

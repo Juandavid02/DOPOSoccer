@@ -3,8 +3,9 @@ package domain;
 /**
  * Constantes ajustables de DOPOSoccer.
  *
- * Todos los números del juego (física, vida, daño, poderes, puntos y mejoras)
- * viven aquí para no quedar hardcodeados en la lógica.
+ * Todos los números del juego (física, vida, daño, barra de poder y puntos)
+ * viven aquí para no quedar hardcodeados en la lógica. Las dimensiones de la
+ * cancha ya no están aquí: las define {@link Resolucion}.
  */
 public class ParametrosJuego {
 
@@ -17,11 +18,6 @@ public class ParametrosJuego {
     // Balón
     public static final int RADIO_BALON = 12;
 
-    // Cancha
-    public static final int ANCHO_CANCHA = 1280;
-    public static final int ALTO_CANCHA = 720;
-    public static final int SUELO_Y = 700;
-
     // Arcos
     public static final int ANCHO_ARCO = 120;
     public static final int ALTO_ARCO = 220;
@@ -31,7 +27,6 @@ public class ParametrosJuego {
     public static final double IMPULSO_SALTO_BASE = 300;
     public static final double IMPULSO_SALTO_POR_NIVEL = 80;
     public static final double POTENCIA_PATADA_BASE = 300;
-    public static final double POTENCIA_PATADA_POR_NIVEL = 100;
 
     // Estadísticas (rango y crecimiento)
     public static final int MIN_ESTADISTICA = 1;
@@ -60,7 +55,6 @@ public class ParametrosJuego {
 
     // Juego
     public static final int TIEMPO_PARTIDO = 60;
-    public static final int TIEMPO_DESCANSO = 15;
 
     private ParametrosJuego() {
     }

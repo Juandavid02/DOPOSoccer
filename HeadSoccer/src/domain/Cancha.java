@@ -1,20 +1,36 @@
 package domain;
 
+/**
+ * Geometría de la cancha: dimensiones, suelo y arcos.
+ *
+ * La cancha se construye a partir de una. Los arcos se
+ * ubican justo fuera de las líneas de gol, apoyados sobre el suelo.</p>
+ */
 public class Cancha {
+    private final Resolucion resolucion;
     private final double ancho;
     private final double alto;
     private final double suelo;
     private final Arco arcoIzquierdo;
     private final Arco arcoDerecho;
 
-    public Cancha() {
-        this.ancho = ParametrosJuego.ANCHO_CANCHA;
-        this.alto = ParametrosJuego.ALTO_CANCHA;
-        this.suelo = ParametrosJuego.SUELO_Y;
-        
-        double yArco = ParametrosJuego.SUELO_Y - ParametrosJuego.ALTO_ARCO;
+    public Cancha(Resolucion resolucion) {
+        if (resolucion == null) {
+            throw new IllegalArgumentException("La resolución no puede ser nula");
+        }
+
+        this.resolucion = resolucion;
+        this.ancho = resolucion.getAncho();
+        this.alto = resolucion.getAlto();
+        this.suelo = resolucion.getSuelo();
+
+        double yArco = suelo - ParametrosJuego.ALTO_ARCO;
         this.arcoIzquierdo = new Arco(-ParametrosJuego.ANCHO_ARCO, yArco);
-        this.arcoDerecho = new Arco(ParametrosJuego.ANCHO_CANCHA, yArco);
+        this.arcoDerecho = new Arco(ancho, yArco);
+    }
+
+    public Resolucion getResolucion() {
+        return resolucion;
     }
 
     public double getAncho() {
@@ -44,5 +60,4 @@ public class Cancha {
     public boolean estaEnBocaArcoDerecho(double yBalon, double radio) {
         return arcoDerecho.estaEnBoca(yBalon, radio);
     }
-
 }

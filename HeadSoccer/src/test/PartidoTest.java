@@ -16,6 +16,7 @@ import domain.ParametrosJuego;
 import domain.Partido;
 import domain.Personaje;
 import domain.PoderAuraAzul;
+import domain.Resolucion;
 import domain.TipoPartido;
 
 /**
@@ -43,7 +44,8 @@ public class PartidoTest
                 crearPersonaje(),
                 crearPersonaje(),
                 new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
-                new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5))
+                new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5)),
+                Resolucion.R1280x720
         );
     }
 
@@ -71,9 +73,9 @@ public class PartidoTest
         Jugador jugador1 = partido.getJugadores().get(0);
         Jugador jugador2 = partido.getJugadores().get(1);
 
-        assertEquals(ParametrosJuego.ANCHO_CANCHA / 4.0, jugador1.getPosicionX(), 0.0001);
-        assertEquals(ParametrosJuego.ANCHO_CANCHA * 3.0 / 4.0, jugador2.getPosicionX(), 0.0001);
-        assertEquals(ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR,
+        assertEquals(Resolucion.R1280x720.getAncho() / 4.0, jugador1.getPosicionX(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getAncho() * 3.0 / 4.0, jugador2.getPosicionX(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.RADIO_JUGADOR,
                 jugador1.getPosicionY(), 0.0001);
         assertEquals(Lado.IZQUIERDO, jugador1.getLado());
         assertEquals(Lado.DERECHO, jugador2.getLado());
@@ -85,8 +87,8 @@ public class PartidoTest
     {
         Balon balon = partido.getBalon();
 
-        assertEquals(ParametrosJuego.ANCHO_CANCHA / 2.0, balon.getX(), 0.0001);
-        assertEquals(ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_BALON,
+        assertEquals(Resolucion.R1280x720.getAncho() / 2.0, balon.getX(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.RADIO_BALON,
                 balon.getY(), 0.0001);
     }
 
@@ -127,16 +129,16 @@ public class PartidoTest
         partido.getBalon().reiniciar(1300, 590);
         partido.actualizar(0.016);
 
-        assertEquals(ParametrosJuego.ANCHO_CANCHA / 2.0,
+        assertEquals(Resolucion.R1280x720.getAncho() / 2.0,
                 partido.getBalon().getX(), 0.0001);
-        assertEquals(ParametrosJuego.ALTO_CANCHA / 2.0,
+        assertEquals(Resolucion.R1280x720.getAlto() / 2.0,
                 partido.getBalon().getY(), 0.0001);
         assertEquals(0, partido.getBalon().getVelocidadX(), 0.0001);
         assertEquals(0, partido.getBalon().getVelocidadY(), 0.0001);
 
-        assertEquals(ParametrosJuego.ANCHO_CANCHA / 4.0,
+        assertEquals(Resolucion.R1280x720.getAncho() / 4.0,
                 partido.getJugadores().get(0).getPosicionX(), 0.0001);
-        assertEquals(ParametrosJuego.ANCHO_CANCHA * 3.0 / 4.0,
+        assertEquals(Resolucion.R1280x720.getAncho() * 3.0 / 4.0,
                 partido.getJugadores().get(1).getPosicionX(), 0.0001);
     }
 

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import domain.Cancha;
 import domain.ParametrosJuego;
+import domain.Resolucion;
 
 /**
  * Clase de pruebas CanchaTest.
@@ -33,16 +34,16 @@ public class CanchaTest
     @BeforeEach
     public void setUp()
     {
-        cancha = new Cancha();
+        cancha = new Cancha(Resolucion.R1280x720);
     }
 
     /** La cancha informa el ancho, alto y suelo con los que fue creada. */
     @Test
     public void shouldReturnRequestedDimensions()
     {
-        assertEquals(ParametrosJuego.ANCHO_CANCHA, cancha.getAncho(), 0.0001);
-        assertEquals(ParametrosJuego.ALTO_CANCHA, cancha.getAlto(), 0.0001);
-        assertEquals(ParametrosJuego.SUELO_Y, cancha.getSuelo(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getAncho(), cancha.getAncho(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getAlto(), cancha.getAlto(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getSuelo(), cancha.getSuelo(), 0.0001);
     }
 
     /** El arco izquierdo queda fuera de la cancha, pegado a la línea de gol. */
@@ -50,7 +51,7 @@ public class CanchaTest
     public void shouldPlaceLeftGoalOutsideField()
     {
         assertEquals(-ParametrosJuego.ANCHO_ARCO, cancha.getArcoIzquierdo().getX(), 0.0001);
-        assertEquals(ParametrosJuego.SUELO_Y - ParametrosJuego.ALTO_ARCO,
+        assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.ALTO_ARCO,
                 cancha.getArcoIzquierdo().getY(), 0.0001);
     }
 
@@ -58,8 +59,8 @@ public class CanchaTest
     @Test
     public void shouldPlaceRightGoalOutsideField()
     {
-        assertEquals(ParametrosJuego.ANCHO_CANCHA, cancha.getArcoDerecho().getX(), 0.0001);
-        assertEquals(ParametrosJuego.SUELO_Y - ParametrosJuego.ALTO_ARCO,
+        assertEquals(Resolucion.R1280x720.getAncho(), cancha.getArcoDerecho().getX(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.ALTO_ARCO,
                 cancha.getArcoDerecho().getY(), 0.0001);
     }
 
@@ -89,6 +90,49 @@ public class CanchaTest
     public void shouldNotDetectRightGoalMouthAboveCrossbar()
     {
         assertFalse(cancha.estaEnBocaArcoDerecho(460, ParametrosJuego.RADIO_BALON));
+    }
+
+    /** La cancha conserva la resolución con la que fue creada. */
+    @Test
+    public void shouldKeepRequestedResolution()
+    {
+        assertEquals(Resolucion.R1280x720, cancha.getResolucion());
+    }
+
+    /** La cancha se adapta a la resolución 1600×900. */
+    @Test
+    public void shouldBuildFieldFor1600x900()
+    {
+        Cancha hd = new Cancha(Resolucion.R1600x900);
+
+        assertEquals(1600, hd.getAncho(), 0.0001);
+        assertEquals(900, hd.getAlto(), 0.0001);
+        assertEquals(880, hd.getSuelo(), 0.0001);
+        assertEquals(1600, hd.getArcoDerecho().getX(), 0.0001);
+        assertEquals(880 - ParametrosJuego.ALTO_ARCO,
+                hd.getArcoDerecho().getY(), 0.0001);
+    }
+
+    /** La cancha se adapta a la resolución 1920×1080. */
+    @Test
+    public void shouldBuildFieldFor1920x1080()
+    {
+        Cancha fullHd = new Cancha(Resolucion.R1920x1080);
+
+        assertEquals(1920, fullHd.getAncho(), 0.0001);
+        assertEquals(1080, fullHd.getAlto(), 0.0001);
+        assertEquals(1060, fullHd.getSuelo(), 0.0001);
+        assertEquals(-ParametrosJuego.ANCHO_ARCO,
+                fullHd.getArcoIzquierdo().getX(), 0.0001);
+        assertEquals(1060 - ParametrosJuego.ALTO_ARCO,
+                fullHd.getArcoIzquierdo().getY(), 0.0001);
+    }
+
+    /** No se puede crear una cancha sin resolución. */
+    @Test
+    public void shouldNotCreateFieldWithNullResolution()
+    {
+        assertThrows(IllegalArgumentException.class, () -> new Cancha(null));
     }
 
     /**
