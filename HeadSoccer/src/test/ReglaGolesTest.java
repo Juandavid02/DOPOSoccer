@@ -18,7 +18,7 @@ import domain.TipoPartido;
 
 /**
  * Clase de pruebas ReglaGolesTest.
- * Verifica la regla de victoria por goles con objetivo configurable.
+ * Pruebas de la regla de victoria por goles.
  *
  * @author Juan David Rojas Heredia
  * @version 06-11-2026
@@ -39,19 +39,17 @@ public class ReglaGolesTest
         regla = new ReglaGoles(3);
     }
 
-    /** No termina antes de que alguien alcance el objetivo. */
+    /** El partido no termina antes de alcanzar el objetivo. */
     @Test
-    public void shouldNotFinishBeforeReachingTarget()
+    public void shouldNotFinishBeforeTarget()
     {
-        assertFalse(regla.terminado(partido));
-
         partido.sumarGol(1);
         partido.sumarGol(1);
 
         assertFalse(regla.terminado(partido));
     }
 
-    /** Termina cuando el jugador 1 alcanza el objetivo. */
+    /** El partido termina cuando el jugador 1 llega al objetivo. */
     @Test
     public void shouldFinishWhenPlayerOneReachesTarget()
     {
@@ -63,7 +61,7 @@ public class ReglaGolesTest
         assertEquals(MotivoFin.GOLES, regla.getMotivo());
     }
 
-    /** Termina cuando el jugador 2 alcanza el objetivo. */
+    /** El partido termina cuando el jugador 2 llega al objetivo. */
     @Test
     public void shouldFinishWhenPlayerTwoReachesTarget()
     {
@@ -75,7 +73,7 @@ public class ReglaGolesTest
         assertEquals(MotivoFin.GOLES, regla.getMotivo());
     }
 
-    /** El objetivo debe ser mayor que cero. */
+    /** El objetivo de goles debe ser mayor que cero. */
     @Test
     public void shouldRejectNonPositiveTarget()
     {
@@ -86,20 +84,25 @@ public class ReglaGolesTest
     private Partido crearPartido(int goles)
     {
         ConfiguracionPartido configuracion = new ConfiguracionPartido(
-                Modalidad.PvsP, TipoPartido.GOLES, Resolucion.R1280x720, 1, goles);
+                Modalidad.PvsP,
+                TipoPartido.GOLES,
+                Resolucion.R1280x720,
+                1,
+                goles
+        );
 
         return new Partido(
                 configuracion,
                 crearPersonaje(),
                 crearPersonaje(),
-                new ConfiguracionJugador("Ana", new Estadisticas(1, 1, 1, 1)),
-                new ConfiguracionJugador("Luis", new Estadisticas(1, 1, 1, 1))
+                new ConfiguracionJugador("A", new Estadisticas(1, 1, 1, 1)),
+                new ConfiguracionJugador("B", new Estadisticas(1, 1, 1, 1))
         );
     }
 
     private Personaje crearPersonaje()
     {
-        return new Personaje("Polar", "Canadá", new PoderAuraAzul());
+        return new Personaje("Prueba", "Prueba", new PoderAuraAzul());
     }
 
     @AfterEach

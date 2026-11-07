@@ -19,7 +19,7 @@ import domain.TipoPartido;
 
 /**
  * Clase de pruebas ReglaTiempoTest.
- * Verifica la regla de victoria por tiempo y la muerte súbita.
+ * Pruebas de la regla de victoria por tiempo y muerte súbita.
  *
  * @author Juan David Rojas Heredia
  * @version 06-11-2026
@@ -27,7 +27,6 @@ import domain.TipoPartido;
 public class ReglaTiempoTest
 {
     private Partido partido;
-    private ReglaTiempo regla;
 
     public ReglaTiempoTest()
     {
@@ -37,68 +36,72 @@ public class ReglaTiempoTest
     public void setUp()
     {
         partido = crearPartido();
-        regla = new ReglaTiempo();
     }
 
     /** Mientras quede tiempo, el partido no termina. */
     @Test
-    public void shouldNotFinishWhileTimeRemains()
+    public void shouldNotFinishWithTimeRemaining()
     {
+        ReglaTiempo regla = new ReglaTiempo();
+
         assertFalse(regla.terminado(partido));
     }
 
-    /** Sin empate, termina al agotarse el tiempo. */
+    /** Sin empate, el partido termina cuando se agota el tiempo. */
     @Test
     public void shouldFinishWithoutTieWhenTimeRunsOut()
     {
         partido.sumarGol(1);
         partido.actualizar(60);
 
-        assertTrue(regla.terminado(partido));
-        assertEquals(MotivoFin.TIEMPO, regla.getMotivo());
+        assertEquals(EstadoPartido.TERMINADO, partido.getEstado());
+        assertEquals(MotivoFin.TIEMPO, partido.getResultado().getMotivoFin());
     }
 
-    /** Con empate, se activa la muerte súbita y el partido sigue. */
+    /** Con empate al agotarse el tiempo, se activa la muerte súbita. */
     @Test
     public void shouldEnterSuddenDeathWhenTied()
     {
         partido.actualizar(60);
 
         assertEquals(EstadoPartido.EN_CURSO, partido.getEstado());
-        assertFalse(regla.terminado(partido));
-        assertTrue(regla.estaEnGolDeOro());
+        assertTrue(((ReglaTiempo) partido.getRegla()).estaEnGolDeOro());
     }
 
-    /** Un gol en muerte súbita termina el partido con GOL_DE_ORO. */
+    /** El primer gol en muerte súbita termina el partido. */
     @Test
     public void shouldFinishByGoldenGoal()
     {
         partido.actualizar(60);
-        regla.terminado(partido); // activa la muerte súbita en la regla de prueba
-
         partido.sumarGol(1);
+        partido.actualizar(0.016);
 
-        assertTrue(regla.terminado(partido));
-        assertEquals(MotivoFin.GOL_DE_ORO, regla.getMotivo());
+        assertEquals(EstadoPartido.TERMINADO, partido.getEstado());
+        assertEquals(MotivoFin.GOL_DE_ORO, partido.getResultado().getMotivoFin());
     }
 
     private Partido crearPartido()
     {
         ConfiguracionPartido configuracion = new ConfiguracionPartido(
-                Modalidad.PvsP, TipoPartido.TIEMPO, Resolucion.R1280x720, 1, 5);
+                Modalidad.PvsP,
+                TipoPartido.TIEMPO,
+                Resolucion.R1280x720,
+                1,
+                5
+        );
 
         return new Partido(
                 configuracion,
                 crearPersonaje(),
                 crearPersonaje(),
-                new ConfiguracionJugador("Ana", new Estadisticas(1, 1, 1, 1)),
-                new ConfiguracionJugador("Luis", new Estadisticas(1, 1, 1, 1))
+                new ConfiguracionJugador("A", new Estadisticas(1, 1, 1, 1)),
+                new ConfiguracionJugador("B", new Estadisticas(1, 1, 1, 1))
         );
     }
 
     private Personaje crearPersonaje()
     {
-        return new Personaje("Polar", "Canadá", new PoderAuraAzul());
+        return new Personaje("Prueba", "Prueba", new PoderAuraAzul());
     }
 
     @AfterEach

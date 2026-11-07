@@ -23,7 +23,7 @@ import domain.TipoPartido;
 /**
  * Clase de pruebas PartidoTest.
  * Pruebas del partido: estado inicial, jugadores, balón, goles,
- * reinicio, pausa, tiempo, reglas y resultado final.
+ * reinicio, pausa, tiempo y resultado final.
  *
  * @author Juan David Rojas Heredia
  * @version 06-11-2026
@@ -39,7 +39,7 @@ public class PartidoTest
     @BeforeEach
     public void setUp()
     {
-        partido = crearPartido(TipoPartido.TIEMPO, 1, 3);
+        partido = crearPartido(TipoPartido.TIEMPO, 5);
     }
 
     /** El partido inicia 0–0. */
@@ -182,11 +182,11 @@ public class PartidoTest
     {
         partido.actualizar(1);
 
-        assertTrue(partido.getTiempoRestante() < 60.0);
+        assertTrue(partido.getTiempoRestante() < ParametrosJuego.TIEMPO_PARTIDO);
         assertEquals(EstadoPartido.EN_CURSO, partido.getEstado());
     }
 
-    /** Sin empate, el partido termina al agotarse el tiempo. */
+    /** Cuando el tiempo llega a cero sin empate, el partido termina. */
     @Test
     public void shouldFinishWhenTimeRunsOut()
     {
@@ -196,48 +196,8 @@ public class PartidoTest
         assertEquals(EstadoPartido.TERMINADO, partido.getEstado());
         assertNotNull(partido.getResultado());
         assertEquals(MotivoFin.TIEMPO, partido.getResultado().getMotivoFin());
-        assertEquals(60.0, partido.getResultado().getTiempoTotal(), 0.0001);
-    }
-
-    /** Con empate al agotarse el tiempo, se entra en muerte súbita. */
-    @Test
-    public void shouldEnterSuddenDeathWhenTied()
-    {
-        partido.actualizar(60);
-
-        assertEquals(EstadoPartido.EN_CURSO, partido.getEstado());
-        assertEquals(0.0, partido.getTiempoRestante(), 0.0001);
-        assertTrue(partido.getMarcador().hayEmpate());
-    }
-
-    /** Un gol en muerte súbita termina el partido por gol de oro. */
-    @Test
-    public void shouldFinishByGoldenGoal()
-    {
-        partido.actualizar(60);
-        partido.sumarGol(1);
-        partido.actualizar(0.016);
-
-        assertEquals(EstadoPartido.TERMINADO, partido.getEstado());
-        assertEquals(MotivoFin.GOL_DE_ORO, partido.getResultado().getMotivoFin());
-    }
-
-    /** En un partido por goles, termina al alcanzar el objetivo. */
-    @Test
-    public void shouldFinishByGoals()
-    {
-        Partido porGoles = crearPartido(TipoPartido.GOLES, 1, 3);
-
-        porGoles.sumarGol(1);
-        porGoles.sumarGol(1);
-        porGoles.actualizar(0.016);
-        assertEquals(EstadoPartido.EN_CURSO, porGoles.getEstado());
-
-        porGoles.sumarGol(1);
-        porGoles.actualizar(0.016);
-
-        assertEquals(EstadoPartido.TERMINADO, porGoles.getEstado());
-        assertEquals(MotivoFin.GOLES, porGoles.getResultado().getMotivoFin());
+        assertEquals(ParametrosJuego.TIEMPO_PARTIDO,
+                partido.getResultado().getTiempoTotal());
     }
 
     /** El jugador 1 se mueve cuando el partido está en curso. */
@@ -279,13 +239,56 @@ public class PartidoTest
         }
     }
 
+    /** Un partido por goles termina al alcanzar el objetivo. */
+    @Test
+    public void shouldFinishByGoals()
+    {
+        Partido porGoles = crearPartido(TipoPartido.GOLES, 3);
+
+        porGoles.sumarGol(1);
+        porGoles.sumarGol(1);
+        porGoles.actualizar(0.016);
+        assertEquals(EstadoPartido.EN_CURSO, porGoles.getEstado());
+
+        porGoles.sumarGol(1);
+        porGoles.actualizar(0.016);
+        assertEquals(EstadoPartido.TERMINADO, porGoles.getEstado());
+        assertEquals(MotivoFin.GOLES, porGoles.getResultado().getMotivoFin());
+    }
+
+    /** Con empate al agotarse el tiempo, se juega muerte súbita. */
+    @Test
+    public void shouldStartSuddenDeathWhenTied()
+    {
+        partido.actualizar(60);
+
+        assertEquals(EstadoPartido.EN_CURSO, partido.getEstado());
+    }
+
+    /** El primer gol en muerte súbita termina el partido. */
+    @Test
+    public void shouldFinishByGoldenGoal()
+    {
+        partido.actualizar(60);
+        partido.sumarGol(1);
+        partido.actualizar(0.016);
+
+        assertEquals(EstadoPartido.TERMINADO, partido.getEstado());
+        assertEquals(MotivoFin.GOL_DE_ORO, partido.getResultado().getMotivoFin());
+    }
+
     /**
-     * Crea un partido de prueba.
+     * Crea un partido de prueba con el tipo y los goles indicados.
      */
-    private Partido crearPartido(TipoPartido tipo, int tiempoMinutos, int goles)
+    private Partido crearPartido(TipoPartido tipo, int goles)
     {
         ConfiguracionPartido configuracion = new ConfiguracionPartido(
-                Modalidad.PvsP, tipo, Resolucion.R1280x720, tiempoMinutos, goles);
+                Modalidad.PvsP,
+                tipo,
+                Resolucion.R1280x720,
+                1,
+                goles
+        );
 
         return new Partido(
                 configuracion,

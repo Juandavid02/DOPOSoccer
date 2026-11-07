@@ -1,12 +1,5 @@
 package domain;
 
-/**
- * Configuración de una partida de DOPOSoccer.
- *
- * <p>{@code tiempo} se expresa en minutos y solo aplica al tipo
- * {@link TipoPartido#TIEMPO}. {@code goles} es el número de goles para ganar y
- * solo aplica al tipo {@link TipoPartido#GOLES}.</p>
- */
 public class ConfiguracionPartido {
     private final Modalidad modalidad;
     private final TipoPartido tipo;

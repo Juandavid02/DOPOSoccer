@@ -2,13 +2,6 @@ package domain;
 
 import java.util.List;
 
-/**
- * Partida de DOPOSoccer.
- *
- * Es la única frontera entre el dominio y la presentación. Coordina a los
- * jugadores, el balón, el marcador y la regla de victoria del tipo de partido
- * elegido.</p>
- */
 public class Partido {
     private final Modalidad modalidad;
     private final TipoPartido tipo;
@@ -16,13 +9,13 @@ public class Partido {
     private final Balon balon;
     private final Cancha cancha;
     private final Marcador marcador;
-    private final Resolucion resolucion;
-    private final ReglaPartido regla;
-
     private EstadoPartido estado;
     private double tiempoRestante;
-    private double tiempoTranscurrido;
     private ResultadoPartido resultado;
+    private final Resolucion resolucion;
+    private final ReglaPartido regla;
+    private final double tiempoTotal;
+    private double tiempoTranscurrido;
 
     public Partido(ConfiguracionPartido configuracion, Personaje p1, Personaje p2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2) {
         if (configuracion == null) {
@@ -40,7 +33,6 @@ public class Partido {
         if (configuracion2 == null) {
             throw new IllegalArgumentException("La configuración del jugador 2 no puede ser nula");
         }
-
         this.modalidad = configuracion.getModalidad();
         this.tipo = configuracion.getTipo();
         this.resolucion = configuracion.getResolucion();
@@ -57,21 +49,15 @@ public class Partido {
                         cancha.getAncho() * 3.0 / 4.0,
                         cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR)
         );
-        this.balon = new Balon(cancha.getAncho() / 2.0,
-                cancha.getSuelo() - ParametrosJuego.RADIO_BALON,
-                ParametrosJuego.RADIO_BALON);
+        this.balon = new Balon(cancha.getAncho() / 2.0, cancha.getSuelo() - ParametrosJuego.RADIO_BALON, ParametrosJuego.RADIO_BALON);
         this.marcador = new Marcador();
         this.estado = EstadoPartido.LISTO;
-        this.tiempoRestante = configuracion.getTiempo() * 60.0;
-        this.tiempoTranscurrido = 0;
+        this.tiempoTotal = configuracion.getTiempo() * 60.0;
+        this.tiempoRestante = tiempoTotal;
         this.regla = ReglaFactory.crearRegla(configuracion);
+        this.tiempoTranscurrido = 0;
     }
 
-    /**
-     * Avanza el partido un paso de tiempo.
-     *
-     * @param dt segundos transcurridos desde el frame anterior
-     */
     public void actualizar(double dt) {
         if (dt <= 0) {
             return;
@@ -82,22 +68,18 @@ public class Partido {
         if (estado == EstadoPartido.LISTO) {
             estado = EstadoPartido.EN_CURSO;
         }
-
         tiempoTranscurrido += dt;
-
-        if (tipo == TipoPartido.TIEMPO) {
+        if (tipo == TipoPartido.TIEMPO && tiempoRestante > 0) {
             tiempoRestante -= dt;
             if (tiempoRestante < 0) {
                 tiempoRestante = 0;
             }
         }
-
         balon.actualizar(dt, cancha);
         for (Jugador jugador : jugadores) {
             jugador.actualizar(dt, cancha);
             jugador.getBarraPoder().actualizarBarra(dt);
         }
-
         if (cancha.getArcoIzquierdo().estaDentro(balon)) {
             marcador.sumarGol(2);
             reiniciarDespuesDeGol();
@@ -105,7 +87,6 @@ public class Partido {
             marcador.sumarGol(1);
             reiniciarDespuesDeGol();
         }
-
         if (regla.terminado(this)) {
             terminar(regla.getMotivo());
         }
@@ -138,10 +119,8 @@ public class Partido {
 
     public void reiniciarDespuesDeGol() {
         balon.reiniciar(cancha.getAncho() / 2.0, cancha.getAlto() / 2.0);
-        jugador(1).reiniciar(cancha.getAncho() / 4.0,
-                cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
-        jugador(2).reiniciar(cancha.getAncho() * 3.0 / 4.0,
-                cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
+        jugador(1).reiniciar(cancha.getAncho() / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
+        jugador(2).reiniciar(cancha.getAncho() * 3.0 / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
     }
 
     public void pausar() {
@@ -156,27 +135,16 @@ public class Partido {
         }
     }
 
-    /**
-     * Termina el partido con el motivo indicado y construye el resultado.
-     *
-     * @param motivo motivo del final del partido
-     */
+    public void terminar() {
+        terminar(MotivoFin.TIEMPO);
+    }
+
     public void terminar(MotivoFin motivo) {
         if (motivo == null) {
             throw new IllegalArgumentException("El motivo de finalización no puede ser nulo");
         }
-        if (estado == EstadoPartido.TERMINADO) {
-            return;
-        }
         estado = EstadoPartido.TERMINADO;
         resultado = new ResultadoPartido(marcador.getGoles(1), marcador.getGoles(2), motivo, tiempoTranscurrido);
-    }
-
-    /**
-     * Finaliza el partido manualmente (por ejemplo, desde el menú de pausa).
-     */
-    public void terminar() {
-        terminar(MotivoFin.TIEMPO);
     }
 
     private boolean puedeJugar() {
@@ -188,18 +156,6 @@ public class Partido {
             throw new IllegalArgumentException("El número de jugador debe ser 1 o 2");
         }
         return jugadores.get(numero - 1);
-    }
-
-    public Modalidad getModalidad() {
-        return modalidad;
-    }
-
-    public TipoPartido getTipo() {
-        return tipo;
-    }
-
-    public Resolucion getResolucion() {
-        return resolucion;
     }
 
     public Marcador getMarcador() {
@@ -222,8 +178,24 @@ public class Partido {
         return tiempoRestante;
     }
 
+    public double getTiempoTotal() {
+        return tiempoTotal;
+    }
+
     public double getTiempoTranscurrido() {
         return tiempoTranscurrido;
+    }
+
+    public ReglaPartido getRegla() {
+        return regla;
+    }
+
+    public Resolucion getResolucion() {
+        return resolucion;
+    }
+
+    public Cancha getCancha() {
+        return cancha;
     }
 
     public ResultadoPartido getResultado() {

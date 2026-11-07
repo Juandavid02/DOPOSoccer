@@ -2,7 +2,7 @@ package domain;
 
 /**
  * Regla de victoria por tiempo.
- * El partido dura el tiempo configurado. Si al terminar hay empate, se activa
+ * El partido dura 60 segundos. Si al terminar hay empate, se activa
  * el gol de oro: el primero que anote gana.
  */
 public class ReglaTiempo implements ReglaPartido {
