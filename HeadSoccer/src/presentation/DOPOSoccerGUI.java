@@ -46,6 +46,7 @@ public class DOPOSoccerGUI extends JFrame {
         setSize(screenSize.width, screenSize.height);
         prepareView();
         prepareController();
+        gestorSonido.iniciarMusicaFondo("resources/audio/CancionDeFondo.wav");
     }
 
     public static void main(String[] args) {
@@ -211,7 +212,7 @@ public class DOPOSoccerGUI extends JFrame {
     }
 
     public void detenerSonido() {
-        gestorSonido.detenerTodos();
+        gestorSonido.detenerEfectos();
     }
 
     public void setConfiguracionPartido(ConfiguracionPartido configuracionPartido) {

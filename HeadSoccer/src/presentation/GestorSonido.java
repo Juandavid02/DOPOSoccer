@@ -7,19 +7,22 @@ import javax.sound.sampled.LineEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
- * Estado global del sonido del juego. Por ahora solo maneja si está
- * silenciado; más adelante aquí se agregará la reproducción de música y
- * efectos con Java Sound.
+ * Estado global del sonido del juego: música de fondo y efectos.
+ *
+ * La música suena en bucle. Cuando se reproduce el audio de un personaje,
+ * la música se pausa y se reanuda al terminar.
  */
 public class GestorSonido {
 
     private boolean silenciado;
     private final List<Consumer<Boolean>> oyentes = new ArrayList<>();
-    private final List<Clip> clipsActivos = new CopyOnWriteArrayList<>();
+
+    private Clip musicaFondo;
+    private String rutaMusicaFondo;
+    private Clip efectoActual;
 
     public boolean isSilenciado() {
         return silenciado;
@@ -33,32 +36,14 @@ public class GestorSonido {
         silenciado = !silenciado;
 
         if (silenciado) {
-            detenerTodos();
+            detenerEfectoActual(false);
+            pausarMusicaFondo();
+        } else {
+            reanudarMusicaFondo();
         }
 
         for (Consumer<Boolean> oyente : oyentes) {
             oyente.accept(silenciado);
-        }
-    }
-
-    /**
-     * Detiene y cierra todos los audios que estén sonando.
-     */
-    public void detenerTodos() {
-        List<Clip> clips = new ArrayList<>(clipsActivos);
-        clipsActivos.clear();
-
-        for (Clip clip : clips) {
-            try {
-                clip.stop();
-            } catch (Exception e) {
-                // El clip pudo haberse cerrado antes.
-            }
-            try {
-                clip.close();
-            } catch (Exception e) {
-                // El clip pudo haberse cerrado antes.
-            }
         }
     }
 
@@ -73,8 +58,83 @@ public class GestorSonido {
     }
 
     /**
-     * Reproduce un efecto de sonido corto. Si el sonido está silenciado o el
-     * archivo no existe, no hace nada.
+     * Inicia la música de fondo en bucle.
+     *
+     * @param ruta la ruta del archivo de música
+     */
+    public void iniciarMusicaFondo(String ruta) {
+        rutaMusicaFondo = ruta;
+
+        if (silenciado) {
+            return;
+        }
+
+        if (musicaFondo != null) {
+            if (!musicaFondo.isRunning()) {
+                musicaFondo.start();
+            }
+            return;
+        }
+
+        File archivo = new File(ruta);
+        if (!archivo.isFile()) {
+            return;
+        }
+
+        try {
+            AudioInputStream audio = AudioSystem.getAudioInputStream(archivo);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audio);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+            if (!clip.isRunning()) {
+                clip.start();
+            }
+            musicaFondo = clip;
+        } catch (Exception e) {
+            System.err.println("No se pudo reproducir la música: " + ruta
+                    + " (" + e.getMessage() + ")");
+        }
+    }
+
+    /**
+     * Pausa la música de fondo sin perder la posición actual.
+     */
+    public void pausarMusicaFondo() {
+        if (musicaFondo != null && musicaFondo.isRunning()) {
+            musicaFondo.stop();
+        }
+    }
+
+    /**
+     * Reanuda la música de fondo desde donde se quedó.
+     */
+    public void reanudarMusicaFondo() {
+        if (silenciado) {
+            return;
+        }
+
+        if (musicaFondo == null) {
+            if (rutaMusicaFondo != null) {
+                iniciarMusicaFondo(rutaMusicaFondo);
+            }
+            return;
+        }
+
+        if (!musicaFondo.isRunning()) {
+            musicaFondo.start();
+        }
+    }
+
+    /**
+     * Detiene el efecto actual y reanuda la música de fondo.
+     */
+    public void detenerEfectos() {
+        detenerEfectoActual(true);
+    }
+
+    /**
+     * Reproduce el audio de un personaje. Pausa la música de fondo mientras
+     * dura el efecto.
      *
      * @param ruta la ruta del archivo de audio
      */
@@ -88,28 +148,54 @@ public class GestorSonido {
             return;
         }
 
-        // Solo un efecto a la vez: si otro personaje estaba sonando, se corta.
-        detenerTodos();
+        detenerEfectoActual(false);
+        pausarMusicaFondo();
 
         try {
             AudioInputStream audio = AudioSystem.getAudioInputStream(archivo);
             Clip clip = AudioSystem.getClip();
             clip.open(audio);
-            clipsActivos.add(clip);
+            efectoActual = clip;
+
             clip.addLineListener(event -> {
-                if (event.getType() == LineEvent.Type.STOP) {
-                    clipsActivos.remove(clip);
+                if (event.getType() == LineEvent.Type.STOP && clip == efectoActual) {
+                    efectoActual = null;
                     try {
                         clip.close();
                     } catch (Exception e) {
                         // El clip pudo haberse cerrado antes.
                     }
+                    reanudarMusicaFondo();
                 }
             });
+
             clip.start();
         } catch (Exception e) {
+            reanudarMusicaFondo();
             System.err.println("No se pudo reproducir el audio: " + ruta
                     + " (" + e.getMessage() + ")");
+        }
+    }
+
+    private void detenerEfectoActual(boolean reanudarMusica) {
+        Clip clip = efectoActual;
+        efectoActual = null;
+
+        if (clip != null) {
+            try {
+                clip.stop();
+            } catch (Exception e) {
+                // El clip pudo haberse cerrado antes.
+            }
+            try {
+                clip.close();
+            } catch (Exception e) {
+                // El clip pudo haberse cerrado antes.
+            }
+        }
+
+        if (reanudarMusica) {
+            reanudarMusicaFondo();
         }
     }
 }
