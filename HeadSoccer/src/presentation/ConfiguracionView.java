@@ -1,0 +1,683 @@
+package presentation;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.IntConsumer;
+import java.util.function.IntPredicate;
+
+/**
+ * Pantalla de configuración general: volumen del juego y teclas de ambos
+ * jugadores.
+ */
+public class ConfiguracionView extends JPanel {
+
+    private static final String RUTA_BOTONES = "resources/images/Botones.java/";
+
+    private static final Color TEXTO_CLARO = new Color(232, 242, 250);
+    private static final Color TEXTO_SUAVE = new Color(190, 210, 228);
+    private static final Color DORADO = new Color(212, 175, 55);
+    private static final Color DORADO_CLARO = new Color(255, 226, 130);
+    private static final Color AZUL_JUGADOR1 = new Color(61, 135, 186);
+    private static final Color ROJO_JUGADOR2 = new Color(174, 62, 72);
+
+    private final Map<ConfiguracionControles.Accion, BotonTecla> botonesJugador1 =
+            new EnumMap<>(ConfiguracionControles.Accion.class);
+    private final Map<ConfiguracionControles.Accion, BotonTecla> botonesJugador2 =
+            new EnumMap<>(ConfiguracionControles.Accion.class);
+
+    private BufferedImage fondo;
+    private JButton botonAtras;
+    private JButton botonGuardar;
+    private JButton botonReiniciar;
+    private BotonSonido botonSonido;
+    private JLabel valorVolumen;
+    private JButton botonVolumenMenos;
+    private JButton botonVolumenMas;
+    private int volumen = 100;
+    private IntConsumer alCambiarVolumen;
+
+    public ConfiguracionView() {
+        prepareView();
+    }
+
+    private void prepareView() {
+        setLayout(new BorderLayout());
+        setOpaque(true);
+        setBackground(Color.BLACK);
+        setPreferredSize(new Dimension(1920, 1080));
+
+        fondo = RecursosImagen.cargar(
+                "resources/images/Ventanas/FondoConfiguracion.png");
+
+        prepareViewSuperior();
+        prepareViewCentro();
+    }
+
+    private void prepareViewSuperior() {
+        botonAtras = crearBotonImagen(RUTA_BOTONES + "Retroceder.png", 90);
+        botonSonido = new BotonSonido(64);
+
+        JPanel panelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        panelTitulo.setOpaque(false);
+        panelTitulo.add(new TituloConfiguracion("CONFIGURACIÓN"));
+
+        JPanel barraSuperior = new JPanel(new BorderLayout());
+        barraSuperior.setOpaque(false);
+        barraSuperior.setBorder(new EmptyBorder(18, 20, 0, 20));
+        barraSuperior.add(botonAtras, BorderLayout.WEST);
+        barraSuperior.add(panelTitulo, BorderLayout.CENTER);
+        barraSuperior.add(botonSonido, BorderLayout.EAST);
+
+        add(barraSuperior, BorderLayout.NORTH);
+    }
+
+    private void prepareViewCentro() {
+        PanelTarjeta tarjeta = new PanelTarjeta();
+        tarjeta.setLayout(new GridBagLayout());
+        tarjeta.setBorder(new EmptyBorder(18, 32, 16, 32));
+        tarjeta.setPreferredSize(new Dimension(980, 540));
+        tarjeta.setMinimumSize(new Dimension(880, 500));
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.weightx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(0, 0, 8, 0);
+
+        c.gridy = 0;
+        tarjeta.add(prepararAudio(), c);
+
+        c.gridy = 1;
+        c.insets = new Insets(2, 0, 8, 0);
+        tarjeta.add(prepararControles(), c);
+
+        c.gridy = 2;
+        c.weighty = 1;
+        c.insets = new Insets(4, 0, 0, 0);
+        tarjeta.add(prepararAcciones(), c);
+
+        JPanel contenedor = new JPanel(new GridBagLayout());
+        contenedor.setOpaque(false);
+        contenedor.setBorder(new EmptyBorder(8, 0, 20, 0));
+        contenedor.add(tarjeta);
+
+        add(contenedor, BorderLayout.CENTER);
+    }
+
+    private JPanel prepararAudio() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(0, 8, 4, 8));
+
+        JLabel titulo = crearTituloSeccion("AUDIO");
+
+        JLabel etiqueta = new JLabel("Volumen");
+        etiqueta.setFont(new Font("SansSerif", Font.BOLD, 19));
+        etiqueta.setForeground(TEXTO_CLARO);
+
+        botonVolumenMenos = new BotonPaso("-");
+        botonVolumenMas = new BotonPaso("+");
+
+        valorVolumen = new JLabel(volumen + " %", SwingConstants.CENTER);
+        valorVolumen.setFont(new Font("SansSerif", Font.BOLD, 19));
+        valorVolumen.setForeground(DORADO_CLARO);
+        valorVolumen.setPreferredSize(new Dimension(80, 28));
+
+        JPanel control = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        control.setOpaque(false);
+        control.add(botonVolumenMenos);
+        control.add(valorVolumen);
+        control.add(botonVolumenMas);
+
+        botonVolumenMenos.addActionListener(e -> cambiarVolumen(-5));
+        botonVolumenMas.addActionListener(e -> cambiarVolumen(5));
+        actualizarBotonesVolumen();
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 3;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(0, 0, 6, 0);
+        panel.add(titulo, c);
+
+        c.gridy = 1;
+        c.gridwidth = 1;
+        c.insets = new Insets(0, 0, 0, 20);
+        panel.add(etiqueta, c);
+
+        c.gridx = 1;
+        c.gridwidth = 2;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(0, 0, 0, 0);
+        panel.add(control, c);
+
+        return panel;
+    }
+
+    private JPanel prepararControles() {
+        JPanel panel = new JPanel(new BorderLayout(0, 6));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(0, 8, 0, 8));
+
+        panel.add(crearTituloSeccion("CONTROLES"), BorderLayout.NORTH);
+
+        JPanel columnas = new JPanel(new GridLayout(1, 2, 28, 0));
+        columnas.setOpaque(false);
+        columnas.add(crearPanelJugador(1, "JUGADOR 1", AZUL_JUGADOR1,
+                botonesJugador1));
+        columnas.add(crearPanelJugador(2, "JUGADOR 2", ROJO_JUGADOR2,
+                botonesJugador2));
+
+        panel.add(columnas, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel crearPanelJugador(int jugador, String nombre, Color color, Map<ConfiguracionControles.Accion, BotonTecla> botones) {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(0, 0, 8, 0);
+
+        PanelCabecera cabecera = new PanelCabecera(nombre, color);
+        cabecera.setPreferredSize(new Dimension(0, 38));
+        cabecera.setMinimumSize(new Dimension(0, 38));
+        panel.add(cabecera, c);
+
+        c.insets = new Insets(2, 4, 2, 4);
+        for (ConfiguracionControles.Accion accion : ConfiguracionControles.Accion.values()) {
+            BotonTecla boton = new BotonTecla();
+            botones.put(accion, boton);
+
+            JPanel fila = new JPanel(new BorderLayout(12, 0));
+            fila.setOpaque(false);
+
+            JLabel etiqueta = new JLabel(accion.getEtiqueta());
+            etiqueta.setFont(new Font("SansSerif", Font.PLAIN, 18));
+            etiqueta.setForeground(TEXTO_SUAVE);
+
+            fila.add(etiqueta, BorderLayout.WEST);
+            fila.add(boton, BorderLayout.EAST);
+
+            c.gridy++;
+            panel.add(fila, c);
+        }
+
+        return panel;
+    }
+
+    private JPanel prepararAcciones() {
+        botonReiniciar = crearBotonImagen(
+                RUTA_BOTONES + "ReiniciarConfiguracion.png", 280);
+        botonGuardar = crearBotonImagen(
+                RUTA_BOTONES + "GuardarConfiguracion.png", 280);
+
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 24, 0));
+        panel.setOpaque(false);
+        panel.add(botonReiniciar);
+        panel.add(botonGuardar);
+        return panel;
+    }
+
+    private static JLabel crearTituloSeccion(String texto) {
+        JLabel titulo = new JLabel(texto);
+        titulo.setFont(new Font("SansSerif", Font.BOLD, 19));
+        titulo.setForeground(DORADO_CLARO);
+        return titulo;
+    }
+
+    private JButton crearBotonImagen(String ruta, int ancho) {
+        BufferedImage imagen = RecursosImagen.cargar(ruta);
+
+        ImageIcon normal = crearIcono(imagen, ancho);
+        ImageIcon encima = crearIcono(imagen, ancho + Math.max(4, ancho * 7 / 100));
+        ImageIcon presionado = crearIcono(imagen, ancho + Math.max(2, ancho * 3 / 100));
+
+        JButton boton = new JButton(normal);
+        boton.setRolloverIcon(encima);
+        boton.setPressedIcon(presionado);
+        boton.setRolloverEnabled(true);
+        boton.setPreferredSize(new Dimension(
+                encima.getIconWidth(), encima.getIconHeight()));
+        boton.setContentAreaFilled(false);
+        boton.setBorderPainted(false);
+        boton.setFocusPainted(false);
+        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return boton;
+    }
+
+    private static ImageIcon crearIcono(BufferedImage imagen, int ancho) {
+        int alto = ancho * imagen.getHeight() / imagen.getWidth();
+        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
+    }
+
+    public void setTeclas(ConfiguracionControles controles) {
+        for (ConfiguracionControles.Accion accion : ConfiguracionControles.Accion.values()) {
+            botonesJugador1.get(accion).setTecla(controles.getTecla(1, accion));
+            botonesJugador2.get(accion).setTecla(controles.getTecla(2, accion));
+        }
+    }
+
+    public void setVolumen(int volumen) {
+        int nuevo = Math.max(0, Math.min(100, volumen));
+        if (nuevo == this.volumen) {
+            valorVolumen.setText(nuevo + " %");
+            actualizarBotonesVolumen();
+            return;
+        }
+
+        this.volumen = nuevo;
+        valorVolumen.setText(nuevo + " %");
+        actualizarBotonesVolumen();
+
+        if (alCambiarVolumen != null) {
+            alCambiarVolumen.accept(nuevo);
+        }
+    }
+
+    public int getVolumen() {
+        return volumen;
+    }
+
+    private void cambiarVolumen(int delta) {
+        setVolumen(volumen + delta);
+    }
+
+    private void actualizarBotonesVolumen() {
+        botonVolumenMenos.setEnabled(volumen > 0);
+        botonVolumenMas.setEnabled(volumen < 100);
+    }
+
+    public void setAlCambiarVolumen(IntConsumer alCambiarVolumen) {
+        this.alCambiarVolumen = alCambiarVolumen;
+    }
+
+    public void cancelarCaptura() {
+        for (BotonTecla boton : botonesJugador1.values()) {
+            boton.cancelarCaptura();
+        }
+        for (BotonTecla boton : botonesJugador2.values()) {
+            boton.cancelarCaptura();
+        }
+    }
+
+    public Map<ConfiguracionControles.Accion, BotonTecla> getBotonesJugador1() {
+        return botonesJugador1;
+    }
+
+    public Map<ConfiguracionControles.Accion, BotonTecla> getBotonesJugador2() {
+        return botonesJugador2;
+    }
+
+    public JButton getBotonGuardar() {
+        return botonGuardar;
+    }
+
+    public JButton getBotonReiniciar() {
+        return botonReiniciar;
+    }
+
+    public JButton getBotonAtras() {
+        return botonAtras;
+    }
+
+    public BotonSonido getBotonSonido() {
+        return botonSonido;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (fondo == null) {
+            return;
+        }
+
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+
+        double escala = Math.max(
+                (double) getWidth() / fondo.getWidth(),
+                (double) getHeight() / fondo.getHeight());
+        int ancho = (int) Math.ceil(fondo.getWidth() * escala);
+        int alto = (int) Math.ceil(fondo.getHeight() * escala);
+
+        g2.drawImage(fondo, (getWidth() - ancho) / 2, (getHeight() - alto) / 2,
+                ancho, alto, null);
+
+        g2.setColor(new Color(6, 20, 38, 75));
+        g2.fillRect(0, 0, getWidth(), getHeight());
+        g2.dispose();
+    }
+
+    /**
+     * Botón que muestra una tecla y espera la siguiente pulsación para
+     * cambiarla.
+     */
+    public static final class BotonTecla extends JButton {
+
+        private int tecla;
+        private IntPredicate asignador;
+        private KeyEventDispatcher capturador;
+        private boolean capturando;
+
+        private BotonTecla() {
+            setFont(new Font("SansSerif", Font.BOLD, 15));
+            setPreferredSize(new Dimension(190, 32));
+            setMinimumSize(new Dimension(150, 32));
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+            setFocusPainted(false);
+            setFocusable(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            addActionListener(e -> iniciarCaptura());
+            setText("—");
+        }
+
+        public int getTecla() {
+            return tecla;
+        }
+
+        public void setTecla(int tecla) {
+            this.tecla = tecla;
+            actualizarTexto();
+        }
+
+        public void setAsignador(IntPredicate asignador) {
+            this.asignador = asignador;
+        }
+
+        private void iniciarCaptura() {
+            if (capturando) {
+                return;
+            }
+
+            capturando = true;
+            setText("Presiona una tecla...");
+            repaint();
+
+            capturador = event -> {
+                if (event.getID() != KeyEvent.KEY_PRESSED) {
+                    return false;
+                }
+
+                int codigo = event.getKeyCode();
+                if (codigo == KeyEvent.VK_ESCAPE) {
+                    cancelarCaptura();
+                    return true;
+                }
+                if (codigo == KeyEvent.VK_UNDEFINED) {
+                    return true;
+                }
+
+                if (asignador != null && asignador.test(codigo)) {
+                    tecla = codigo;
+                }
+                cancelarCaptura();
+                return true;
+            };
+
+            KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                    .addKeyEventDispatcher(capturador);
+        }
+
+        private void cancelarCaptura() {
+            if (!capturando) {
+                return;
+            }
+
+            capturando = false;
+            if (capturador != null) {
+                KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                        .removeKeyEventDispatcher(capturador);
+                capturador = null;
+            }
+            actualizarTexto();
+            repaint();
+        }
+
+        private void actualizarTexto() {
+            setText(ConfiguracionControles.nombreTecla(tecla));
+        }
+
+        @Override
+        public void removeNotify() {
+            cancelarCaptura();
+            super.removeNotify();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int ancho = getWidth();
+            int alto = getHeight();
+            boolean encima = getModel().isRollover();
+
+            RoundRectangle2D forma = new RoundRectangle2D.Float(
+                    1, 1, ancho - 3, alto - 3, 16, 16);
+
+            g2.setColor(capturando
+                    ? new Color(40, 70, 96, 245)
+                    : new Color(10, 30, 50, 230));
+            g2.fill(forma);
+
+            g2.setStroke(new BasicStroke(capturando || encima ? 2.5f : 1.8f));
+            g2.setColor(capturando || encima ? DORADO_CLARO : new Color(180, 150, 75));
+            g2.draw(forma);
+
+            g2.setFont(getFont());
+            FontMetrics fm = g2.getFontMetrics();
+            String texto = getText();
+            int x = (ancho - fm.stringWidth(texto)) / 2;
+            int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
+            g2.setColor(capturando ? DORADO_CLARO : Color.WHITE);
+            g2.drawString(texto, x, y);
+
+            g2.dispose();
+        }
+    }
+
+    /**
+     * Deslizador de volumen con el estilo dorado de la pantalla.
+     */
+    private static final class BotonPaso extends JButton {
+
+        private BotonPaso(String texto) {
+            super(texto);
+            setFont(new Font("SansSerif", Font.BOLD, 24));
+            setPreferredSize(new Dimension(42, 42));
+            setMinimumSize(new Dimension(42, 42));
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+            setFocusPainted(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            boolean activo = isEnabled();
+            boolean encima = getModel().isRollover() && activo;
+
+            Color relleno = activo
+                    ? new Color(10, 32, 54, 240)
+                    : new Color(28, 42, 56, 200);
+            Color borde = activo
+                    ? (encima ? DORADO_CLARO : DORADO)
+                    : new Color(100, 110, 118);
+
+            int tamano = Math.min(getWidth(), getHeight());
+            int x = (getWidth() - tamano) / 2;
+            int y = (getHeight() - tamano) / 2;
+
+            g2.setColor(relleno);
+            g2.fillOval(x + 1, y + 1, tamano - 3, tamano - 3);
+
+            g2.setStroke(new BasicStroke(encima ? 3f : 2.2f));
+            g2.setColor(borde);
+            g2.drawOval(x + 1, y + 1, tamano - 3, tamano - 3);
+
+            g2.setFont(getFont());
+            FontMetrics fm = g2.getFontMetrics();
+            String texto = getText();
+            int tx = (getWidth() - fm.stringWidth(texto)) / 2;
+            int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+            g2.setColor(activo ? Color.WHITE : new Color(160, 170, 178));
+            g2.drawString(texto, tx, ty);
+
+            g2.dispose();
+        }
+    }
+
+    private static final class PanelTarjeta extends JPanel {
+
+        private PanelTarjeta() {
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int ancho = getWidth();
+            int alto = getHeight();
+            RoundRectangle2D forma = new RoundRectangle2D.Float(
+                    1, 1, ancho - 3, alto - 3, 32, 32);
+
+            g2.setPaint(new GradientPaint(
+                    0, 0, new Color(9, 30, 52, 225),
+                    0, alto, new Color(5, 20, 38, 225)));
+            g2.fill(forma);
+
+            g2.setStroke(new BasicStroke(3f));
+            g2.setColor(DORADO);
+            g2.draw(forma);
+
+            g2.setStroke(new BasicStroke(1f));
+            g2.setColor(new Color(255, 225, 140, 95));
+            g2.draw(new RoundRectangle2D.Float(
+                    6, 6, ancho - 13, alto - 13, 26, 26));
+
+            g2.dispose();
+        }
+    }
+
+    private static final class PanelCabecera extends JComponent {
+
+        private final String texto;
+        private final Color color;
+
+        private PanelCabecera(String texto, Color color) {
+            this.texto = texto;
+            this.color = color;
+            setFont(new Font("SansSerif", Font.BOLD, 19));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int ancho = getWidth();
+            int alto = getHeight();
+            RoundRectangle2D forma = new RoundRectangle2D.Float(
+                    1, 1, ancho - 3, alto - 3, 20, 20);
+
+            g2.setColor(color);
+            g2.fill(forma);
+
+            g2.setStroke(new BasicStroke(2f));
+            g2.setColor(new Color(255, 255, 255, 170));
+            g2.draw(forma);
+
+            g2.setFont(getFont());
+            FontMetrics fm = g2.getFontMetrics();
+            int x = (ancho - fm.stringWidth(texto)) / 2;
+            int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
+            g2.setColor(Color.WHITE);
+            g2.drawString(texto, x, y);
+
+            g2.dispose();
+        }
+    }
+
+    private static final class TituloConfiguracion extends JComponent {
+
+        private final String texto;
+        private final Font fuente = new Font("SansSerif", Font.BOLD, 28);
+
+        private TituloConfiguracion(String texto) {
+            this.texto = texto;
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            FontMetrics fm = getFontMetrics(fuente);
+            return new Dimension(fm.stringWidth(texto) + 80, 58);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int ancho = getWidth();
+            int alto = getHeight();
+            int arco = alto;
+
+            g2.setColor(new Color(0, 0, 0, 90));
+            g2.fillRoundRect(4, 6, ancho - 8, alto - 10, arco, arco);
+
+            g2.setPaint(new GradientPaint(
+                    0, 0, new Color(78, 160, 198, 235),
+                    0, alto, new Color(26, 82, 122, 235)));
+            g2.fillRoundRect(2, 2, ancho - 4, alto - 8, arco, arco);
+
+            g2.setStroke(new BasicStroke(2f));
+            g2.setColor(new Color(255, 255, 255, 170));
+            g2.drawRoundRect(4, 4, ancho - 9, alto - 13, arco, arco);
+
+            g2.setFont(fuente);
+            FontMetrics fm = g2.getFontMetrics();
+            int x = (ancho - fm.stringWidth(texto)) / 2;
+            int y = (alto - 6 - fm.getHeight()) / 2 + fm.getAscent();
+
+            g2.setColor(new Color(16, 32, 46));
+            for (int dx = -2; dx <= 2; dx++) {
+                for (int dy = -2; dy <= 2; dy++) {
+                    if (dx != 0 || dy != 0) {
+                        g2.drawString(texto, x + dx, y + dy);
+                    }
+                }
+            }
+            g2.setColor(Color.WHITE);
+            g2.drawString(texto, x, y);
+
+            g2.dispose();
+        }
+    }
+}

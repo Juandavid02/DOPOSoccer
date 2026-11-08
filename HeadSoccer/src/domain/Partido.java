@@ -16,6 +16,8 @@ public class Partido {
     private final ReglaPartido regla;
     private final double tiempoTotal;
     private double tiempoTranscurrido;
+    private int puntosJugador1;
+    private int puntosJugador2;
 
     public Partido(ConfiguracionPartido configuracion, Personaje p1, Personaje p2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2) {
         if (configuracion == null) {
@@ -344,7 +346,43 @@ public class Partido {
         if (!puedeJugar()) {
             return;
         }
-        jugador(jugador).patear(balon);
+        Jugador pateador = jugador(jugador);
+        if (pateador.isAturdido()) {
+            return;
+        }
+
+        // Si la patada toca el balón, solo se impulsa el balón.
+        if (pateador.patear(balon)) {
+            return;
+        }
+
+        Jugador rival = jugador(jugador == 1 ? 2 : 1);
+        if (rivalEstaAlAlcanceDePatada(pateador, rival)) {
+            rival.recibirDanio(pateador.getEstadisticas().getDanoPatada());
+        }
+    }
+
+    private boolean rivalEstaAlAlcanceDePatada(Jugador pateador, Jugador rival) {
+        double[] bota = centroBota(pateador);
+        double[] cabezaRival = centroCabeza(rival);
+        double[] botaRival = centroBota(rival);
+
+        double distanciaCabeza = distancia(bota, cabezaRival);
+        double distanciaBota = distancia(bota, botaRival);
+
+        double alcanceCabeza = ParametrosJuego.RADIO_BOTA_JUGADOR
+                + ParametrosJuego.RADIO_CABEZA_JUGADOR
+                + ParametrosJuego.TOLERANCIA_GOLPE_PATADA;
+        double alcanceBota = ParametrosJuego.RADIO_BOTA_JUGADOR * 2
+                + ParametrosJuego.TOLERANCIA_GOLPE_PATADA * 2;
+
+        return distanciaCabeza <= alcanceCabeza || distanciaBota <= alcanceBota;
+    }
+
+    private double distancia(double[] punto1, double[] punto2) {
+        double dx = punto2[0] - punto1[0];
+        double dy = punto2[1] - punto1[1];
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     public void sumarGol(int jugador) {
@@ -377,8 +415,35 @@ public class Partido {
         if (motivo == null) {
             throw new IllegalArgumentException("El motivo de finalización no puede ser nulo");
         }
+        if (estado == EstadoPartido.TERMINADO) {
+            return;
+        }
         estado = EstadoPartido.TERMINADO;
         resultado = new ResultadoPartido(marcador.getGoles(1), marcador.getGoles(2), motivo, tiempoTranscurrido);
+        otorgarPuntos();
+    }
+
+    /**
+     * Entrega los puntos de la partida a los dos perfiles. El ganador recibe
+     * cien puntos y el perdedor veinticinco. Si hubiera empate, ambos reciben
+     * la cantidad del perdedor.
+     */
+    private void otorgarPuntos() {
+        int ganador = resultado.getGanador();
+
+        if (ganador == 1) {
+            puntosJugador1 = ParametrosJuego.PUNTOS_GANADOR;
+            puntosJugador2 = ParametrosJuego.PUNTOS_PERDEDOR;
+        } else if (ganador == 2) {
+            puntosJugador1 = ParametrosJuego.PUNTOS_PERDEDOR;
+            puntosJugador2 = ParametrosJuego.PUNTOS_GANADOR;
+        } else {
+            puntosJugador1 = ParametrosJuego.PUNTOS_PERDEDOR;
+            puntosJugador2 = ParametrosJuego.PUNTOS_PERDEDOR;
+        }
+
+        jugadores.get(0).getPuntos().sumar(puntosJugador1);
+        jugadores.get(1).getPuntos().sumar(puntosJugador2);
     }
 
     private boolean puedeJugar() {
@@ -438,5 +503,13 @@ public class Partido {
 
     public ResultadoPartido getResultado() {
         return resultado;
+    }
+
+    public int getPuntosJugador1() {
+        return puntosJugador1;
+    }
+
+    public int getPuntosJugador2() {
+        return puntosJugador2;
     }
 }

@@ -34,7 +34,7 @@ public class ConfiguracionVisualView extends JPanel {
         setBackground(Color.BLACK);
         setPreferredSize(new Dimension(1920, 1080));
 
-        fondo = RecursosImagen.cargar("resources/images/Ventanas/FondoSelecionPersonaje.png");
+        fondo = RecursosImagen.cargar("resources/images/Ventanas/FondoSelecionPersonaje.jpg");
 
         prepareViewSuperior();
         prepareViewCentro();

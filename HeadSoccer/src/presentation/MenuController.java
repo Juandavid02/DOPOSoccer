@@ -46,13 +46,13 @@ public class MenuController {
         view.getBotonConfiguracion().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gui.mostrarProximamente("Configuración");
+                gui.mostrarConfiguracion();
             }
         });
         view.getBotonMejoras().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gui.mostrarProximamente("Mejoras");
+                gui.mostrarMejoras();
             }
         });
         view.getBotonPerfil().addActionListener(new ActionListener() {

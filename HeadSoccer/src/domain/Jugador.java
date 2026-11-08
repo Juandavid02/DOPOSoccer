@@ -14,6 +14,8 @@ public class Jugador {
     private double velocidadX;
     private double velocidadY;
     private boolean enSuelo;
+    private boolean aturdido;
+    private double tiempoAturdimiento;
 
     private final Vida vida;
 
@@ -99,6 +101,40 @@ public class Jugador {
         return enSuelo;
     }
 
+    public boolean isAturdido() {
+        return aturdido;
+    }
+
+    public double getTiempoAturdimientoRestante() {
+        return tiempoAturdimiento;
+    }
+
+    /**
+     * Aplica daño al jugador. Si su vida llega a cero queda aturdido y no
+     * puede moverse, saltar ni patear durante unos segundos.
+     *
+     * @param danio cantidad de daño recibida
+     */
+    public void recibirDanio(double danio) {
+        if (danio <= 0 || aturdido) {
+            return;
+        }
+
+        vida.recibirDanio(danio);
+        if (vida.estaEnCero()) {
+            aturdir();
+        }
+    }
+
+    /**
+     * Deja al jugador aturdido durante el tiempo configurado.
+     */
+    public void aturdir() {
+        aturdido = true;
+        tiempoAturdimiento = ParametrosJuego.TIEMPO_ATURDIMIENTO;
+        velocidadX = 0;
+    }
+
     public void setVelocidadX(double velocidadX) {
         this.velocidadX = velocidadX;
     }
@@ -111,6 +147,16 @@ public class Jugador {
         if (dt <= 0) {
             return;
         }
+
+        if (aturdido) {
+            tiempoAturdimiento -= dt;
+            if (tiempoAturdimiento <= 0) {
+                tiempoAturdimiento = 0;
+                aturdido = false;
+                vida.reiniciar();
+            }
+        }
+
         velocidadY += ParametrosJuego.GRAVEDAD * dt;
         posicionX += velocidadX * dt;
         posicionY += velocidadY * dt;
@@ -142,6 +188,9 @@ public class Jugador {
     }
 
     public void mover(double dx, Cancha cancha) {
+        if (aturdido) {
+            return;
+        }
         posicionX += dx;
         double ancho = cancha.getAncho();
         if (posicionX < ParametrosJuego.RADIO_JUGADOR) {
@@ -191,7 +240,7 @@ public class Jugador {
     }
 
     public void saltar() {
-        if (!enSuelo) {
+        if (aturdido || !enSuelo) {
             return;
         }
         int salto = estadisticas.getJump();
@@ -199,9 +248,9 @@ public class Jugador {
         enSuelo = false;
     }
 
-    public void patear(Balon balon) {
-        if (balon == null) {
-            return;
+    public boolean patear(Balon balon) {
+        if (balon == null || aturdido) {
+            return false;
         }
         double direccion = lado == Lado.IZQUIERDO ? 1 : -1;
         double botaX = posicionX
@@ -213,12 +262,13 @@ public class Jugador {
         double distancia = Math.sqrt(distanciaX * distanciaX + distanciaY * distanciaY);
 
         if (distancia > ParametrosJuego.ALCANCE_PATADA) {
-            return;
+            return false;
         }
 
         balon.aplicarImpulso(
                 direccion * ParametrosJuego.POTENCIA_PATADA_BASE,
                 -ParametrosJuego.POTENCIA_LEVANTE_PATADA);
+        return true;
     }
 
     public void reiniciar(double posicionX, double posicionY) {

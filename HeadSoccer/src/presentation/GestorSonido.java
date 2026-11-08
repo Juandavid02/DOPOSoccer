@@ -3,6 +3,7 @@ package presentation;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import java.io.File;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.function.Consumer;
 public class GestorSonido {
 
     private boolean silenciado;
+    private int volumen = 100;
     private final List<Consumer<Boolean>> oyentes = new ArrayList<>();
 
     private Clip musicaFondo;
@@ -27,6 +29,26 @@ public class GestorSonido {
 
     public boolean isSilenciado() {
         return silenciado;
+    }
+
+    /**
+     * Volumen general del juego: afecta música y efectos.
+     *
+     * @return volumen entre 0 y 100
+     */
+    public int getVolumen() {
+        return volumen;
+    }
+
+    /**
+     * Cambia el volumen general y lo aplica al audio que esté sonando.
+     *
+     * @param volumen nuevo volumen entre 0 y 100
+     */
+    public void setVolumen(int volumen) {
+        this.volumen = Math.max(0, Math.min(100, volumen));
+        aplicarVolumen(musicaFondo);
+        aplicarVolumen(efectoActual);
     }
 
     /**
@@ -91,6 +113,7 @@ public class GestorSonido {
             Clip clip = AudioSystem.getClip();
             clip.open(audio);
             musicaPausada = false;
+            aplicarVolumen(clip);
 
             clip.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP
@@ -113,6 +136,32 @@ public class GestorSonido {
             System.err.println("No se pudo reproducir la música: " + ruta
                     + " (" + e.getMessage() + ")");
         }
+    }
+
+    /**
+     * Cambia la música de fondo por otra pista, deteniendo la anterior.
+     * Si la pista solicitada ya es la actual, simplemente se reanuda.
+     *
+     * @param ruta la ruta del nuevo archivo de música
+     */
+    public void cambiarMusicaFondo(String ruta) {
+        if (ruta == null) {
+            return;
+        }
+
+        if (ruta.equals(rutaMusicaFondo) && musicaFondo != null) {
+            reanudarMusicaFondo();
+            return;
+        }
+
+        detenerMusicaFondo();
+        rutaMusicaFondo = ruta;
+
+        if (silenciado) {
+            return;
+        }
+
+        iniciarMusicaFondo(ruta);
     }
 
     /**
@@ -150,6 +199,28 @@ public class GestorSonido {
     }
 
     /**
+     * Detiene y libera la música de fondo actual.
+     */
+    private void detenerMusicaFondo() {
+        Clip clip = musicaFondo;
+        musicaFondo = null;
+        musicaPausada = false;
+
+        if (clip != null) {
+            try {
+                clip.stop();
+            } catch (Exception e) {
+                // El clip pudo haberse cerrado antes.
+            }
+            try {
+                clip.close();
+            } catch (Exception e) {
+                // El clip pudo haberse cerrado antes.
+            }
+        }
+    }
+
+    /**
      * Detiene el efecto actual y reanuda la música de fondo.
      */
     public void detenerEfectos() {
@@ -180,6 +251,7 @@ public class GestorSonido {
             Clip clip = AudioSystem.getClip();
             clip.open(audio);
             efectoActual = clip;
+            aplicarVolumen(clip);
 
             clip.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP && clip == efectoActual) {
@@ -220,6 +292,44 @@ public class GestorSonido {
 
         if (reanudarMusica) {
             reanudarMusicaFondo();
+        }
+    }
+
+    /**
+     * Aplica el volumen general a un clip. Si el sistema no soporta control
+     * de ganancia, el clip se reproduce con su volumen normal.
+     *
+     * @param clip clip al que se aplica el volumen
+     */
+    private void aplicarVolumen(Clip clip) {
+        if (clip == null) {
+            return;
+        }
+
+        try {
+            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl control = (FloatControl) clip.getControl(
+                        FloatControl.Type.MASTER_GAIN);
+
+                float decibelios;
+                if (volumen <= 0) {
+                    decibelios = control.getMinimum();
+                } else if (volumen >= 100) {
+                    decibelios = 0f;
+                } else {
+                    decibelios = (float) (20.0 * Math.log10(volumen / 100.0));
+                }
+
+                decibelios = Math.max(control.getMinimum(),
+                        Math.min(control.getMaximum(), decibelios));
+                control.setValue(decibelios);
+            } else if (clip.isControlSupported(FloatControl.Type.VOLUME)) {
+                FloatControl control = (FloatControl) clip.getControl(
+                        FloatControl.Type.VOLUME);
+                control.setValue(volumen / 100f);
+            }
+        } catch (Exception e) {
+            // Algunos dispositivos no permiten cambiar el volumen.
         }
     }
 }

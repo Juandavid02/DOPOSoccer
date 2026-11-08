@@ -2,10 +2,10 @@ package presentation;
 
 import domain.ConfiguracionPartido;
 import domain.EstadoPartido;
+import domain.ParametrosJuego;
 import domain.Partido;
 import domain.PerfilJugador;
 import domain.Personaje;
-import domain.ResultadoPartido;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
@@ -49,8 +49,14 @@ public class JuegoController {
         view.getBotonPausaReiniciar().addActionListener(e -> reiniciarPartido());
         view.getBotonPausaCambiarPersonaje().addActionListener(e -> cambiarPersonaje());
         view.getBotonPausaConfiguracion().addActionListener(
-                e -> gui.mostrarProximamente("Configuración"));
+                e -> gui.mostrarConfiguracionDesdePausa());
         view.getBotonPausaSalir().addActionListener(e -> salirAlMenu());
+
+        view.getBotonResultadoRevancha().addActionListener(e -> revancha());
+        view.getBotonResultadoCambiarPersonaje().addActionListener(
+                e -> cambiarPersonajeDesdeResultado());
+        view.getBotonResultadoMenu().addActionListener(
+                e -> volverAlMenuDesdeResultado());
     }
 
     public boolean iniciar(ConfiguracionPartido configuracion,
@@ -107,6 +113,7 @@ public class JuegoController {
             escuchaTeclas = null;
         }
         teclas.clear();
+        gui.restaurarMusicaMenu();
     }
 
     private void prepararTeclas() {
@@ -121,14 +128,19 @@ public class JuegoController {
                 }
 
                 if (teclas.add(codigo)) {
-                    if (codigo == KeyEvent.VK_W) {
+                    ConfiguracionControles controles = gui.getConfiguracionControles();
+                    if (codigo == controles.getTecla(
+                            1, ConfiguracionControles.Accion.SALTAR)) {
                         partido.saltar(1);
-                    } else if (codigo == KeyEvent.VK_S) {
+                    } else if (codigo == controles.getTecla(
+                            1, ConfiguracionControles.Accion.PATEAR)) {
                         partido.patear(1);
                         view.mostrarPatada(1);
-                    } else if (codigo == KeyEvent.VK_UP) {
+                    } else if (codigo == controles.getTecla(
+                            2, ConfiguracionControles.Accion.SALTAR)) {
                         partido.saltar(2);
-                    } else if (codigo == KeyEvent.VK_DOWN) {
+                    } else if (codigo == controles.getTecla(
+                            2, ConfiguracionControles.Accion.PATEAR)) {
                         partido.patear(2);
                         view.mostrarPatada(2);
                     }
@@ -161,19 +173,25 @@ public class JuegoController {
         }
 
         if (partido.getEstado() != EstadoPartido.PAUSADO) {
-            double paso = VELOCIDAD * dt;
+            ConfiguracionControles controles = gui.getConfiguracionControles();
+            double paso1 = velocidadJugador(1) * dt;
+            double paso2 = velocidadJugador(2) * dt;
 
-            if (teclas.contains(KeyEvent.VK_A)) {
-                partido.mover(1, -paso);
+            if (teclas.contains(controles.getTecla(
+                    1, ConfiguracionControles.Accion.IZQUIERDA))) {
+                partido.mover(1, -paso1);
             }
-            if (teclas.contains(KeyEvent.VK_D)) {
-                partido.mover(1, paso);
+            if (teclas.contains(controles.getTecla(
+                    1, ConfiguracionControles.Accion.DERECHA))) {
+                partido.mover(1, paso1);
             }
-            if (teclas.contains(KeyEvent.VK_LEFT)) {
-                partido.mover(2, -paso);
+            if (teclas.contains(controles.getTecla(
+                    2, ConfiguracionControles.Accion.IZQUIERDA))) {
+                partido.mover(2, -paso2);
             }
-            if (teclas.contains(KeyEvent.VK_RIGHT)) {
-                partido.mover(2, paso);
+            if (teclas.contains(controles.getTecla(
+                    2, ConfiguracionControles.Accion.DERECHA))) {
+                partido.mover(2, paso2);
             }
         }
 
@@ -184,6 +202,13 @@ public class JuegoController {
             timer.stop();
             mostrarResultado();
         }
+    }
+
+    private double velocidadJugador(int jugador) {
+        int speed = partido.getJugadores().get(jugador - 1)
+                .getEstadisticas().getSpeed();
+        double factor = 1 + ParametrosJuego.INCREMENTO_POR_PUNTO * (speed - 5);
+        return VELOCIDAD * Math.max(0.2, factor);
     }
 
     private void alternarPausa() {
@@ -213,6 +238,14 @@ public class JuegoController {
             return;
         }
 
+        iniciarPartidoNuevo();
+    }
+
+    private void revancha() {
+        iniciarPartidoNuevo();
+    }
+
+    private void iniciarPartidoNuevo() {
         crearPartido();
         teclas.clear();
         ultimoTiempo = System.nanoTime();
@@ -222,6 +255,16 @@ public class JuegoController {
         view.setPausaVisible(false);
         view.requestFocusInWindow();
         view.repaint();
+    }
+
+    private void cambiarPersonajeDesdeResultado() {
+        detener();
+        gui.cambiarPersonajeDesdeJuego();
+    }
+
+    private void volverAlMenuDesdeResultado() {
+        detener();
+        gui.volverAlMenuDesdeJuego();
     }
 
     private void cambiarPersonaje() {
@@ -258,34 +301,6 @@ public class JuegoController {
     }
 
     private void mostrarResultado() {
-        ResultadoPartido resultado = partido.getResultado();
-        String mensaje;
-
-        if (resultado == null) {
-            mensaje = "El partido terminó.";
-        } else {
-            String nombre1 = partido.getJugadores().get(0).getNombre();
-            String nombre2 = partido.getJugadores().get(1).getNombre();
-            int ganador = resultado.getGanador();
-
-            mensaje = nombre1 + ": " + resultado.getGolesJugador1() + "\n"
-                    + nombre2 + ": " + resultado.getGolesJugador2();
-
-            if (ganador == 1) {
-                mensaje += "\n\nGanó " + nombre1;
-            } else if (ganador == 2) {
-                mensaje += "\n\nGanó " + nombre2;
-            } else {
-                mensaje += "\n\nEmpate";
-            }
-        }
-
-        JOptionPane.showMessageDialog(
-                view,
-                mensaje,
-                "Fin del partido",
-                JOptionPane.INFORMATION_MESSAGE);
-
-        gui.volverAlMenuDesdeJuego();
+        view.mostrarResultado(partido);
     }
 }

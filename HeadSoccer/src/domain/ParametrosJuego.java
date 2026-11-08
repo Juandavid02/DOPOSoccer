@@ -53,6 +53,10 @@ public class ParametrosJuego {
     // Vida y daño
     public static final int VIDA_BASE = 100;
     public static final int DANO_PATADA_BASE = 10;
+    /** Tiempo que el jugador queda aturdido al quedarse sin vida. */
+    public static final double TIEMPO_ATURDIMIENTO = 3.0;
+    /** Tolerancia extra para golpear al rival con la bota. */
+    public static final double TOLERANCIA_GOLPE_PATADA = 10;
 
     // Barra de poder
     public static final double CAPACIDAD_BARRA_PODER = 100;

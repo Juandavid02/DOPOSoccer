@@ -6,6 +6,7 @@ import domain.Cancha;
 import domain.Jugador;
 import domain.ParametrosJuego;
 import domain.Partido;
+import domain.ResultadoPartido;
 import domain.TipoPartido;
 
 import javax.swing.*;
@@ -27,6 +28,7 @@ public class JuegoView extends JPanel {
     private BufferedImage spriteJugador2;
     private BufferedImage spriteJugador1Patada;
     private BufferedImage spriteJugador2Patada;
+    private BufferedImage efectoAturdimiento;
     private long finPatadaJugador1;
     private long finPatadaJugador2;
 
@@ -34,6 +36,7 @@ public class JuegoView extends JPanel {
     private final BotonSonido botonSonido;
     private final JPanel barraSuperior;
     private final PanelPausa panelPausa;
+    private final PanelResultado panelResultado;
 
     public JuegoView() {
         setOpaque(true);
@@ -53,15 +56,21 @@ public class JuegoView extends JPanel {
         panelPausa = new PanelPausa();
         panelPausa.setVisible(false);
 
+        panelResultado = new PanelResultado();
+        panelResultado.setVisible(false);
+
         add(panelPausa);
         add(barraSuperior);
+        add(panelResultado);
         setComponentZOrder(barraSuperior, 0);
+        setComponentZOrder(panelResultado, 0);
     }
 
     @Override
     public void doLayout() {
         barraSuperior.setBounds(0, 0, getWidth(), 84);
         panelPausa.setBounds(0, 0, getWidth(), getHeight());
+        panelResultado.setBounds(0, 0, getWidth(), getHeight());
     }
 
     public void iniciar(Partido partido, String rutaEscenario, String rutaBalon) {
@@ -72,6 +81,8 @@ public class JuegoView extends JPanel {
                 "resources/images/RedDeLaCancha/RedDelaCanchaIzquierda.png"));
         arcoDerecho = recortar(RecursosImagen.cargar(
                 "resources/images/RedDeLaCancha/RedDelaCanchaDerecha.png"));
+        efectoAturdimiento = recortar(RecursosImagen.cargar(
+                "resources/images/Efectos/EfectoAturdimiento.png"));
 
         spriteJugador1 = cargarSprite(partido.getJugadores().get(0), true, false);
         spriteJugador2 = cargarSprite(partido.getJugadores().get(1), false, false);
@@ -81,6 +92,7 @@ public class JuegoView extends JPanel {
         finPatadaJugador2 = 0;
 
         panelPausa.setVisible(false);
+        panelResultado.setVisible(false);
         revalidate();
         repaint();
     }
@@ -89,6 +101,26 @@ public class JuegoView extends JPanel {
         panelPausa.setVisible(visible);
         revalidate();
         repaint();
+    }
+
+    public void mostrarResultado(Partido partido) {
+        panelPausa.setVisible(false);
+        panelResultado.mostrar(partido);
+        panelResultado.setVisible(true);
+        revalidate();
+        repaint();
+    }
+
+    public JButton getBotonResultadoRevancha() {
+        return panelResultado.getBotonRevancha();
+    }
+
+    public JButton getBotonResultadoCambiarPersonaje() {
+        return panelResultado.getBotonCambiarPersonaje();
+    }
+
+    public JButton getBotonResultadoMenu() {
+        return panelResultado.getBotonMenu();
     }
 
     public void mostrarPatada(int jugador) {
@@ -278,6 +310,24 @@ public class JuegoView extends JPanel {
         int y = (int) (suelo - alto);
 
         g2.drawImage(sprite, x, y, (int) ancho, (int) alto, null);
+
+        if (jugador.isAturdido() && efectoAturdimiento != null) {
+            double anchoEfecto = ancho * 2.0;
+            double altoEfecto = anchoEfecto * efectoAturdimiento.getHeight()
+                    / efectoAturdimiento.getWidth();
+
+            long tiempo = System.currentTimeMillis();
+            int xEfecto = (int) (centroX - anchoEfecto / 2);
+            int yEfecto = (int) (y - altoEfecto * 0.55
+                    + Math.sin(tiempo / 180.0) * 3 * escala);
+
+            Graphics2D gEfecto = (Graphics2D) g2.create();
+            gEfecto.rotate(Math.toRadians(8 * Math.sin(tiempo / 220.0)),
+                    centroX, yEfecto + altoEfecto / 2);
+            gEfecto.drawImage(efectoAturdimiento, xEfecto, yEfecto,
+                    (int) anchoEfecto, (int) altoEfecto, null);
+            gEfecto.dispose();
+        }
     }
 
     private void dibujarBalon(Graphics2D g2, Balon balon, Cancha cancha,
@@ -393,6 +443,18 @@ public class JuegoView extends JPanel {
         g2.fillRoundRect(x, yPoder, ancho, alto, alto, alto);
         g2.setColor(new Color(70, 150, 240));
         g2.fillRoundRect(x, yPoder, (int) (ancho * poder), alto, alto, alto);
+
+        if (jugador.isAturdido()) {
+            g2.setFont(new Font("SansSerif", Font.BOLD, 14));
+            String estado = "ATURDIDO "
+                    + (int) Math.ceil(jugador.getTiempoAturdimientoRestante()) + " s";
+            FontMetrics fmEstado = g2.getFontMetrics();
+            int xEstado = derecha
+                    ? x + ancho - fmEstado.stringWidth(estado)
+                    : x;
+            g2.setColor(new Color(255, 205, 80));
+            g2.drawString(estado, xEstado, yPoder + alto + 18);
+        }
     }
 
     private static void dibujarAjustado(Graphics2D g2, BufferedImage imagen,
@@ -538,6 +600,127 @@ public class JuegoView extends JPanel {
 
         private JButton getBotonSalir() {
             return botonSalir;
+        }
+    }
+
+    private static final class PanelResultado extends JPanel {
+
+        private final JButton botonRevancha;
+        private final JButton botonCambiarPersonaje;
+        private final JButton botonMenu;
+        private final JLabel marcador;
+        private final JLabel ganador;
+        private final JLabel puntos;
+
+        private PanelResultado() {
+            setOpaque(false);
+            setLayout(new GridBagLayout());
+
+            botonRevancha = crearBotonImagen(
+                    RUTA_BOTONES + "Revancha.png", 280);
+            botonCambiarPersonaje = crearBotonImagen(
+                    RUTA_BOTONES + "CambiarPersonajeEnPartido.png", 280);
+            botonMenu = crearBotonImagen(
+                    RUTA_BOTONES + "MenuPrincipal.png", 280);
+
+            JLabel titulo = new JLabel("FIN DEL PARTIDO");
+            titulo.setFont(new Font("SansSerif", Font.BOLD, 36));
+            titulo.setForeground(Color.WHITE);
+            titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            marcador = new JLabel("", SwingConstants.CENTER);
+            marcador.setFont(new Font("SansSerif", Font.BOLD, 28));
+            marcador.setForeground(Color.WHITE);
+            marcador.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            ganador = new JLabel("", SwingConstants.CENTER);
+            ganador.setFont(new Font("SansSerif", Font.BOLD, 22));
+            ganador.setForeground(new Color(255, 220, 120));
+            ganador.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            puntos = new JLabel("", SwingConstants.CENTER);
+            puntos.setFont(new Font("SansSerif", Font.BOLD, 17));
+            puntos.setForeground(new Color(220, 235, 245));
+            puntos.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JPanel menu = new PanelMenu();
+            menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
+            menu.setBorder(new EmptyBorder(22, 30, 20, 30));
+
+            menu.add(titulo);
+            menu.add(Box.createVerticalStrut(10));
+            menu.add(marcador);
+            menu.add(Box.createVerticalStrut(4));
+            menu.add(ganador);
+            menu.add(Box.createVerticalStrut(8));
+            menu.add(puntos);
+            menu.add(Box.createVerticalStrut(16));
+            agregarBoton(menu, botonRevancha);
+            agregarBoton(menu, botonCambiarPersonaje);
+            agregarBoton(menu, botonMenu);
+
+            GridBagConstraints c = new GridBagConstraints();
+            c.gridx = 0;
+            c.gridy = 0;
+            c.anchor = GridBagConstraints.CENTER;
+            add(menu, c);
+        }
+
+        private static void agregarBoton(JPanel menu, JButton boton) {
+            boton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            menu.add(boton);
+            menu.add(Box.createVerticalStrut(4));
+        }
+
+        private void mostrar(Partido partido) {
+            ResultadoPartido resultado = partido.getResultado();
+            if (resultado == null) {
+                marcador.setText("");
+                ganador.setText("");
+                puntos.setText("");
+                return;
+            }
+
+            String nombre1 = partido.getJugadores().get(0).getNombre();
+            String nombre2 = partido.getJugadores().get(1).getNombre();
+
+            marcador.setText(nombre1 + "  " + resultado.getGolesJugador1()
+                    + " - " + resultado.getGolesJugador2() + "  " + nombre2);
+
+            int ganadorPartido = resultado.getGanador();
+            if (ganadorPartido == 1) {
+                ganador.setText("Ganó " + nombre1);
+            } else if (ganadorPartido == 2) {
+                ganador.setText("Ganó " + nombre2);
+            } else {
+                ganador.setText("Empate");
+            }
+
+            puntos.setText("<html><div style='text-align:center'>"
+                    + nombre1 + ": +" + partido.getPuntosJugador1() + " puntos"
+                    + "&nbsp;&nbsp;|&nbsp;&nbsp;"
+                    + nombre2 + ": +" + partido.getPuntosJugador2() + " puntos"
+                    + "</div></html>");
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setColor(new Color(0, 0, 0, 200));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.dispose();
+        }
+
+        private JButton getBotonRevancha() {
+            return botonRevancha;
+        }
+
+        private JButton getBotonCambiarPersonaje() {
+            return botonCambiarPersonaje;
+        }
+
+        private JButton getBotonMenu() {
+            return botonMenu;
         }
     }
 

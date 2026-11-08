@@ -18,7 +18,11 @@ public class DOPOSoccerGUI extends JFrame {
     private static final String CARTA_CONFIGURACION = "configuracionPartido";
     private static final String CARTA_SELECCION_PERSONAJE = "seleccionPersonaje";
     private static final String CARTA_CONFIGURACION_VISUAL = "configuracionVisual";
+    private static final String CARTA_CONFIGURACION_JUEGO = "configuracionJuego";
+    private static final String CARTA_MEJORAS = "mejoras";
     private static final String CARTA_JUEGO = "juego";
+    private static final String MUSICA_MENU = "resources/audio/CancionDeFondo.wav";
+    private static final String AMBIENTE_PARTIDO = "resources/audio/SonidoAmbienteEstadio.wav";
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
@@ -32,6 +36,12 @@ public class DOPOSoccerGUI extends JFrame {
     private SeleccionPersonajeView seleccionPersonajeView;
     private SeleccionPersonajeController seleccionPersonajeController;
     private ConfiguracionVisualView configuracionVisualView;
+    private ConfiguracionView configuracionView;
+    private ConfiguracionController configuracionController;
+    private MejorasView mejorasView;
+    private MejorasController mejorasController;
+    private ConfiguracionControles configuracionControles = new ConfiguracionControles();
+    private boolean configuracionVuelveAPausa;
     private final List<PerfilJugador> perfiles = new ArrayList<>();
     private boolean perfilVuelveASeleccion;
     private final GestorSonido gestorSonido = new GestorSonido();
@@ -54,7 +64,7 @@ public class DOPOSoccerGUI extends JFrame {
         setSize(screenSize.width, screenSize.height);
         prepareView();
         prepareController();
-        gestorSonido.iniciarMusicaFondo("resources/audio/CancionDeFondo.wav");
+        gestorSonido.iniciarMusicaFondo(MUSICA_MENU);
     }
 
     public static void main(String[] args) {
@@ -76,6 +86,8 @@ public class DOPOSoccerGUI extends JFrame {
         prepareViewConfiguracionPartido();
         prepareViewSeleccionPersonaje();
         prepareViewConfiguracionVisual();
+        prepareViewConfiguracionJuego();
+        prepareViewMejoras();
         mostrarInicio();
     }
 
@@ -114,6 +126,16 @@ public class DOPOSoccerGUI extends JFrame {
         mainPanel.add(configuracionVisualView, CARTA_CONFIGURACION_VISUAL);
     }
 
+    private void prepareViewConfiguracionJuego() {
+        configuracionView = new ConfiguracionView();
+        mainPanel.add(configuracionView, CARTA_CONFIGURACION_JUEGO);
+    }
+
+    private void prepareViewMejoras() {
+        mejorasView = new MejorasView();
+        mainPanel.add(mejorasView, CARTA_MEJORAS);
+    }
+
     private void prepareController() {
         new InicioController(this, inicioView);
         new MenuController(this, menuView);
@@ -122,6 +144,8 @@ public class DOPOSoccerGUI extends JFrame {
         new ConfiguracionPartidoController(this, configuracionPartidoView);
         seleccionPersonajeController = new SeleccionPersonajeController(this, seleccionPersonajeView);
         new ConfiguracionVisualController(this, configuracionVisualView);
+        configuracionController = new ConfiguracionController(this, configuracionView);
+        mejorasController = new MejorasController(this, mejorasView, perfiles);
 
         gestorSonido.agregarOyente(inicioView.getBotonSonido()::setSilenciado);
         gestorSonido.agregarOyente(menuView.getBotonSonido()::setSilenciado);
@@ -130,6 +154,8 @@ public class DOPOSoccerGUI extends JFrame {
         gestorSonido.agregarOyente(configuracionPartidoView.getBotonSonido()::setSilenciado);
         gestorSonido.agregarOyente(seleccionPersonajeView.getBotonSonido()::setSilenciado);
         gestorSonido.agregarOyente(configuracionVisualView.getBotonSonido()::setSilenciado);
+        gestorSonido.agregarOyente(configuracionView.getBotonSonido()::setSilenciado);
+        gestorSonido.agregarOyente(mejorasView.getBotonSonido()::setSilenciado);
     }
 
     public void mostrarInicio() {
@@ -215,6 +241,53 @@ public class DOPOSoccerGUI extends JFrame {
         configuracionVisualView.repaint();
     }
 
+    public void mostrarConfiguracion() {
+        configuracionVuelveAPausa = false;
+        configuracionController.abrir();
+        cardLayout.show(mainPanel, CARTA_CONFIGURACION_JUEGO);
+        configuracionView.repaint();
+    }
+
+    public void mostrarMejoras() {
+        mejorasController.abrir();
+        cardLayout.show(mainPanel, CARTA_MEJORAS);
+        mejorasView.repaint();
+    }
+
+    public void mostrarConfiguracionDesdePausa() {
+        configuracionVuelveAPausa = true;
+        configuracionController.abrir();
+        cardLayout.show(mainPanel, CARTA_CONFIGURACION_JUEGO);
+        configuracionView.repaint();
+    }
+
+    public void volverDeConfiguracion() {
+        if (configuracionVuelveAPausa && juegoView != null) {
+            cardLayout.show(mainPanel, CARTA_JUEGO);
+            juegoView.setPausaVisible(true);
+            juegoView.requestFocusInWindow();
+            juegoView.repaint();
+        } else {
+            mostrarMenu();
+        }
+    }
+
+    public ConfiguracionControles getConfiguracionControles() {
+        return configuracionControles;
+    }
+
+    public void setConfiguracionControles(ConfiguracionControles configuracionControles) {
+        this.configuracionControles = new ConfiguracionControles(configuracionControles);
+    }
+
+    public int getVolumen() {
+        return gestorSonido.getVolumen();
+    }
+
+    public void setVolumen(int volumen) {
+        gestorSonido.setVolumen(volumen);
+    }
+
     public void setPersonajes(Personaje personajeJugador1, Personaje personajeJugador2) {
         this.personajeJugador1 = personajeJugador1;
         this.personajeJugador2 = personajeJugador2;
@@ -284,6 +357,7 @@ public class DOPOSoccerGUI extends JFrame {
         }
 
         cardLayout.show(mainPanel, CARTA_JUEGO);
+        gestorSonido.cambiarMusicaFondo(AMBIENTE_PARTIDO);
         juegoView.requestFocusInWindow();
     }
 
@@ -296,6 +370,10 @@ public class DOPOSoccerGUI extends JFrame {
 
     public void alternarSonido() {
         gestorSonido.alternarSilencio();
+    }
+
+    public void restaurarMusicaMenu() {
+        gestorSonido.cambiarMusicaFondo(MUSICA_MENU);
     }
 
     public void reproducirEfecto(String ruta) {

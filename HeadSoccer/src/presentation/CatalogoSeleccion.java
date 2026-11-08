@@ -67,8 +67,8 @@ final class CatalogoSeleccion {
                 RUTA_PERSONAJES + "ChavoCajaDeSeleccion.png",
                 RUTA_PERSONAJES + "ChavoQuietoDerecha.png",
                 RUTA_PERSONAJES + "ChavoQuietoIzquierda.png",
-                RUTA_PERSONAJES + "ChavoPatadaDerecha.png",
                 RUTA_PERSONAJES + "ChavoPatadaIzquierdo.png",
+                RUTA_PERSONAJES + "ChavoPatadaDerecha.png",
                 RUTA_PERSONAJES + "TituloChavo.png",
                 RUTA_AUDIO + "ChavoSelecionCaja.wav",
                 RUTA_BANDERAS + "BanderaMexicoSeleccion.png"));

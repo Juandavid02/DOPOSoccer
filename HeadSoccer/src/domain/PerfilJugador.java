@@ -92,4 +92,94 @@ public class PerfilJugador {
     public Puntos getPuntos() {
         return configuracion.getPuntos();
     }
+
+    /**
+     * Calcula cuántas mejoras se han comprado, tomando como base las
+     * estadísticas iniciales.
+     *
+     * @return cantidad de puntos de estadística mejorados
+     */
+    public int getMejorasCompradas() {
+        Estadisticas estadisticas = configuracion.getEstadisticas();
+        int total = (estadisticas.getSpeed() - ESTADISTICA_INICIAL)
+                + (estadisticas.getJump() - ESTADISTICA_INICIAL)
+                + (estadisticas.getKick() - ESTADISTICA_INICIAL)
+                + (estadisticas.getSurvival() - ESTADISTICA_INICIAL);
+        return Math.max(0, total);
+    }
+
+    /**
+     * Costo de la siguiente mejora. El precio se duplica después de cada
+     * compra: 500, 1000, 2000, 4000...
+     *
+     * @return costo en puntos
+     */
+    public int getCostoSiguienteMejora() {
+        long costo = ParametrosJuego.COSTO_MEJORA_INICIAL;
+        for (int i = 0; i < getMejorasCompradas(); i++) {
+            costo *= ParametrosJuego.FACTOR_COSTO_MEJORA;
+        }
+        return (int) Math.min(Integer.MAX_VALUE, costo);
+    }
+
+    /**
+     * Indica si una estadística todavía puede subir.
+     *
+     * @param tipo estadística consultada
+     * @return true si está por debajo del máximo
+     */
+    public boolean puedeMejorar(TipoEstadistica tipo) {
+        if (tipo == null) {
+            return false;
+        }
+        return tipo.getValor(configuracion.getEstadisticas())
+                < ParametrosJuego.MAX_ESTADISTICA;
+    }
+
+    /**
+     * Compra un punto de mejora para una estadística y descuenta los puntos
+     * del perfil.
+     *
+     * @param tipo estadística que se mejora
+     * @return true si la compra se realizó
+     */
+    public boolean mejorar(TipoEstadistica tipo) {
+        if (!puedeMejorar(tipo)) {
+            return false;
+        }
+
+        int costo = getCostoSiguienteMejora();
+        if (!configuracion.getPuntos().gastar(costo)) {
+            return false;
+        }
+
+        Estadisticas actuales = configuracion.getEstadisticas();
+        int speed = actuales.getSpeed();
+        int jump = actuales.getJump();
+        int kick = actuales.getKick();
+        int survival = actuales.getSurvival();
+
+        switch (tipo) {
+            case VELOCIDAD:
+                speed++;
+                break;
+            case SALTO:
+                jump++;
+                break;
+            case PATADA:
+                kick++;
+                break;
+            case SUPERVIVENCIA:
+                survival++;
+                break;
+            default:
+                throw new IllegalStateException("Estadística desconocida: " + tipo);
+        }
+
+        configuracion = new ConfiguracionJugador(
+                nombre,
+                new Estadisticas(speed, jump, kick, survival),
+                configuracion.getPuntos());
+        return true;
+    }
 }

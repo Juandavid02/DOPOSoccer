@@ -33,7 +33,7 @@ public class SeleccionPersonajeView extends JPanel {
         setBackground(Color.BLACK);
         setPreferredSize(new Dimension(1920, 1080));
 
-        fondo = RecursosImagen.cargar("resources/images/Ventanas/FondoSelecionPersonaje.png");
+        fondo = RecursosImagen.cargar("resources/images/Ventanas/FondoSelecionPersonaje.jpg");
 
         botonAtras = crearBotonImagen(RUTA_BOTONES + "Retroceder.png", 90);
         botonSonido = new BotonSonido(64);
@@ -91,6 +91,10 @@ public class SeleccionPersonajeView extends JPanel {
 
         g2.drawImage(fondo, (getWidth() - ancho) / 2, (getHeight() - alto) / 2,
                 ancho, alto, null);
+
+        // Capa azul marino semitransparente para dar contraste a los paneles.
+        g2.setColor(new Color(8, 24, 46, 135));
+        g2.fillRect(0, 0, getWidth(), getHeight());
         g2.dispose();
     }
 
@@ -419,7 +423,7 @@ public class SeleccionPersonajeView extends JPanel {
     // ------------------------------------------------------------------
     private static final class PanelCentro extends JPanel {
 
-        private final JLabel turno;
+        private final PanelTurno turno;
         private final JButton botonReady;
         private final List<BotonCaja> botones = new ArrayList<>();
 
@@ -429,12 +433,7 @@ public class SeleccionPersonajeView extends JPanel {
 
             PanelTitulo titulo = new PanelTitulo("SELECCIONA TU PERSONAJE");
 
-            turno = new JLabel("ELIGE JUGADOR 1", SwingConstants.CENTER);
-            turno.setFont(new Font("SansSerif", Font.BOLD, 19));
-            turno.setForeground(Color.WHITE);
-            turno.setOpaque(true);
-            turno.setBackground(new Color(0, 0, 0, 140));
-            turno.setBorder(new EmptyBorder(4, 18, 4, 18));
+            turno = new PanelTurno("ELIGE JUGADOR 1");
 
             JPanel cuadricula = new JPanel(new GridLayout(3, 3, 8, 8));
             cuadricula.setOpaque(false);
@@ -500,14 +499,7 @@ public class SeleccionPersonajeView extends JPanel {
         }
 
         private void actualizarTurno(int turnoActual, boolean ambosListos) {
-            if (ambosListos) {
-                turno.setText("¡LISTOS!");
-            } else if (turnoActual == 2) {
-                turno.setText("ELIGE JUGADOR 2");
-            } else {
-                turno.setText("ELIGE JUGADOR 1");
-            }
-
+            turno.actualizar(turnoActual, ambosListos);
             botonReady.setVisible(ambosListos);
             revalidate();
             repaint();
@@ -567,24 +559,36 @@ public class SeleccionPersonajeView extends JPanel {
 
             int ancho = getWidth();
             int alto = getHeight();
-            int arco = 16;
+            boolean encima = getModel().isRollover() && isEnabled();
+            int margen = encima ? 1 : 4;
+            int arco = 18;
             RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    0, 0, ancho - 1, alto - 1, arco, arco);
+                    margen, margen, ancho - 1 - margen * 2,
+                    alto - 1 - margen * 2, arco, arco);
 
             if (opcion == null) {
-                g2.setColor(new Color(240, 246, 240));
+                g2.setColor(new Color(8, 26, 48, 235));
                 g2.fill(forma);
 
-                g2.setColor(new Color(150, 170, 155));
-                g2.setStroke(new BasicStroke(2f));
+                g2.setStroke(new BasicStroke(2.5f));
+                g2.setColor(new Color(202, 170, 92));
                 g2.draw(forma);
 
+                g2.setStroke(new BasicStroke(1f));
+                g2.setColor(new Color(255, 225, 145, 80));
+                g2.draw(new RoundRectangle2D.Float(
+                        margen + 3, margen + 3, ancho - 7 - margen * 2,
+                        alto - 7 - margen * 2, arco, arco));
+
                 g2.setFont(new Font("SansSerif", Font.BOLD, Math.max(28, alto / 3)));
-                g2.setColor(new Color(120, 140, 125));
                 FontMetrics fm = g2.getFontMetrics();
                 String signo = "?";
                 int x = (ancho - fm.stringWidth(signo)) / 2;
                 int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
+
+                g2.setColor(new Color(0, 0, 0, 130));
+                g2.drawString(signo, x + 2, y + 2);
+                g2.setColor(new Color(242, 205, 98));
                 g2.drawString(signo, x, y);
                 g2.dispose();
                 return;
@@ -601,26 +605,35 @@ public class SeleccionPersonajeView extends JPanel {
             g2.setClip(forma);
             g2.drawImage(imagen, xImagen, yImagen, anchoImagen, altoImagen, null);
 
-            if (getModel().isRollover() && isEnabled()) {
-                g2.setColor(new Color(255, 255, 255, 40));
+            if (encima) {
+                g2.setColor(new Color(255, 255, 255, 42));
                 g2.fill(forma);
             }
-
             g2.setClip(null);
 
-            if (!isEnabled()) {
+            if (!isEnabled() && !seleccionado) {
                 g2.setColor(new Color(20, 35, 45, 130));
                 g2.fill(forma);
             }
 
             if (seleccionado) {
-                g2.setStroke(new BasicStroke(5f));
-                g2.setColor(new Color(255, 210, 70));
+                g2.setColor(new Color(255, 219, 90, 38));
+                g2.fill(forma);
+
+                g2.setStroke(new BasicStroke(8f));
+                g2.setColor(new Color(255, 220, 90, 70));
+                g2.draw(forma);
+
+                g2.setStroke(new BasicStroke(4.5f));
+                g2.setColor(new Color(255, 238, 150));
+                g2.draw(forma);
             } else {
-                g2.setStroke(new BasicStroke(2f));
-                g2.setColor(new Color(30, 70, 90));
+                g2.setStroke(new BasicStroke(encima ? 3f : 2.2f));
+                g2.setColor(encima
+                        ? new Color(255, 222, 110)
+                        : new Color(210, 176, 78));
+                g2.draw(forma);
             }
-            g2.draw(forma);
 
             g2.dispose();
         }
@@ -686,6 +699,87 @@ public class SeleccionPersonajeView extends JPanel {
         }
     }
 
+    /**
+     * Píldora que indica de quién es el turno. Usa el mismo estilo del
+     * título, pero cambia a azul para el jugador 1 y rojo para el jugador 2.
+     */
+    private static final class PanelTurno extends JComponent {
+
+        private static final Font FUENTE = new Font("SansSerif", Font.BOLD, 19);
+
+        private String texto;
+        private Color colorSuperior = new Color(84, 176, 104, 240);
+        private Color colorInferior = new Color(28, 100, 54, 240);
+
+        private PanelTurno(String texto) {
+            this.texto = texto;
+        }
+
+        private void actualizar(int turnoActual, boolean ambosListos) {
+            if (ambosListos) {
+                texto = "¡LISTOS!";
+                colorSuperior = new Color(232, 196, 92, 245);
+                colorInferior = new Color(156, 112, 20, 245);
+            } else if (turnoActual == 2) {
+                texto = "ELIGE JUGADOR 2";
+                colorSuperior = new Color(210, 92, 92, 240);
+                colorInferior = new Color(128, 28, 38, 240);
+            } else {
+                texto = "ELIGE JUGADOR 1";
+                colorSuperior = new Color(84, 176, 104, 240);
+                colorInferior = new Color(28, 100, 54, 240);
+            }
+
+            revalidate();
+            repaint();
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            FontMetrics fm = getFontMetrics(FUENTE);
+            return new Dimension(fm.stringWidth(texto) + 64, 46);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int ancho = getWidth();
+            int alto = getHeight();
+            int arco = alto - 8;
+
+            g2.setColor(new Color(0, 0, 0, 100));
+            g2.fillRoundRect(4, 6, ancho - 8, alto - 10, arco, arco);
+
+            g2.setPaint(new GradientPaint(0, 0, colorSuperior, 0, alto, colorInferior));
+            g2.fillRoundRect(2, 2, ancho - 4, alto - 8, arco, arco);
+
+            g2.setStroke(new BasicStroke(2f));
+            g2.setColor(new Color(255, 255, 255, 180));
+            g2.drawRoundRect(4, 4, ancho - 9, alto - 13, arco, arco);
+
+            g2.setFont(FUENTE);
+            FontMetrics fm = g2.getFontMetrics();
+            int x = (ancho - fm.stringWidth(texto)) / 2;
+            int y = (alto - 6 - fm.getHeight()) / 2 + fm.getAscent();
+
+            g2.setColor(new Color(16, 32, 46));
+            for (int dx = -2; dx <= 2; dx++) {
+                for (int dy = -2; dy <= 2; dy++) {
+                    if (dx != 0 || dy != 0) {
+                        g2.drawString(texto, x + dx, y + dy);
+                    }
+                }
+            }
+            g2.setColor(Color.WHITE);
+            g2.drawString(texto, x, y);
+
+            g2.dispose();
+        }
+    }
+
     private static final class PanelCuadricula extends JPanel {
 
         private PanelCuadricula() {
@@ -698,12 +792,22 @@ public class SeleccionPersonajeView extends JPanel {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
 
-            g2.setColor(new Color(230, 242, 233));
-            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 24, 24);
+            int ancho = getWidth();
+            int alto = getHeight();
+            RoundRectangle2D forma = new RoundRectangle2D.Float(
+                    1, 1, ancho - 3, alto - 3, 30, 30);
 
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(90, 150, 110));
-            g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 24, 24);
+            g2.setColor(new Color(8, 28, 50, 205));
+            g2.fill(forma);
+
+            g2.setStroke(new BasicStroke(3f));
+            g2.setColor(new Color(212, 175, 55));
+            g2.draw(forma);
+
+            g2.setStroke(new BasicStroke(1f));
+            g2.setColor(new Color(255, 225, 140, 95));
+            g2.draw(new RoundRectangle2D.Float(
+                    5, 5, ancho - 11, alto - 11, 24, 24));
 
             g2.dispose();
         }

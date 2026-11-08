@@ -16,8 +16,8 @@ final class CatalogoVisual {
             new Opcion("Betty", RUTA_BALONES + "BettyBalon.png"));
 
     private static final List<Opcion> ESCENARIOS = List.of(
-            new Opcion("Reino Champiñón", RUTA_ESCENARIOS + "EscennarioReinoChampiñon.png"),
-            new Opcion("Fondo de Bikini", RUTA_ESCENARIOS + "EscennarioFondoDeBikini.png"),
+            new Opcion("Reino Champiñón", RUTA_ESCENARIOS + "EscennarioReinoChampiñon.jpg"),
+            new Opcion("Fondo de Bikini", RUTA_ESCENARIOS + "EscennarioFondoDeBikini.jpg"),
             new Opcion("Tenkaichi Budokai", RUTA_ESCENARIOS + "EscennarioTenkaichiBudokai.jpg"),
             new Opcion("Vecindad del Chavo", RUTA_ESCENARIOS + "EscennarioVecindadDelCHavo.jpg"));
 
