@@ -7,21 +7,22 @@ public class ConfiguracionPartido {
     private final int tiempo;
     private final int goles;
 
-    public ConfiguracionPartido(Modalidad modalidad, TipoPartido tipo, Resolucion resolucion, int tiempo, int goles) {
+    public ConfiguracionPartido(Modalidad modalidad, TipoPartido tipo, Resolucion resolucion, int tiempo, int goles)
+            throws ExcepcionDOPOSoccer {
         if (modalidad == null) {
-            throw new IllegalArgumentException("La modalidad no puede ser nula");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.MODALIDAD_NULA);
         }
         if (tipo == null) {
-            throw new IllegalArgumentException("El tipo de partido no puede ser nulo");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.TIPO_PARTIDO_NULO);
         }
         if (resolucion == null) {
-            throw new IllegalArgumentException("La resolución no puede ser nula");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.RESOLUCION_NULA);
         }
         if (tiempo <= 0) {
-            throw new IllegalArgumentException("El tiempo debe ser mayor que cero");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.TIEMPO_INVALIDO);
         }
         if (goles <= 0) {
-            throw new IllegalArgumentException("Los goles deben ser mayores que cero");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.GOLES_INVALIDOS);
         }
 
         this.modalidad = modalidad;

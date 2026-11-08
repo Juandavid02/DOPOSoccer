@@ -1,5 +1,6 @@
 package presentation;
 
+import domain.ExcepcionDOPOSoccer;
 import domain.PerfilJugador;
 import domain.TipoEstadistica;
 
@@ -70,9 +71,17 @@ public class MejorasController {
             return;
         }
 
-        if (perfil.mejorar(tipo)) {
-            view.mostrarPerfil(perfil);
-            view.getListaPerfiles().repaint();
+        try {
+            if (perfil.mejorar(tipo)) {
+                view.mostrarPerfil(perfil);
+                view.getListaPerfiles().repaint();
+            }
+        } catch (ExcepcionDOPOSoccer e) {
+            JOptionPane.showMessageDialog(
+                    view,
+                    e.getMessage(),
+                    "Mejoras",
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 }

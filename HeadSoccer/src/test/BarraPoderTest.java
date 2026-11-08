@@ -10,9 +10,6 @@ import domain.BarraPoder;
  * Clase de pruebas BarraPoderTest.
  * Pruebas de la barra de poder: estado inicial, recarga, tope,
  * consumo y validaciones del constructor.
- *
- * @author Juan David Rojas Heredia
- * @version 05-11-2026
  */
 public class BarraPoderTest
 {

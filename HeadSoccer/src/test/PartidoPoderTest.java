@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import domain.ConfiguracionJugador;
 import domain.ConfiguracionPartido;
 import domain.Estadisticas;
+import domain.ExcepcionDOPOSoccer;
 import domain.Jugador;
 import domain.Modalidad;
 import domain.ParametrosJuego;
@@ -229,18 +230,22 @@ public class PartidoPoderTest {
     private Partido crearPartido(Personaje personaje1, Personaje personaje2,
                                  Estadisticas estadisticas1,
                                  Estadisticas estadisticas2) {
-        ConfiguracionPartido configuracion = new ConfiguracionPartido(
-                Modalidad.PvsP,
-                TipoPartido.TIEMPO,
-                Resolucion.R1280x720,
-                5,
-                3);
+        try {
+            ConfiguracionPartido configuracion = new ConfiguracionPartido(
+                    Modalidad.PvsP,
+                    TipoPartido.TIEMPO,
+                    Resolucion.R1280x720,
+                    5,
+                    3);
 
-        return new Partido(
-                configuracion,
-                personaje1,
-                personaje2,
-                new ConfiguracionJugador("Ana", estadisticas1),
-                new ConfiguracionJugador("Luis", estadisticas2));
+            return new Partido(
+                    configuracion,
+                    personaje1,
+                    personaje2,
+                    new ConfiguracionJugador("Ana", estadisticas1),
+                    new ConfiguracionJugador("Luis", estadisticas2));
+        } catch (ExcepcionDOPOSoccer e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,8 +1,10 @@
 package presentation;
 
 import domain.ConfiguracionPartido;
+import domain.ExcepcionDOPOSoccer;
 import domain.Modalidad;
 
+import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -39,14 +41,22 @@ public class ConfiguracionPartidoController {
     }
 
     private void continuar() {
-        ConfiguracionPartido configuracion = new ConfiguracionPartido(
-                Modalidad.PvsP,
-                view.getTipoPartido(),
-                view.getResolucion(),
-                view.getTiempo(),
-                view.getGoles());
+        try {
+            ConfiguracionPartido configuracion = new ConfiguracionPartido(
+                    Modalidad.PvsP,
+                    view.getTipoPartido(),
+                    view.getResolucion(),
+                    view.getTiempo(),
+                    view.getGoles());
 
-        gui.setConfiguracionPartido(configuracion);
-        gui.iniciarSeleccionPersonaje();
+            gui.setConfiguracionPartido(configuracion);
+            gui.iniciarSeleccionPersonaje();
+        } catch (ExcepcionDOPOSoccer e) {
+            JOptionPane.showMessageDialog(
+                    view,
+                    e.getMessage(),
+                    "Configuración del partido",
+                    JOptionPane.WARNING_MESSAGE);
+        }
     }
 }

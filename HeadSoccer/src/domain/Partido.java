@@ -41,12 +41,12 @@ public class Partido {
         this.resolucion = configuracion.getResolucion();
         this.cancha = new Cancha(resolucion);
         this.jugadores = List.of(
-                new Jugador(configuracion1, p1,
+                new JugadorHumano(configuracion1, p1,
                         new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER, ParametrosJuego.RECARGA_BARRA_PODER),
                         Lado.IZQUIERDO,
                         cancha.getAncho() / 4.0,
                         cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR),
-                new Jugador(configuracion2, p2,
+                new JugadorHumano(configuracion2, p2,
                         new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER, ParametrosJuego.RECARGA_BARRA_PODER),
                         Lado.DERECHO,
                         cancha.getAncho() * 3.0 / 4.0,

@@ -9,9 +9,6 @@ import domain.Vida;
 /**
  * Clase de pruebas VidaTest.
  * Pruebas de la vida de un jugador: inicio, daño, límite inferior y reinicio.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class VidaTest
 {

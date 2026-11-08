@@ -12,9 +12,6 @@ import domain.Resolucion;
  * Clase de pruebas CanchaTest.
  * Pruebas de la geometría de la cancha: dimensiones, posición de los
  * arcos y detección de la boca de cada arco.
- *
- * @author Juan David Rojas Heredia
- * @version 05-11-2026
  */
 public class CanchaTest
 {

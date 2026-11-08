@@ -9,9 +9,6 @@ import domain.PoderFlechazoDeAmor;
 /**
  * Clase de pruebas PoderFlechazoDeAmorTest.
  * Verifica los datos del poder de Betty la fea (Colombia).
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class PoderFlechazoDeAmorTest
 {

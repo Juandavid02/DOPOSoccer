@@ -1,6 +1,6 @@
 package domain;
 
-public class Jugador {
+public abstract class Jugador {
     private final String nombre;
 
     private final Personaje personaje;
@@ -59,6 +59,18 @@ public class Jugador {
         this.enSuelo = true;
         
     }
+
+    /**
+     * Ejecuta la lógica de control de este jugador.
+     *
+     * <p>Las subclases deciden de dónde salen las acciones. En el jugador
+     * humano la entrada se aplica desde la capa de presentación mediante
+     * Partido; en la IA será la propia IA la que decida qué hacer.</p>
+     *
+     * @param partido partido en el que se está jugando
+     * @param dt tiempo transcurrido desde la última actualización
+     */
+    public abstract void actualizarControl(Partido partido, double dt);
 
     public String getNombre() {
         return nombre;

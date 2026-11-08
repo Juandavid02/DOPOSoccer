@@ -13,9 +13,6 @@ import domain.Resolucion;
  * Clase de pruebas BalonTest.
  * Pruebas de la física del balón: estado inicial, gravedad, fricción,
  * rebotes en suelo, techo y paredes, y reinicio de posición.
- *
- * @author Juan David Rojas Heredia
- * @version 05-11-2026
  */
 public class BalonTest
 {

@@ -13,9 +13,6 @@ import domain.Personaje;
 /**
  * Clase de pruebas CatalogoPersonajesTest.
  * Verifica los seis personajes disponibles, sus países y sus poderes.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class CatalogoPersonajesTest
 {

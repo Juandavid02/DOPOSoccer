@@ -10,9 +10,6 @@ import domain.Marcador;
  * Clase de pruebas MarcadorTest.
  * Pruebas del marcador: estado inicial, suma de goles, empate,
  * ganador, reinicio y validación de jugadores.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class MarcadorTest
 {

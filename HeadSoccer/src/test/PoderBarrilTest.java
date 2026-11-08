@@ -9,9 +9,6 @@ import domain.PoderBarril;
 /**
  * Clase de pruebas PoderBarrilTest.
  * Verifica los datos del poder de El Chavo del Ocho (México).
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class PoderBarrilTest
 {

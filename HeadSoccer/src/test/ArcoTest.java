@@ -13,9 +13,6 @@ import domain.Resolucion;
  * Clase de pruebas ArcoTest.
  * Pruebas de la geometría de un arco: posición, tamaño, boca y
  * detección de que el balón entró completamente.
- *
- * @author Juan David Rojas Heredia
- * @version 05-11-2026
  */
 public class ArcoTest
 {

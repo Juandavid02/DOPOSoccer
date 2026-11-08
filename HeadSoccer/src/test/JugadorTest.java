@@ -9,7 +9,9 @@ import domain.BarraPoder;
 import domain.Cancha;
 import domain.ConfiguracionJugador;
 import domain.Estadisticas;
+import domain.ExcepcionDOPOSoccer;
 import domain.Jugador;
+import domain.JugadorHumano;
 import domain.Lado;
 import domain.ParametrosJuego;
 import domain.Personaje;
@@ -20,9 +22,6 @@ import domain.Resolucion;
  * Clase de pruebas JugadorTest.
  * Pruebas del jugador: posición, movimiento, salto, gravedad, patada y uso
  * de sus propias estadísticas (speed, jump, kick, survival).
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class JugadorTest
 {
@@ -240,18 +239,22 @@ public class JugadorTest
     private Jugador crearJugador(String nombre, int speed, int jump, int kick, int survival,
                                  Lado lado, double x, double y)
     {
-        ConfiguracionJugador configuracion = new ConfiguracionJugador(
-                nombre, new Estadisticas(speed, jump, kick, survival));
+        try {
+            ConfiguracionJugador configuracion = new ConfiguracionJugador(
+                    nombre, new Estadisticas(speed, jump, kick, survival));
 
-        return new Jugador(
-                configuracion,
-                crearPersonaje(),
-                new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER,
-                        ParametrosJuego.RECARGA_BARRA_PODER),
-                lado,
-                x,
-                y
-        );
+            return new JugadorHumano(
+                    configuracion,
+                    crearPersonaje(),
+                    new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER,
+                            ParametrosJuego.RECARGA_BARRA_PODER),
+                    lado,
+                    x,
+                    y
+            );
+        } catch (ExcepcionDOPOSoccer e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

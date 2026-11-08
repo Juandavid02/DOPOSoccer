@@ -1,5 +1,6 @@
 package presentation;
 
+import domain.ExcepcionDOPOSoccer;
 import domain.PerfilJugador;
 
 import javax.swing.*;
@@ -103,11 +104,15 @@ public class PerfilController {
             return;
         }
 
-        PerfilJugador perfil = new PerfilJugador(nombre);
-        perfiles.add(perfil);
+        try {
+            PerfilJugador perfil = new PerfilJugador(nombre);
+            perfiles.add(perfil);
 
-        view.mostrarPerfiles(perfiles);
-        view.getListaPerfiles().setSelectedIndex(perfiles.size() - 1);
+            view.mostrarPerfiles(perfiles);
+            view.getListaPerfiles().setSelectedIndex(perfiles.size() - 1);
+        } catch (ExcepcionDOPOSoccer e) {
+            mostrarError(e.getMessage());
+        }
     }
 
     /**
@@ -133,7 +138,12 @@ public class PerfilController {
             return;
         }
 
-        perfil.setNombre(nombre);
+        try {
+            perfil.setNombre(nombre);
+        } catch (ExcepcionDOPOSoccer e) {
+            mostrarError(e.getMessage());
+            return;
+        }
 
         view.mostrarPerfiles(perfiles);
         view.getListaPerfiles().setSelectedIndex(indice);

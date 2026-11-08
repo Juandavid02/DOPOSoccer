@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import domain.ConfiguracionJugador;
 import domain.ConfiguracionPartido;
 import domain.Estadisticas;
+import domain.ExcepcionDOPOSoccer;
 import domain.Modalidad;
 import domain.MotivoFin;
 import domain.Partido;
@@ -19,9 +20,6 @@ import domain.TipoPartido;
 /**
  * Clase de pruebas ReglaGolesTest.
  * Pruebas de la regla de victoria por goles.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class ReglaGolesTest
 {
@@ -83,21 +81,25 @@ public class ReglaGolesTest
 
     private Partido crearPartido(int goles)
     {
-        ConfiguracionPartido configuracion = new ConfiguracionPartido(
-                Modalidad.PvsP,
-                TipoPartido.GOLES,
-                Resolucion.R1280x720,
-                1,
-                goles
-        );
+        try {
+            ConfiguracionPartido configuracion = new ConfiguracionPartido(
+                    Modalidad.PvsP,
+                    TipoPartido.GOLES,
+                    Resolucion.R1280x720,
+                    1,
+                    goles
+            );
 
-        return new Partido(
-                configuracion,
-                crearPersonaje(),
-                crearPersonaje(),
-                new ConfiguracionJugador("A", new Estadisticas(1, 1, 1, 1)),
-                new ConfiguracionJugador("B", new Estadisticas(1, 1, 1, 1))
-        );
+            return new Partido(
+                    configuracion,
+                    crearPersonaje(),
+                    crearPersonaje(),
+                    new ConfiguracionJugador("A", new Estadisticas(1, 1, 1, 1)),
+                    new ConfiguracionJugador("B", new Estadisticas(1, 1, 1, 1))
+            );
+        } catch (ExcepcionDOPOSoccer e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Personaje crearPersonaje()

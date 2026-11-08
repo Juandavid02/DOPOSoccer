@@ -5,7 +5,7 @@ import java.awt.event.KeyEvent;
 /**
  * Teclas asignadas a las acciones de cada jugador.
  *
- * Las teclas se guardan como códigos de {@link KeyEvent}. La configuración es
+ * Las teclas se guardan como códigos de KeyEvent. La configuración es
  * independiente de la pantalla que la edita.
  */
 public final class ConfiguracionControles {
@@ -59,7 +59,7 @@ public final class ConfiguracionControles {
      *
      * @param jugador número del jugador: 1 o 2
      * @param accion acción consultada
-     * @return código de {@link KeyEvent}
+     * @return código de KeyEvent
      */
     public int getTecla(int jugador, Accion accion) {
         validarJugador(jugador);
@@ -117,7 +117,7 @@ public final class ConfiguracionControles {
     /**
      * Convierte un código de tecla en un nombre legible.
      *
-     * @param tecla código de {@link KeyEvent}
+     * @param tecla código de KeyEvent
      * @return nombre corto de la tecla
      */
     public static String nombreTecla(int tecla) {

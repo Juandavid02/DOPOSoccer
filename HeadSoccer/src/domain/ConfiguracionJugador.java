@@ -5,19 +5,21 @@ public class ConfiguracionJugador {
     private final Estadisticas estadisticas;
     private final Puntos puntos;
 
-    public ConfiguracionJugador(String nombre, Estadisticas estadisticas) {
+    public ConfiguracionJugador(String nombre, Estadisticas estadisticas)
+            throws ExcepcionDOPOSoccer {
         this(nombre, estadisticas, new Puntos());
     }
 
-    public ConfiguracionJugador(String nombre, Estadisticas estadisticas, Puntos puntos) {
+    public ConfiguracionJugador(String nombre, Estadisticas estadisticas, Puntos puntos)
+            throws ExcepcionDOPOSoccer {
         if (nombre == null || nombre.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre no puede ser nulo o vacío");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.NOMBRE_INVALIDO);
         }
         if (estadisticas == null) {
-            throw new IllegalArgumentException("Las estadísticas no pueden ser nulas");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.ESTADISTICAS_NULAS);
         }
         if (puntos == null) {
-            throw new IllegalArgumentException("Los puntos no pueden ser nulos");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.PUNTOS_NULOS);
         }
         this.nombre = nombre;
         this.estadisticas = estadisticas;

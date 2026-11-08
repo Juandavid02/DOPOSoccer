@@ -9,6 +9,7 @@ import domain.ConfiguracionJugador;
 import domain.ConfiguracionPartido;
 import domain.EstadoPartido;
 import domain.Estadisticas;
+import domain.ExcepcionDOPOSoccer;
 import domain.Jugador;
 import domain.Lado;
 import domain.Modalidad;
@@ -24,9 +25,6 @@ import domain.TipoPartido;
  * Clase de pruebas PartidoTest.
  * Pruebas del partido: estado inicial, jugadores, balón, goles,
  * reinicio, pausa, tiempo y resultado final.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class PartidoTest
 {
@@ -282,21 +280,25 @@ public class PartidoTest
      */
     private Partido crearPartido(TipoPartido tipo, int goles)
     {
-        ConfiguracionPartido configuracion = new ConfiguracionPartido(
-                Modalidad.PvsP,
-                tipo,
-                Resolucion.R1280x720,
-                1,
-                goles
-        );
+        try {
+            ConfiguracionPartido configuracion = new ConfiguracionPartido(
+                    Modalidad.PvsP,
+                    tipo,
+                    Resolucion.R1280x720,
+                    1,
+                    goles
+            );
 
-        return new Partido(
-                configuracion,
-                crearPersonaje(),
-                crearPersonaje(),
-                new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
-                new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5))
-        );
+            return new Partido(
+                    configuracion,
+                    crearPersonaje(),
+                    crearPersonaje(),
+                    new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
+                    new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5))
+            );
+        } catch (ExcepcionDOPOSoccer e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

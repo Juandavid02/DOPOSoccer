@@ -5,7 +5,7 @@ package domain;
  *
  * Todos los números del juego (física, vida, daño, barra de poder y puntos)
  * viven aquí para no quedar hardcodeados en la lógica. Las dimensiones de la
- * cancha ya no están aquí: las define {@link Resolucion}.
+ * cancha ya no están aquí: las define Resolucion.
  */
 public class ParametrosJuego {
 

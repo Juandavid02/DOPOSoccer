@@ -18,8 +18,9 @@ public class PerfilJugador {
      * Crea un perfil nuevo con estadísticas iniciales y cero puntos.
      *
      * @param nombre el nombre del perfil
+     * @throws ExcepcionDOPOSoccer si el nombre no es válido
      */
-    public PerfilJugador(String nombre) {
+    public PerfilJugador(String nombre) throws ExcepcionDOPOSoccer {
         this(UUID.randomUUID().toString(), nombre, estadisticasIniciales(nombre));
     }
 
@@ -29,21 +30,24 @@ public class PerfilJugador {
      * @param id identificador único del perfil
      * @param nombre nombre del perfil
      * @param configuracion configuración con estadísticas y puntos
+     * @throws ExcepcionDOPOSoccer si algún dato no es válido
      */
-    public PerfilJugador(String id, String nombre, ConfiguracionJugador configuracion) {
+    public PerfilJugador(String id, String nombre, ConfiguracionJugador configuracion)
+            throws ExcepcionDOPOSoccer {
         if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("El id no puede ser nulo o vacío");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.ID_INVALIDO);
         }
         validarNombre(nombre);
         if (configuracion == null) {
-            throw new IllegalArgumentException("La configuración no puede ser nula");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.CONFIGURACION_NULA);
         }
         this.id = id;
         this.nombre = nombre;
         this.configuracion = configuracion;
     }
 
-    private static ConfiguracionJugador estadisticasIniciales(String nombre) {
+    private static ConfiguracionJugador estadisticasIniciales(String nombre)
+            throws ExcepcionDOPOSoccer {
         validarNombre(nombre);
         Estadisticas estadisticas = new Estadisticas(
                 ESTADISTICA_INICIAL,
@@ -53,9 +57,9 @@ public class PerfilJugador {
         return new ConfiguracionJugador(nombre, estadisticas);
     }
 
-    private static void validarNombre(String nombre) {
+    private static void validarNombre(String nombre) throws ExcepcionDOPOSoccer {
         if (nombre == null || nombre.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre no puede ser nulo o vacío");
+            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.NOMBRE_INVALIDO);
         }
     }
 
@@ -71,8 +75,9 @@ public class PerfilJugador {
      * Cambia el nombre del perfil conservando sus estadísticas y puntos.
      *
      * @param nombre el nuevo nombre
+     * @throws ExcepcionDOPOSoccer si el nombre no es válido
      */
-    public void setNombre(String nombre) {
+    public void setNombre(String nombre) throws ExcepcionDOPOSoccer {
         validarNombre(nombre);
         this.nombre = nombre;
         this.configuracion = new ConfiguracionJugador(
@@ -142,8 +147,9 @@ public class PerfilJugador {
      *
      * @param tipo estadística que se mejora
      * @return true si la compra se realizó
+     * @throws ExcepcionDOPOSoccer si no se puede crear la nueva configuración
      */
-    public boolean mejorar(TipoEstadistica tipo) {
+    public boolean mejorar(TipoEstadistica tipo) throws ExcepcionDOPOSoccer {
         if (!puedeMejorar(tipo)) {
             return false;
         }
