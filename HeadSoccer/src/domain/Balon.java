@@ -39,6 +39,18 @@ public class Balon {
         this.velocidadY += impulsoY;
     }
 
+    /**
+     * Fija la velocidad del balón. Se usa al ejecutar un tiro de poder para
+     * que salga con la trayectoria exacta del poder.
+     *
+     * @param velocidadX nueva velocidad horizontal
+     * @param velocidadY nueva velocidad vertical
+     */
+    public void establecerVelocidad(double velocidadX, double velocidadY) {
+        this.velocidadX = velocidadX;
+        this.velocidadY = velocidadY;
+    }
+
     public void actualizar(double dt, Cancha cancha) {
         velocidadY += ParametrosJuego.GRAVEDAD * dt;
         velocidadX *= Math.pow(ParametrosJuego.FRICCION, dt*60);

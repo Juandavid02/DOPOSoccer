@@ -25,5 +25,19 @@ public class PoderRayo implements Poder {
     public double getDanoTiro(Jugador jugador) {
         return danoTiro;
     }
-    
+
+    @Override
+    public TipoEfecto getTipoEfecto() {
+        return TipoEfecto.ELECTROCUTADO;
+    }
+
+    @Override
+    public double getImpulsoX() {
+        return 1450;
+    }
+
+    @Override
+    public double getImpulsoY() {
+        return -120;
+    }
 }

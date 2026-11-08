@@ -103,12 +103,12 @@ public class SeleccionPersonajeController {
         gui.detenerSonido();
         gui.setPersonajes(personaje1, personaje2);
 
+        // Siempre se pasa por la selección de balón y escenario, incluso
+        // cuando el cambio de personaje se hizo desde una partida en curso.
         if (gui.isCambiarPersonajeDesdeJuego()) {
             gui.terminarCambioPersonaje();
-            gui.iniciarJuego();
-        } else {
-            gui.mostrarConfiguracionVisual();
         }
+        gui.mostrarConfiguracionVisual();
     }
 
     private void actualizarTurno() {

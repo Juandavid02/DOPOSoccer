@@ -25,4 +25,19 @@ public class PoderFlechazoDeAmor implements Poder {
     public double getDanoTiro(Jugador jugador) {
         return danoTiro;
     }
+
+    @Override
+    public TipoEfecto getTipoEfecto() {
+        return TipoEfecto.CONTROLES_INVERTIDOS;
+    }
+
+    @Override
+    public double getImpulsoX() {
+        return 1250;
+    }
+
+    @Override
+    public double getImpulsoY() {
+        return -150;
+    }
 }

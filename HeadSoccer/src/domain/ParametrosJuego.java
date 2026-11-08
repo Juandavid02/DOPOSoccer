@@ -47,6 +47,8 @@ public class ParametrosJuego {
     // Estadísticas (rango y crecimiento)
     public static final int MIN_ESTADISTICA = 1;
     public static final int MAX_ESTADISTICA = 10;
+    /** Valor de cada estadística en un perfil sin mejoras. */
+    public static final int ESTADISTICA_INICIAL = 5;
     /** Cada punto de estadística suma un 10 % sobre el valor base. */
     public static final double INCREMENTO_POR_PUNTO = 0.10;
 
@@ -57,6 +59,14 @@ public class ParametrosJuego {
     public static final double TIEMPO_ATURDIMIENTO = 3.0;
     /** Tolerancia extra para golpear al rival con la bota. */
     public static final double TOLERANCIA_GOLPE_PATADA = 10;
+
+    // Efectos de los tiros de poder
+    /** Velocidad horizontal con la que el Aura Azul empuja al rival. */
+    public static final double IMPULSO_EMPUJE = 900;
+    /** Componente vertical del empuje. */
+    public static final double IMPULSO_EMPUJE_VERTICAL = 300;
+    /** Impulso vertical del Tornado para lanzar al rival al aire. */
+    public static final double IMPULSO_INCONSCIENTE = 650;
 
     // Barra de poder
     public static final double CAPACIDAD_BARRA_PODER = 100;

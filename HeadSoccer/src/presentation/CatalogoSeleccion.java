@@ -73,6 +73,39 @@ final class CatalogoSeleccion {
                 RUTA_AUDIO + "ChavoSelecionCaja.wav",
                 RUTA_BANDERAS + "BanderaMexicoSeleccion.png"));
 
+        opciones.add(new Opcion(
+                buscarPersonaje("Jungkook"),
+                RUTA_PERSONAJES + "BTSCajadeSeleccion.png",
+                RUTA_PERSONAJES + "BtsQuietoDerecha.png",
+                RUTA_PERSONAJES + "BtsQuietoIzquierda.png",
+                RUTA_PERSONAJES + "BtsPatadaDerecha.png",
+                RUTA_PERSONAJES + "BtsPatadaIzquierda.png",
+                RUTA_PERSONAJES + "TituloBTS.png",
+                RUTA_AUDIO + "BTSSelecionCaja.wav",
+                RUTA_BANDERAS + "BanderaCorea.png"));
+
+        opciones.add(new Opcion(
+                buscarPersonaje("Goku"),
+                RUTA_PERSONAJES + "GokuCajadeSeleccion.png",
+                RUTA_PERSONAJES + "GokuQuietoDerecha.png",
+                RUTA_PERSONAJES + "GokuQuietoIzquierda.png",
+                RUTA_PERSONAJES + "GokuPatadaDerecha.png",
+                RUTA_PERSONAJES + "GokuPatadaIzquierda.png",
+                RUTA_PERSONAJES + "DragonTtilo.png",
+                RUTA_AUDIO + "GokuSelecionCaja.wav",
+                RUTA_BANDERAS + "BandejeraJapon.png"));
+
+        opciones.add(new Opcion(
+                buscarPersonaje("Mario"),
+                RUTA_PERSONAJES + "MarioCajaDeSeleccion.jpg",
+                RUTA_PERSONAJES + "MarioQuietoDerecha.png",
+                RUTA_PERSONAJES + "MarioPatadaQuietoIzquierda.png",
+                RUTA_PERSONAJES + "MarioPatadaDerecha.png",
+                RUTA_PERSONAJES + "MarioPatadaIzquierda.png",
+                RUTA_PERSONAJES + "TitloMario.png",
+                RUTA_AUDIO + "MarioSeleccionCaja.wav",
+                RUTA_BANDERAS + "BanderaItalia.png"));
+
         return opciones;
     }
 

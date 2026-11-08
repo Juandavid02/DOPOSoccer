@@ -5,6 +5,7 @@ public class Jugador {
 
     private final Personaje personaje;
     private final Estadisticas estadisticas;
+    private final Estadisticas estadisticasBase;
     private final Puntos puntos;
     private final BarraPoder barraPoder;
     private final Lado lado;
@@ -16,6 +17,9 @@ public class Jugador {
     private boolean enSuelo;
     private boolean aturdido;
     private double tiempoAturdimiento;
+
+    private boolean auraActiva;
+    private Efecto efectoActivo;
 
     private final Vida vida;
 
@@ -40,7 +44,10 @@ public class Jugador {
 
         this.nombre = configuracion.getNombre();
         this.personaje = personaje;
-        this.estadisticas = configuracion.getEstadisticas();
+        // Se trabaja con una copia para que los efectos del partido (por
+        // ejemplo el Barril) no modifiquen las mejoras guardadas del perfil.
+        this.estadisticas = configuracion.getEstadisticas().copiar();
+        this.estadisticasBase = this.estadisticas.copiar();
         this.vida = new Vida(this.estadisticas.getVidaMax());
         this.puntos = configuracion.getPuntos();
         this.barraPoder = barraPoder;
@@ -109,6 +116,139 @@ public class Jugador {
         return tiempoAturdimiento;
     }
 
+    public boolean isAuraActiva() {
+        return auraActiva;
+    }
+
+    /**
+     * Marca que el jugador tiene un aura de poder lista para ejecutarse.
+     */
+    public void activarAura() {
+        auraActiva = true;
+    }
+
+    /**
+     * Consume el aura porque el jugador ya tocó el balón.
+     */
+    public void consumirAura() {
+        auraActiva = false;
+    }
+
+    public Efecto getEfectoActivo() {
+        return efectoActivo;
+    }
+
+    public boolean tieneEfecto(TipoEfecto tipo) {
+        return efectoActivo != null && efectoActivo.getTipo() == tipo;
+    }
+
+    public boolean tieneControlesInvertidos() {
+        return tieneEfecto(TipoEfecto.CONTROLES_INVERTIDOS);
+    }
+
+    /**
+     * Indica el multiplicador de velocidad actual del jugador. El Rayo deja
+     * al rival moviéndose a la mitad de su velocidad.
+     *
+     * @return factor que multiplica la velocidad normal
+     */
+    public double getMultiplicadorVelocidad() {
+        return tieneEfecto(TipoEfecto.ELECTROCUTADO) ? 0.5 : 1.0;
+    }
+
+    /**
+     * Aplica un efecto de poder. Un efecto nuevo reemplaza al anterior.
+     *
+     * @param tipo efecto que se aplica
+     * @param duracion tiempo que dura el efecto
+     */
+    public void aplicarEfecto(TipoEfecto tipo, double duracion) {
+        if (tipo == null || duracion <= 0) {
+            return;
+        }
+
+        if (tieneEfecto(TipoEfecto.BARRIL)) {
+            restaurarEstadisticas();
+        }
+
+        efectoActivo = new Efecto(tipo, duracion);
+
+        if (tipo == TipoEfecto.BARRIL) {
+            estadisticas.restablecer();
+            barraPoder.reiniciar();
+            actualizarVidaMaxima();
+        } else if (tipo == TipoEfecto.INCONSCIENTE) {
+            velocidadX = 0;
+            velocidadY = -ParametrosJuego.IMPULSO_INCONSCIENTE;
+            enSuelo = false;
+        } else if (tipo == TipoEfecto.EMPUJE) {
+            double direccion = lado == Lado.IZQUIERDO ? -1 : 1;
+            velocidadX = direccion * ParametrosJuego.IMPULSO_EMPUJE;
+            velocidadY = -ParametrosJuego.IMPULSO_EMPUJE_VERTICAL;
+            enSuelo = false;
+        }
+    }
+
+    /**
+     * Actualiza el temporizador del efecto y lo retira al terminar.
+     */
+    private void actualizarEfecto(double dt) {
+        if (efectoActivo == null) {
+            return;
+        }
+
+        efectoActivo.actualizar(dt);
+        if (efectoActivo.terminado()) {
+            TipoEfecto tipo = efectoActivo.getTipo();
+            efectoActivo = null;
+
+            if (tipo == TipoEfecto.BARRIL) {
+                restaurarEstadisticas();
+            }
+            if (tipo == TipoEfecto.EMPUJE || tipo == TipoEfecto.INCONSCIENTE) {
+                velocidadX = 0;
+            }
+        }
+    }
+
+    private void restaurarEstadisticas() {
+        estadisticas.copiarDesde(estadisticasBase);
+        actualizarVidaMaxima();
+    }
+
+    private void actualizarVidaMaxima() {
+        vida.ajustarMaximaManteniendoProporcion(estadisticas.getVidaMax());
+    }
+
+    /**
+     * Indica si el jugador puede desplazarse.
+     *
+     * @return false si está aturdido o inconsciente
+     */
+    public boolean puedeMoverse() {
+        return !aturdido && !tieneEfecto(TipoEfecto.INCONSCIENTE);
+    }
+
+    /**
+     * Indica si el jugador puede saltar.
+     *
+     * @return false si está aturdido, inconsciente o electrocutado
+     */
+    public boolean puedeSaltar() {
+        return !aturdido
+                && !tieneEfecto(TipoEfecto.INCONSCIENTE)
+                && !tieneEfecto(TipoEfecto.ELECTROCUTADO);
+    }
+
+    /**
+     * Indica si el jugador puede patear.
+     *
+     * @return false si está aturdido o inconsciente
+     */
+    public boolean puedePatear() {
+        return !aturdido && !tieneEfecto(TipoEfecto.INCONSCIENTE);
+    }
+
     /**
      * Aplica daño al jugador. Si su vida llega a cero queda aturdido y no
      * puede moverse, saltar ni patear durante unos segundos.
@@ -147,6 +287,8 @@ public class Jugador {
         if (dt <= 0) {
             return;
         }
+
+        actualizarEfecto(dt);
 
         if (aturdido) {
             tiempoAturdimiento -= dt;
@@ -188,7 +330,7 @@ public class Jugador {
     }
 
     public void mover(double dx, Cancha cancha) {
-        if (aturdido) {
+        if (!puedeMoverse()) {
             return;
         }
         posicionX += dx;
@@ -240,7 +382,7 @@ public class Jugador {
     }
 
     public void saltar() {
-        if (aturdido || !enSuelo) {
+        if (!puedeSaltar() || !enSuelo) {
             return;
         }
         int salto = estadisticas.getJump();
@@ -249,7 +391,7 @@ public class Jugador {
     }
 
     public boolean patear(Balon balon) {
-        if (balon == null || aturdido) {
+        if (balon == null || !puedePatear()) {
             return false;
         }
         double direccion = lado == Lado.IZQUIERDO ? 1 : -1;

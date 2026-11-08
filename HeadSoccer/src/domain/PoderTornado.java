@@ -25,5 +25,19 @@ public class PoderTornado  implements Poder {
     public double getDanoTiro(Jugador jugador) {
         return danoTiro;
     }
-    
+
+    @Override
+    public TipoEfecto getTipoEfecto() {
+        return TipoEfecto.INCONSCIENTE;
+    }
+
+    @Override
+    public double getImpulsoX() {
+        return 1000;
+    }
+
+    @Override
+    public double getImpulsoY() {
+        return -350;
+    }
 }

@@ -128,21 +128,20 @@ public class JuegoController {
                 }
 
                 if (teclas.add(codigo)) {
-                    ConfiguracionControles controles = gui.getConfiguracionControles();
-                    if (codigo == controles.getTecla(
-                            1, ConfiguracionControles.Accion.SALTAR)) {
+                    if (codigo == tecla(1, ConfiguracionControles.Accion.SALTAR)) {
                         partido.saltar(1);
-                    } else if (codigo == controles.getTecla(
-                            1, ConfiguracionControles.Accion.PATEAR)) {
+                    } else if (codigo == tecla(1, ConfiguracionControles.Accion.PATEAR)) {
                         partido.patear(1);
                         view.mostrarPatada(1);
-                    } else if (codigo == controles.getTecla(
-                            2, ConfiguracionControles.Accion.SALTAR)) {
+                    } else if (codigo == tecla(2, ConfiguracionControles.Accion.SALTAR)) {
                         partido.saltar(2);
-                    } else if (codigo == controles.getTecla(
-                            2, ConfiguracionControles.Accion.PATEAR)) {
+                    } else if (codigo == tecla(2, ConfiguracionControles.Accion.PATEAR)) {
                         partido.patear(2);
                         view.mostrarPatada(2);
+                    } else if (codigo == teclaPoder(1)) {
+                        partido.activarPoder(1);
+                    } else if (codigo == teclaPoder(2)) {
+                        partido.activarPoder(2);
                     }
                 }
             }
@@ -173,24 +172,19 @@ public class JuegoController {
         }
 
         if (partido.getEstado() != EstadoPartido.PAUSADO) {
-            ConfiguracionControles controles = gui.getConfiguracionControles();
             double paso1 = velocidadJugador(1) * dt;
             double paso2 = velocidadJugador(2) * dt;
 
-            if (teclas.contains(controles.getTecla(
-                    1, ConfiguracionControles.Accion.IZQUIERDA))) {
+            if (teclas.contains(tecla(1, ConfiguracionControles.Accion.IZQUIERDA))) {
                 partido.mover(1, -paso1);
             }
-            if (teclas.contains(controles.getTecla(
-                    1, ConfiguracionControles.Accion.DERECHA))) {
+            if (teclas.contains(tecla(1, ConfiguracionControles.Accion.DERECHA))) {
                 partido.mover(1, paso1);
             }
-            if (teclas.contains(controles.getTecla(
-                    2, ConfiguracionControles.Accion.IZQUIERDA))) {
+            if (teclas.contains(tecla(2, ConfiguracionControles.Accion.IZQUIERDA))) {
                 partido.mover(2, -paso2);
             }
-            if (teclas.contains(controles.getTecla(
-                    2, ConfiguracionControles.Accion.DERECHA))) {
+            if (teclas.contains(tecla(2, ConfiguracionControles.Accion.DERECHA))) {
                 partido.mover(2, paso2);
             }
         }
@@ -208,7 +202,42 @@ public class JuegoController {
         int speed = partido.getJugadores().get(jugador - 1)
                 .getEstadisticas().getSpeed();
         double factor = 1 + ParametrosJuego.INCREMENTO_POR_PUNTO * (speed - 5);
-        return VELOCIDAD * Math.max(0.2, factor);
+        double multiplicadorEfecto = partido.getJugadores().get(jugador - 1)
+                .getMultiplicadorVelocidad();
+        return VELOCIDAD * Math.max(0.2, factor) * multiplicadorEfecto;
+    }
+
+    /**
+     * Devuelve la tecla asignada a una acción, invirtiéndola si el jugador
+     * está bajo el efecto del Flechazo de Amor.
+     */
+    private int tecla(int jugador, ConfiguracionControles.Accion accion) {
+        ConfiguracionControles controles = gui.getConfiguracionControles();
+        if (partido != null && partido.tieneControlesInvertidos(jugador)) {
+            accion = invertirAccion(accion);
+        }
+        return controles.getTecla(jugador, accion);
+    }
+
+    private int teclaPoder(int jugador) {
+        return gui.getConfiguracionControles().getTecla(
+                jugador, ConfiguracionControles.Accion.PODER);
+    }
+
+    private static ConfiguracionControles.Accion invertirAccion(
+            ConfiguracionControles.Accion accion) {
+        switch (accion) {
+            case IZQUIERDA:
+                return ConfiguracionControles.Accion.DERECHA;
+            case DERECHA:
+                return ConfiguracionControles.Accion.IZQUIERDA;
+            case SALTAR:
+                return ConfiguracionControles.Accion.PATEAR;
+            case PATEAR:
+                return ConfiguracionControles.Accion.SALTAR;
+            default:
+                return accion;
+        }
     }
 
     private void alternarPausa() {

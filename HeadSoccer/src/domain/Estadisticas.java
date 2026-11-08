@@ -36,6 +36,41 @@ public class Estadisticas {
         return survival;
     }
 
+    /**
+     * Devuelve una copia independiente de estas estadísticas.
+     *
+     * @return copia con los mismos valores
+     */
+    public Estadisticas copiar() {
+        return new Estadisticas(speed, jump, kick, survival);
+    }
+
+    /**
+     * Copia los valores de otras estadísticas en esta instancia.
+     *
+     * @param otras estadísticas de origen
+     */
+    public void copiarDesde(Estadisticas otras) {
+        if (otras == null) {
+            throw new IllegalArgumentException("Las estadísticas de origen no pueden ser nulas");
+        }
+        this.speed = otras.speed;
+        this.jump = otras.jump;
+        this.kick = otras.kick;
+        this.survival = otras.survival;
+    }
+
+    /**
+     * Vuelve a los valores básicos de un perfil sin mejoras.
+     */
+    public void restablecer() {
+        int inicial = ParametrosJuego.ESTADISTICA_INICIAL;
+        this.speed = inicial;
+        this.jump = inicial;
+        this.kick = inicial;
+        this.survival = inicial;
+    }
+
 
     public double getMultiplicadorKick() {
         return 1 + ParametrosJuego.INCREMENTO_POR_PUNTO * (kick - 1);

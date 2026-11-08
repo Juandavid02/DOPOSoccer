@@ -25,5 +25,19 @@ public class PoderIlusion implements Poder {
     public double getDanoTiro(Jugador jugador) {
         return danoTiro;
     }
-    
+
+    @Override
+    public TipoEfecto getTipoEfecto() {
+        return TipoEfecto.CONFUNDIDO;
+    }
+
+    @Override
+    public double getImpulsoX() {
+        return 1200;
+    }
+
+    @Override
+    public double getImpulsoY() {
+        return -180;
+    }
 }

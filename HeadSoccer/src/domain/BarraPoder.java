@@ -55,4 +55,29 @@ public class BarraPoder {
     public void reiniciar() {
         this.carga = 0;
     }
+
+    /**
+     * Suma carga de forma inmediata, sin pasar por la recarga por segundo.
+     * Se usa cuando el jugador recibe un gol.
+     *
+     * @param cantidad unidades de carga que se suman
+     */
+    public void sumarCarga(double cantidad) {
+        if (cantidad < 0) {
+            throw new IllegalArgumentException("La carga a sumar no puede ser negativa");
+        }
+        this.carga = Math.min(capacidad, this.carga + cantidad);
+    }
+
+    /**
+     * Suma una fracción de la capacidad total.
+     *
+     * @param fraccion fracción entre 0 y 1, por ejemplo 0.25 para un cuarto
+     */
+    public void sumarFraccion(double fraccion) {
+        if (fraccion < 0) {
+            throw new IllegalArgumentException("La fracción no puede ser negativa");
+        }
+        sumarCarga(capacidad * fraccion);
+    }
 }

@@ -18,6 +18,7 @@ public class Partido {
     private double tiempoTranscurrido;
     private int puntosJugador1;
     private int puntosJugador2;
+    private TiroPoder tiroPoder;
 
     public Partido(ConfiguracionPartido configuracion, Personaje p1, Personaje p2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2) {
         if (configuracion == null) {
@@ -83,15 +84,25 @@ public class Partido {
             jugador.getBarraPoder().actualizarBarra(dt);
         }
 
+        if (tiroPoder != null) {
+            tiroPoder.actualizar(dt);
+        }
+
         resolverColisionJugadores();
         resolverColisionBalonJugador();
         resolverColisionArcos();
 
         if (cancha.getArcoIzquierdo().estaDentro(balon)) {
             marcador.sumarGol(2);
+            // El jugador 1 recibió el gol: su barra sube un cuarto.
+            jugador(1).getBarraPoder().sumarFraccion(
+                    ParametrosJuego.FRACCION_BARRA_POR_GOL);
             reiniciarDespuesDeGol();
         } else if (cancha.getArcoDerecho().estaDentro(balon)) {
             marcador.sumarGol(1);
+            // El jugador 2 recibió el gol: su barra sube un cuarto.
+            jugador(2).getBarraPoder().sumarFraccion(
+                    ParametrosJuego.FRACCION_BARRA_POR_GOL);
             reiniciarDespuesDeGol();
         }
         if (regla.terminado(this)) {
@@ -260,6 +271,49 @@ public class Partido {
         } else {
             balon.aplicarImpulso(normalFinalX * 30, normalFinalY * 30);
         }
+
+        // Si el jugador tenía un aura, este contacto con el balón ejecuta
+        // su tiro de poder.
+        if (jugador.isAuraActiva()) {
+            dispararPoder(jugador);
+        }
+
+        // Un tiro de poder activo golpea al rival (nunca a su dueño).
+        if (tiroPoder != null && tiroPoder.isActivo()
+                && tiroPoder.getDueno() != jugador) {
+            impactarPoder(jugador);
+        }
+    }
+
+    /**
+     * Consume el aura del jugador y lanza su tiro de poder con la trayectoria
+     * definida por el poder.
+     */
+    private void dispararPoder(Jugador jugador) {
+        Poder poder = jugador.getPersonaje().getPoder();
+        jugador.consumirAura();
+
+        double direccion = jugador.getLado() == Lado.IZQUIERDO ? 1 : -1;
+        balon.establecerVelocidad(
+                direccion * poder.getImpulsoX(),
+                poder.getImpulsoY());
+
+        tiroPoder = new TiroPoder(jugador, poder);
+    }
+
+    /**
+     * Aplica al rival el daño y el efecto del tiro de poder activo.
+     */
+    private void impactarPoder(Jugador rival) {
+        Jugador dueno = tiroPoder.getDueno();
+        Poder poder = tiroPoder.getPoder();
+
+        double dano = poder.getDanoTiro(dueno)
+                * dueno.getEstadisticas().getMultiplicadorKick();
+        rival.recibirDanio(dano);
+        rival.aplicarEfecto(poder.getTipoEfecto(), poder.getDuracion());
+
+        tiroPoder.desactivar();
     }
 
     /**
@@ -342,12 +396,50 @@ public class Partido {
         jugador(jugador).saltar();
     }
 
+    /**
+     * Activa el aura de poder de un jugador si su barra está llena y no
+     * tiene ya un aura activa.
+     *
+     * @param jugador número del jugador: 1 o 2
+     * @return true si el aura se activó
+     */
+    public boolean activarPoder(int jugador) {
+        if (!puedeJugar()) {
+            return false;
+        }
+
+        Jugador jugadorActual = jugador(jugador);
+        if (jugadorActual.isAuraActiva()) {
+            return false;
+        }
+        if (!jugadorActual.getBarraPoder().consumir()) {
+            return false;
+        }
+
+        jugadorActual.activarAura();
+        return true;
+    }
+
+    /**
+     * Indica si un jugador tiene sus controles invertidos por el Flechazo.
+     *
+     * @param jugador número del jugador: 1 o 2
+     * @return true si debe invertir sus teclas
+     */
+    public boolean tieneControlesInvertidos(int jugador) {
+        return jugador(jugador).tieneControlesInvertidos();
+    }
+
+    public TiroPoder getTiroPoder() {
+        return tiroPoder;
+    }
+
     public void patear(int jugador) {
         if (!puedeJugar()) {
             return;
         }
         Jugador pateador = jugador(jugador);
-        if (pateador.isAturdido()) {
+        if (!pateador.puedePatear()) {
             return;
         }
 
@@ -390,6 +482,7 @@ public class Partido {
     }
 
     public void reiniciarDespuesDeGol() {
+        tiroPoder = null;
         balon.reiniciar(cancha.getAncho() / 2.0, cancha.getAlto() / 2.0);
         jugador(1).reiniciar(cancha.getAncho() / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
         jugador(2).reiniciar(cancha.getAncho() * 3.0 / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);

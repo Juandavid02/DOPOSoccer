@@ -179,6 +179,20 @@ public class SeleccionPersonajeView extends JPanel {
         return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
     }
 
+    /**
+     * Escala una imagen respetando su proporción para que quepa dentro de
+     * un ancho y un alto máximos (los títulos de los personajes tienen
+     * proporciones muy distintas entre sí).
+     */
+    private static ImageIcon crearIconoAjustado(BufferedImage imagen, int maxAncho, int maxAlto) {
+        double escala = Math.min(
+                (double) maxAncho / imagen.getWidth(),
+                (double) maxAlto / imagen.getHeight());
+        int ancho = Math.max(1, (int) Math.round(imagen.getWidth() * escala));
+        int alto = Math.max(1, (int) Math.round(imagen.getHeight() * escala));
+        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
+    }
+
     // ------------------------------------------------------------------
     // Panel lateral con la bandera y el personaje elegido.
     // ------------------------------------------------------------------
@@ -275,7 +289,8 @@ public class SeleccionPersonajeView extends JPanel {
             }
 
             vista.setSprite(RecursosImagen.cargar(rutaSprite));
-            ImageIcon iconoTitulo = crearIcono(RecursosImagen.cargar(opcion.getTitulo()), 210);
+            ImageIcon iconoTitulo = crearIconoAjustado(
+                    RecursosImagen.cargar(opcion.getTitulo()), 210, 135);
             titulo.setIcon(iconoTitulo);
             titulo.setVisible(true);
             botonCambiar.setVisible(true);
@@ -445,6 +460,7 @@ public class SeleccionPersonajeView extends JPanel {
                 botones.add(boton);
                 cuadricula.add(boton);
             }
+            // La última fila conserva las celdas bloqueadas con "?".
             for (int i = opciones.size(); i < 9; i++) {
                 BotonCaja boton = new BotonCaja(null);
                 botones.add(boton);
