@@ -17,13 +17,8 @@ public class MenuView extends JPanel {
     private JButton botonPerfil;
     private JButton botonSalir;
 
-    private JButton botonSonido;
+    private BotonSonido botonSonido;
     private JButton botonAtras;
-
-    private ImageIcon[] iconosVolumenActivo;
-    private ImageIcon[] iconosVolumenPausado;
-
-    private boolean silenciado;
 
     /**
      * Crea la pantalla del menú con el fondo y los botones principales.
@@ -100,9 +95,7 @@ public class MenuView extends JPanel {
     private void prepareViewIconos() {
         botonAtras = crearBoton(RUTA_BOTONES + "Retroceder.png", 110);
 
-        iconosVolumenActivo = crearIconos(RUTA_BOTONES + "VolActivo.png", 72);
-        iconosVolumenPausado = crearIconos(RUTA_BOTONES + "VolPausado.png", 72);
-        botonSonido = crearBotonConIconos(iconosVolumenActivo);
+        botonSonido = new BotonSonido(72);
 
         JPanel panelIconos = new JPanel(new BorderLayout());
         panelIconos.setOpaque(false);
@@ -212,7 +205,7 @@ public class MenuView extends JPanel {
         return botonSalir;
     }
 
-    public JButton getBotonSonido() {
+    public BotonSonido getBotonSonido() {
         return botonSonido;
     }
 
@@ -224,35 +217,12 @@ public class MenuView extends JPanel {
         return botonPvsP;
     }
 
-    public boolean isSilenciado() {
-        return silenciado;
-    }
-
     /**
-     * Alterna el estado del sonido y actualiza el ícono del botón.
-    */
-    
-    public void alternarSonido() {
-        if (isSilenciado()) {
-            silenciado = false;
-            aplicarIconos(botonSonido, iconosVolumenActivo);
-        } else {
-            silenciado = true;
-            aplicarIconos(botonSonido, iconosVolumenPausado);
-        }
-    }   
-    /**
-     * Pone en un botón los íconos normal, encima y presionado.
+     * Actualiza el ícono del botón de sonido.
      *
-     * @param boton el botón que se va a actualizar
-     * @param iconos los íconos normal, encima y presionado
+     * @param silenciado true si el sonido está silenciado
      */
-    private void aplicarIconos(JButton boton, ImageIcon[] iconos) {
-        boton.setIcon(iconos[0]);
-        boton.setRolloverIcon(iconos[1]);
-        boton.setPressedIcon(iconos[2]);
-        boton.setPreferredSize(new Dimension(iconos[1].getIconWidth(), iconos[1].getIconHeight()));
-        boton.revalidate();
-        boton.repaint();
+    public void setSilenciado(boolean silenciado) {
+        botonSonido.setSilenciado(silenciado);
     }
 }

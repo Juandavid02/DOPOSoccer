@@ -9,6 +9,7 @@ public class InicioView extends JPanel {
     private BufferedImage fondo; //IA generativa para poder cargar la imagen de fondo y luego poder escalarla al tamaño del panel
     private JButton botonPlay;
     private JButton botonSalir;
+    private BotonSonido botonSonido;
 
     /**
      * Crea la pantalla de inicio con el fondo y los botones Play y Salir.
@@ -25,6 +26,20 @@ public class InicioView extends JPanel {
         setPreferredSize(new Dimension(1920, 1080));
         prepareViewFondo();
         prepareViewBotones();
+        prepareViewSonido();
+    }
+
+    /**
+     * Prepara el botón de sonido arriba a la derecha.
+     */
+    private void prepareViewSonido() {
+        botonSonido = new BotonSonido(64);
+
+        JPanel panelSonido = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 16));
+        panelSonido.setOpaque(false);
+        panelSonido.add(botonSonido);
+
+        add(panelSonido, BorderLayout.NORTH);
     }
 
     /**
@@ -104,5 +119,9 @@ public class InicioView extends JPanel {
 
     public JButton getBotonSalir() {
         return botonSalir;
+    }
+
+    public BotonSonido getBotonSonido() {
+        return botonSonido;
     }
 }

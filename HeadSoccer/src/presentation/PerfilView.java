@@ -31,6 +31,7 @@ public class PerfilView extends JPanel {
     private JButton botonGuardar;
     private JButton botonEliminar;
     private JButton botonAtras;
+    private BotonSonido botonSonido;
 
     /**
      * Crea la pantalla de perfiles con el fondo, el título y la tarjeta
@@ -65,21 +66,18 @@ public class PerfilView extends JPanel {
      */
     private void prepareViewSuperior() {
         botonAtras = crearBoton(RUTA_BOTONES + "Retroceder.png", 90);
+        botonSonido = new BotonSonido(64);
 
         JPanel panelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         panelTitulo.setOpaque(false);
         panelTitulo.add(new TituloPerfil("TU PERFIL"));
-
-        JPanel espacioDerecha = new JPanel();
-        espacioDerecha.setOpaque(false);
-        espacioDerecha.setPreferredSize(botonAtras.getPreferredSize());
 
         JPanel barraSuperior = new JPanel(new BorderLayout());
         barraSuperior.setOpaque(false);
         barraSuperior.setBorder(new EmptyBorder(18, 20, 0, 20));
         barraSuperior.add(botonAtras, BorderLayout.WEST);
         barraSuperior.add(panelTitulo, BorderLayout.CENTER);
-        barraSuperior.add(espacioDerecha, BorderLayout.EAST);
+        barraSuperior.add(botonSonido, BorderLayout.EAST);
 
         add(barraSuperior, BorderLayout.NORTH);
     }
@@ -378,6 +376,10 @@ public class PerfilView extends JPanel {
         return botonAtras;
     }
 
+    public BotonSonido getBotonSonido() {
+        return botonSonido;
+    }
+
     // ------------------------------------------------------------------
     // Título con fondo redondeado y texto con contorno.
     // ------------------------------------------------------------------
@@ -482,13 +484,22 @@ public class PerfilView extends JPanel {
             JLabel etiqueta = (JLabel) super.getListCellRendererComponent(
                     lista, valor, indice, seleccionado, tieneFoco);
 
+            Color colorTexto;
+            Color colorFondo;
+
+            if (seleccionado) {
+                colorTexto = Color.WHITE;
+                colorFondo = new Color(38, 108, 148);
+            } else {
+                colorTexto = COLOR_TEXTO;
+                colorFondo = new Color(214, 232, 242);
+            }
+
             etiqueta.setOpaque(true);
             etiqueta.setFont(new Font("SansSerif", Font.BOLD, 18));
-            etiqueta.setForeground(seleccionado ? Color.WHITE : COLOR_TEXTO);
+            etiqueta.setForeground(colorTexto);
             etiqueta.setBorder(new EmptyBorder(7, 14, 7, 14));
-            etiqueta.setBackground(seleccionado
-                    ? new Color(38, 108, 148)
-                    : new Color(214, 232, 242));
+            etiqueta.setBackground(colorFondo);
             return etiqueta;
         }
     }

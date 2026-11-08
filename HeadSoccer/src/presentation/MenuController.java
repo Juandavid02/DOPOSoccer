@@ -76,7 +76,7 @@ public class MenuController {
         view.getBotonSonido().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                view.alternarSonido();
+                gui.alternarSonido();
             }
         });
     }

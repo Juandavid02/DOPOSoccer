@@ -55,6 +55,12 @@ public class PerfilController {
                 eliminarPerfil();
             }
         });
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
         view.getListaPerfiles().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 actualizarSeleccion();

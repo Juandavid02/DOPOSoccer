@@ -76,6 +76,7 @@ public class SeleccionPerfilController {
 
         view.getBotonContinuarCentral().addActionListener(e -> gui.mostrarConfiguracionPartido());
         view.getBotonAtras().addActionListener(e -> gui.mostrarMenu());
+        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
     }
 
     /**
@@ -154,7 +155,13 @@ public class SeleccionPerfilController {
     }
 
     private void continuar(int lado) {
-        PerfilJugador elegido = lado == 1 ? perfil1 : perfil2;
+        PerfilJugador elegido;
+        if (lado == 1) {
+            elegido = perfil1;
+        } else {
+            elegido = perfil2;
+        }
+
         if (elegido == null) {
             mostrarError("Selecciona un perfil para continuar.");
             return;

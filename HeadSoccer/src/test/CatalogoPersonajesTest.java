@@ -57,7 +57,7 @@ public class CatalogoPersonajesTest
         assertCharacter("Jungkook", "Corea del Sur", "Aura Azul");
         assertCharacter("Goku", "Japón", "Rayo");
         assertCharacter("Mario", "Italia", "Tornado");
-        assertCharacter("Mickey Mouse", "Estados Unidos", "Ilusión");
+        assertCharacter("Bob Esponja", "Estados Unidos", "Ilusión");
         assertCharacter("Betty la fea", "Colombia", "Flechazo de Amor");
         assertCharacter("El Chavo del Ocho", "México", "Barril");
     }

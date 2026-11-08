@@ -28,6 +28,12 @@ public class InicioController {
                 confirmarSalida();
             }
         });
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
     }
 
     private void confirmarSalida() {

@@ -1,6 +1,8 @@
 package presentation;
 
+import domain.ConfiguracionPartido;
 import domain.PerfilJugador;
+import domain.Personaje;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +16,8 @@ public class DOPOSoccerGUI extends JFrame {
     private static final String CARTA_PERFIL = "perfil";
     private static final String CARTA_SELECCION_PERFIL = "seleccionPerfil";
     private static final String CARTA_CONFIGURACION = "configuracionPartido";
+    private static final String CARTA_SELECCION_PERSONAJE = "seleccionPersonaje";
+    private static final String CARTA_CONFIGURACION_VISUAL = "configuracionVisual";
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
@@ -24,8 +28,15 @@ public class DOPOSoccerGUI extends JFrame {
     private SeleccionPerfilView seleccionPerfilView;
     private SeleccionPerfilController seleccionPerfilController;
     private ConfiguracionPartidoView configuracionPartidoView;
+    private SeleccionPersonajeView seleccionPersonajeView;
+    private SeleccionPersonajeController seleccionPersonajeController;
+    private ConfiguracionVisualView configuracionVisualView;
     private final List<PerfilJugador> perfiles = new ArrayList<>();
     private boolean perfilVuelveASeleccion;
+    private final GestorSonido gestorSonido = new GestorSonido();
+    private ConfiguracionPartido configuracionPartido;
+    private Personaje personajeJugador1;
+    private Personaje personajeJugador2;
 
     public DOPOSoccerGUI() {
         super("DOPOSoccer");
@@ -54,6 +65,8 @@ public class DOPOSoccerGUI extends JFrame {
         prepareViewPerfil();
         prepareViewSeleccionPerfil();
         prepareViewConfiguracionPartido();
+        prepareViewSeleccionPersonaje();
+        prepareViewConfiguracionVisual();
         mostrarInicio();
     }
 
@@ -82,12 +95,32 @@ public class DOPOSoccerGUI extends JFrame {
         mainPanel.add(configuracionPartidoView, CARTA_CONFIGURACION);
     }
 
+    private void prepareViewSeleccionPersonaje() {
+        seleccionPersonajeView = new SeleccionPersonajeView();
+        mainPanel.add(seleccionPersonajeView, CARTA_SELECCION_PERSONAJE);
+    }
+
+    private void prepareViewConfiguracionVisual() {
+        configuracionVisualView = new ConfiguracionVisualView();
+        mainPanel.add(configuracionVisualView, CARTA_CONFIGURACION_VISUAL);
+    }
+
     private void prepareController() {
         new InicioController(this, inicioView);
         new MenuController(this, menuView);
         seleccionPerfilController = new SeleccionPerfilController(this, seleccionPerfilView, perfiles);
         perfilController = new PerfilController(this, perfilView, perfiles);
         new ConfiguracionPartidoController(this, configuracionPartidoView);
+        seleccionPersonajeController = new SeleccionPersonajeController(this, seleccionPersonajeView);
+        new ConfiguracionVisualController(this, configuracionVisualView);
+
+        gestorSonido.agregarOyente(inicioView.getBotonSonido()::setSilenciado);
+        gestorSonido.agregarOyente(menuView.getBotonSonido()::setSilenciado);
+        gestorSonido.agregarOyente(perfilView.getBotonSonido()::setSilenciado);
+        gestorSonido.agregarOyente(seleccionPerfilView.getBotonSonido()::setSilenciado);
+        gestorSonido.agregarOyente(configuracionPartidoView.getBotonSonido()::setSilenciado);
+        gestorSonido.agregarOyente(seleccionPersonajeView.getBotonSonido()::setSilenciado);
+        gestorSonido.agregarOyente(configuracionVisualView.getBotonSonido()::setSilenciado);
     }
 
     public void mostrarInicio() {
@@ -137,6 +170,56 @@ public class DOPOSoccerGUI extends JFrame {
 
     public void mostrarConfiguracionPartido() {
         cardLayout.show(mainPanel, CARTA_CONFIGURACION);
+    }
+
+    public void iniciarSeleccionPersonaje() {
+        seleccionPersonajeController.reiniciar();
+        cardLayout.show(mainPanel, CARTA_SELECCION_PERSONAJE);
+        seleccionPersonajeView.repaint();
+    }
+
+    public void mostrarSeleccionPersonaje() {
+        seleccionPersonajeController.refrescar();
+        cardLayout.show(mainPanel, CARTA_SELECCION_PERSONAJE);
+        seleccionPersonajeView.repaint();
+    }
+
+    public void mostrarConfiguracionVisual() {
+        cardLayout.show(mainPanel, CARTA_CONFIGURACION_VISUAL);
+        configuracionVisualView.repaint();
+    }
+
+    public void setPersonajes(Personaje personajeJugador1, Personaje personajeJugador2) {
+        this.personajeJugador1 = personajeJugador1;
+        this.personajeJugador2 = personajeJugador2;
+    }
+
+    public Personaje getPersonajeJugador1() {
+        return personajeJugador1;
+    }
+
+    public Personaje getPersonajeJugador2() {
+        return personajeJugador2;
+    }
+
+    public void alternarSonido() {
+        gestorSonido.alternarSilencio();
+    }
+
+    public void reproducirEfecto(String ruta) {
+        gestorSonido.reproducirEfecto(ruta);
+    }
+
+    public void detenerSonido() {
+        gestorSonido.detenerTodos();
+    }
+
+    public void setConfiguracionPartido(ConfiguracionPartido configuracionPartido) {
+        this.configuracionPartido = configuracionPartido;
+    }
+
+    public ConfiguracionPartido getConfiguracionPartido() {
+        return configuracionPartido;
     }
 
     public void mostrarProximamente(String pantalla) {
