@@ -25,8 +25,8 @@ public class Cancha {
         this.suelo = resolucion.getSuelo();
 
         double yArco = suelo - ParametrosJuego.ALTO_ARCO;
-        this.arcoIzquierdo = new Arco(-ParametrosJuego.ANCHO_ARCO, yArco);
-        this.arcoDerecho = new Arco(ancho, yArco);
+        this.arcoIzquierdo = new Arco(0, yArco);
+        this.arcoDerecho = new Arco(ancho - ParametrosJuego.ANCHO_ARCO, yArco);
     }
 
     public Resolucion getResolucion() {

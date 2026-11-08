@@ -102,7 +102,13 @@ public class SeleccionPersonajeController {
 
         gui.detenerSonido();
         gui.setPersonajes(personaje1, personaje2);
-        gui.mostrarConfiguracionVisual();
+
+        if (gui.isCambiarPersonajeDesdeJuego()) {
+            gui.terminarCambioPersonaje();
+            gui.iniciarJuego();
+        } else {
+            gui.mostrarConfiguracionVisual();
+        }
     }
 
     private void actualizarTurno() {

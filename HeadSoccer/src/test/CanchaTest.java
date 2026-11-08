@@ -46,20 +46,21 @@ public class CanchaTest
         assertEquals(Resolucion.R1280x720.getSuelo(), cancha.getSuelo(), 0.0001);
     }
 
-    /** El arco izquierdo queda fuera de la cancha, pegado a la línea de gol. */
+    /** El arco izquierdo queda dentro de la cancha, pegado al margen. */
     @Test
-    public void shouldPlaceLeftGoalOutsideField()
+    public void shouldPlaceLeftGoalInsideField()
     {
-        assertEquals(-ParametrosJuego.ANCHO_ARCO, cancha.getArcoIzquierdo().getX(), 0.0001);
+        assertEquals(0, cancha.getArcoIzquierdo().getX(), 0.0001);
         assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.ALTO_ARCO,
                 cancha.getArcoIzquierdo().getY(), 0.0001);
     }
 
-    /** El arco derecho queda fuera de la cancha, pegado a la línea de gol. */
+    /** El arco derecho queda dentro de la cancha, pegado al margen. */
     @Test
-    public void shouldPlaceRightGoalOutsideField()
+    public void shouldPlaceRightGoalInsideField()
     {
-        assertEquals(Resolucion.R1280x720.getAncho(), cancha.getArcoDerecho().getX(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getAncho() - ParametrosJuego.ANCHO_ARCO,
+                cancha.getArcoDerecho().getX(), 0.0001);
         assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.ALTO_ARCO,
                 cancha.getArcoDerecho().getY(), 0.0001);
     }
@@ -108,7 +109,8 @@ public class CanchaTest
         assertEquals(1600, hd.getAncho(), 0.0001);
         assertEquals(900, hd.getAlto(), 0.0001);
         assertEquals(880, hd.getSuelo(), 0.0001);
-        assertEquals(1600, hd.getArcoDerecho().getX(), 0.0001);
+        assertEquals(1600 - ParametrosJuego.ANCHO_ARCO,
+                hd.getArcoDerecho().getX(), 0.0001);
         assertEquals(880 - ParametrosJuego.ALTO_ARCO,
                 hd.getArcoDerecho().getY(), 0.0001);
     }
@@ -122,8 +124,7 @@ public class CanchaTest
         assertEquals(1920, fullHd.getAncho(), 0.0001);
         assertEquals(1080, fullHd.getAlto(), 0.0001);
         assertEquals(1060, fullHd.getSuelo(), 0.0001);
-        assertEquals(-ParametrosJuego.ANCHO_ARCO,
-                fullHd.getArcoIzquierdo().getX(), 0.0001);
+        assertEquals(0, fullHd.getArcoIzquierdo().getX(), 0.0001);
         assertEquals(1060 - ParametrosJuego.ALTO_ARCO,
                 fullHd.getArcoIzquierdo().getY(), 0.0001);
     }

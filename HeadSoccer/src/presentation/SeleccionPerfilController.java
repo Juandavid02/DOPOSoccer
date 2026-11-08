@@ -74,7 +74,10 @@ public class SeleccionPerfilController {
         panel1.getBotonCrearListo().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
         panel2.getBotonCrearListo().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
 
-        view.getBotonContinuarCentral().addActionListener(e -> gui.mostrarConfiguracionPartido());
+        view.getBotonContinuarCentral().addActionListener(e -> {
+            gui.setPerfilesPartido(perfil1, perfil2);
+            gui.mostrarConfiguracionPartido();
+        });
         view.getBotonAtras().addActionListener(e -> gui.mostrarMenu());
         view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
     }

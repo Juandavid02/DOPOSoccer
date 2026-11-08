@@ -80,6 +80,11 @@ public class Partido {
             jugador.actualizar(dt, cancha);
             jugador.getBarraPoder().actualizarBarra(dt);
         }
+
+        resolverColisionJugadores();
+        resolverColisionBalonJugador();
+        resolverColisionArcos();
+
         if (cancha.getArcoIzquierdo().estaDentro(balon)) {
             marcador.sumarGol(2);
             reiniciarDespuesDeGol();
@@ -90,6 +95,235 @@ public class Partido {
         if (regla.terminado(this)) {
             terminar(regla.getMotivo());
         }
+    }
+
+    /**
+     * Resuelve los choques entre los dos personajes usando sus dos
+     * círculos: cabeza y bota.
+     */
+    private void resolverColisionJugadores() {
+        Jugador jugador1 = jugadores.get(0);
+        Jugador jugador2 = jugadores.get(1);
+
+        for (int iteracion = 0; iteracion < 3; iteracion++) {
+            double[] cabeza1 = centroCabeza(jugador1);
+            double[] cabeza2 = centroCabeza(jugador2);
+            double[] bota1 = centroBota(jugador1);
+            double[] bota2 = centroBota(jugador2);
+
+            resolverCirculosJugadores(jugador1, jugador2,
+                    cabeza1, ParametrosJuego.RADIO_CABEZA_JUGADOR,
+                    cabeza2, ParametrosJuego.RADIO_CABEZA_JUGADOR);
+
+            cabeza1 = centroCabeza(jugador1);
+            bota2 = centroBota(jugador2);
+            resolverCirculosJugadores(jugador1, jugador2,
+                    cabeza1, ParametrosJuego.RADIO_CABEZA_JUGADOR,
+                    bota2, ParametrosJuego.RADIO_BOTA_JUGADOR);
+
+            bota1 = centroBota(jugador1);
+            cabeza2 = centroCabeza(jugador2);
+            resolverCirculosJugadores(jugador1, jugador2,
+                    bota1, ParametrosJuego.RADIO_BOTA_JUGADOR,
+                    cabeza2, ParametrosJuego.RADIO_CABEZA_JUGADOR);
+
+            bota1 = centroBota(jugador1);
+            bota2 = centroBota(jugador2);
+            resolverCirculosJugadores(jugador1, jugador2,
+                    bota1, ParametrosJuego.RADIO_BOTA_JUGADOR,
+                    bota2, ParametrosJuego.RADIO_BOTA_JUGADOR);
+        }
+    }
+
+    private void resolverCirculosJugadores(Jugador jugador1, Jugador jugador2,
+                                           double[] circulo1, double radio1,
+                                           double[] circulo2, double radio2) {
+        double dx = circulo2[0] - circulo1[0];
+        double dy = circulo2[1] - circulo1[1];
+        double distancia = Math.sqrt(dx * dx + dy * dy);
+        double distanciaMinima = radio1 + radio2;
+
+        if (distancia >= distanciaMinima) {
+            return;
+        }
+
+        double normalX;
+        double normalY;
+        if (distancia < 0.0001) {
+            normalX = 1;
+            normalY = 0;
+        } else {
+            normalX = dx / distancia;
+            normalY = dy / distancia;
+        }
+
+        double separacion = distanciaMinima - distancia;
+        jugador1.desplazar(-normalX * separacion / 2,
+                -normalY * separacion / 2, cancha);
+        jugador2.desplazar(normalX * separacion / 2,
+                normalY * separacion / 2, cancha);
+    }
+
+    /**
+     * Hace que el balón rebote al chocar con la cabeza o la bota de un
+     * personaje.
+     */
+    private void resolverColisionBalonJugador() {
+        for (int iteracion = 0; iteracion < 2; iteracion++) {
+            for (Jugador jugador : jugadores) {
+                // La cabeza solo choca con balones que estén a su altura;
+                // un balón rodando por el suelo no debe subir a la cabeza.
+                if (balon.getY() < jugador.getPosicionY()
+                        + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR) {
+                    double[] cabeza = centroCabeza(jugador);
+                    resolverColisionBalonCirculo(jugador, cabeza[0], cabeza[1],
+                            ParametrosJuego.RADIO_CABEZA_JUGADOR);
+                }
+
+                double[] bota = centroBota(jugador);
+                resolverColisionBalonCirculo(jugador, bota[0], bota[1],
+                        ParametrosJuego.RADIO_BOTA_JUGADOR);
+            }
+        }
+    }
+
+    private void resolverColisionBalonCirculo(Jugador jugador,
+                                              double centroX, double centroY,
+                                              double radio) {
+        double dx = balon.getX() - centroX;
+        double dy = balon.getY() - centroY;
+        double distancia = Math.sqrt(dx * dx + dy * dy);
+        double distanciaMinima = ParametrosJuego.RADIO_BALON_COLISION + radio;
+
+        if (distancia >= distanciaMinima) {
+            return;
+        }
+
+        double normalX;
+        double normalY;
+        if (distancia < 0.0001) {
+            normalX = 1;
+            normalY = 0;
+        } else {
+            normalX = dx / distancia;
+            normalY = dy / distancia;
+        }
+
+        double nuevaX = centroX + normalX * distanciaMinima;
+        double nuevaY = centroY + normalY * distanciaMinima;
+
+        // El balón no debe salir por debajo del suelo ni por encima del
+        // techo. Si el choque lo empujaría fuera, se resuelve en horizontal.
+        double yMinimo = ParametrosJuego.RADIO_BALON;
+        double yMaximo = cancha.getSuelo() - ParametrosJuego.RADIO_BALON;
+        if (nuevaY < yMinimo || nuevaY > yMaximo) {
+            nuevaY = Math.max(yMinimo, Math.min(yMaximo, nuevaY));
+
+            double separacionY = nuevaY - centroY;
+            double cuadradoHorizontal = distanciaMinima * distanciaMinima
+                    - separacionY * separacionY;
+            if (cuadradoHorizontal > 0) {
+                double separacionX = Math.sqrt(cuadradoHorizontal);
+                double direccion = dx >= 0 ? 1 : -1;
+                nuevaX = centroX + direccion * separacionX;
+            }
+        }
+
+        balon.reubicar(nuevaX, nuevaY);
+
+        double normalFinalX = (nuevaX - centroX) / distanciaMinima;
+        double normalFinalY = (nuevaY - centroY) / distanciaMinima;
+
+        // Si el balón quedó apoyado en el suelo o el techo, el impulso se
+        // aplica solo en horizontal para que no se entierre ni suba.
+        if (nuevaY <= yMinimo + 0.001 || nuevaY >= yMaximo - 0.001) {
+            double longitud = Math.abs(normalFinalX);
+            if (longitud < 0.0001) {
+                normalFinalX = 1;
+                longitud = 1;
+            }
+            normalFinalX = normalFinalX / longitud;
+            normalFinalY = 0;
+        }
+
+        double velocidadRelativaX = balon.getVelocidadX() - jugador.getVelocidadX();
+        double velocidadRelativaY = balon.getVelocidadY() - jugador.getVelocidadY();
+        double productoNormal = velocidadRelativaX * normalFinalX
+                + velocidadRelativaY * normalFinalY;
+
+        if (productoNormal < 0) {
+            double impulso = -(1 + ParametrosJuego.RESTITUCION_COLISION)
+                    * productoNormal;
+            balon.aplicarImpulso(impulso * normalFinalX, impulso * normalFinalY);
+        } else {
+            balon.aplicarImpulso(normalFinalX * 30, normalFinalY * 30);
+        }
+    }
+
+    /**
+     * Hace rebotar el balón contra el travesaño superior de los arcos.
+     */
+    private void resolverColisionArcos() {
+        resolverColisionArco(cancha.getArcoIzquierdo());
+        resolverColisionArco(cancha.getArcoDerecho());
+    }
+
+    private void resolverColisionArco(Arco arco) {
+        double radio = ParametrosJuego.RADIO_BALON_COLISION;
+        double centroVisualY = balon.getY()
+                - (ParametrosJuego.RADIO_BALON_COLISION - ParametrosJuego.RADIO_BALON);
+
+        boolean dentroX = balon.getX() + radio > arco.getX()
+                && balon.getX() - radio < arco.getX() + arco.getAncho();
+
+        if (!dentroX) {
+            return;
+        }
+
+        double bordeSuperior = arco.getY();
+
+        // Balón cayendo sobre la parte superior de la red.
+        if (balon.getVelocidadY() > 0
+                && centroVisualY + radio >= bordeSuperior
+                && centroVisualY - radio < bordeSuperior) {
+            double nuevoCentroVisual = bordeSuperior - radio;
+            balon.reubicar(balon.getX(),
+                    nuevoCentroVisual
+                            + (ParametrosJuego.RADIO_BALON_COLISION
+                            - ParametrosJuego.RADIO_BALON));
+            balon.aplicarImpulso(0,
+                    -balon.getVelocidadY() * (1 + ParametrosJuego.REBOTE));
+            return;
+        }
+
+        // Balón subiendo desde dentro del arco.
+        if (balon.getVelocidadY() < 0
+                && centroVisualY - radio <= bordeSuperior
+                && centroVisualY + radio > bordeSuperior) {
+            double nuevoCentroVisual = bordeSuperior + radio;
+            balon.reubicar(balon.getX(),
+                    nuevoCentroVisual
+                            + (ParametrosJuego.RADIO_BALON_COLISION
+                            - ParametrosJuego.RADIO_BALON));
+            balon.aplicarImpulso(0,
+                    -balon.getVelocidadY() * (1 + ParametrosJuego.REBOTE));
+        }
+    }
+
+    private double[] centroCabeza(Jugador jugador) {
+        return new double[]{
+                jugador.getPosicionX(),
+                jugador.getPosicionY() + ParametrosJuego.OFFSET_CABEZA_JUGADOR
+        };
+    }
+
+    private double[] centroBota(Jugador jugador) {
+        double direccion = jugador.getLado() == Lado.IZQUIERDO ? 1 : -1;
+        return new double[]{
+                jugador.getPosicionX()
+                        + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR,
+                jugador.getPosicionY() + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR
+        };
     }
 
     public void mover(int jugador, double dx) {
@@ -164,6 +398,10 @@ public class Partido {
 
     public EstadoPartido getEstado() {
         return estado;
+    }
+
+    public TipoPartido getTipo() {
+        return tipo;
     }
 
     public Balon getBalon() {

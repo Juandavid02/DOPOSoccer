@@ -50,6 +50,6 @@ public class ConfiguracionVisualController {
         }
 
         gui.setConfiguracionVisual(balon.getRuta(), escenario.getRuta());
-        gui.mostrarProximamente("Juego");
+        gui.iniciarJuego();
     }
 }

@@ -158,28 +158,28 @@ public class BalonTest
         assertTrue(b.getVelocidadX() < 0);
     }
 
-    /** En la boca del arco izquierdo no hay rebote de pared. */
+    /** La pared izquierda rebota incluso a la altura del arco. */
     @Test
-    public void shouldNotBounceOnLeftGoalMouth()
+    public void shouldBounceOnLeftWallAtGoalHeight()
     {
         Balon b = new Balon(13, 590, ParametrosJuego.RADIO_BALON);
         b.aplicarImpulso(-100, 0);
         b.actualizar(0.02, cancha);
 
-        assertTrue(b.getX() < b.getRadio());
-        assertTrue(b.getVelocidadX() < 0);
+        assertEquals(b.getRadio(), b.getX(), 0.0001);
+        assertTrue(b.getVelocidadX() > 0);
     }
 
-    /** En la boca del arco derecho no hay rebote de pared. */
+    /** La pared derecha rebota incluso a la altura del arco. */
     @Test
-    public void shouldNotBounceOnRightGoalMouth()
+    public void shouldBounceOnRightWallAtGoalHeight()
     {
         Balon b = new Balon(1267, 590, ParametrosJuego.RADIO_BALON);
         b.aplicarImpulso(100, 0);
         b.actualizar(0.02, cancha);
 
-        assertTrue(b.getX() > cancha.getAncho() - b.getRadio());
-        assertTrue(b.getVelocidadX() > 0);
+        assertEquals(cancha.getAncho() - b.getRadio(), b.getX(), 0.0001);
+        assertTrue(b.getVelocidadX() < 0);
     }
 
     /** Reiniciar devuelve el balón a la posición indicada y sin velocidad. */

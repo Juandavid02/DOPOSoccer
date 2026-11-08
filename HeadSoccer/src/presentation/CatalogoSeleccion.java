@@ -45,6 +45,8 @@ final class CatalogoSeleccion {
                 RUTA_PERSONAJES + "BettyCajaDeSeleccion.png",
                 RUTA_PERSONAJES + "BettyQuietoDerecha.png",
                 RUTA_PERSONAJES + "BettyQuietoIzquierdo.png",
+                RUTA_PERSONAJES + "BettyPatadaDerecha.png",
+                RUTA_PERSONAJES + "BettyPatadaIzquierdo.png",
                 RUTA_PERSONAJES + "TituloBetty.png",
                 RUTA_AUDIO + "BettySelecionCaja.wav",
                 RUTA_BANDERAS + "BanderaColombia.png"));
@@ -54,6 +56,8 @@ final class CatalogoSeleccion {
                 RUTA_PERSONAJES + "BobEsponjaCajaDeSeleccion.png",
                 RUTA_PERSONAJES + "BobQuietoDerecha.png",
                 RUTA_PERSONAJES + "BobQuietpIzquierdo.png",
+                RUTA_PERSONAJES + "BobPatadaDerecha.png",
+                RUTA_PERSONAJES + "BobPatadaIzquierdo.png",
                 RUTA_PERSONAJES + "TituloBobEsponja.png",
                 RUTA_AUDIO + "BobSelecionCaja.wav",
                 RUTA_BANDERAS + "BanderaEstadosUnidos.png"));
@@ -63,6 +67,8 @@ final class CatalogoSeleccion {
                 RUTA_PERSONAJES + "ChavoCajaDeSeleccion.png",
                 RUTA_PERSONAJES + "ChavoQuietoDerecha.png",
                 RUTA_PERSONAJES + "ChavoQuietoIzquierda.png",
+                RUTA_PERSONAJES + "ChavoPatadaDerecha.png",
+                RUTA_PERSONAJES + "ChavoPatadaIzquierdo.png",
                 RUTA_PERSONAJES + "TituloChavo.png",
                 RUTA_AUDIO + "ChavoSelecionCaja.wav",
                 RUTA_BANDERAS + "BanderaMexicoSeleccion.png"));
@@ -85,16 +91,22 @@ final class CatalogoSeleccion {
         private final String caja;
         private final String derecha;
         private final String izquierda;
+        private final String patadaDerecha;
+        private final String patadaIzquierda;
         private final String titulo;
         private final String audio;
         private final String bandera;
 
         private Opcion(Personaje personaje, String caja, String derecha,
-                       String izquierda, String titulo, String audio, String bandera) {
+                       String izquierda, String patadaDerecha,
+                       String patadaIzquierda, String titulo,
+                       String audio, String bandera) {
             this.personaje = personaje;
             this.caja = caja;
             this.derecha = derecha;
             this.izquierda = izquierda;
+            this.patadaDerecha = patadaDerecha;
+            this.patadaIzquierda = patadaIzquierda;
             this.titulo = titulo;
             this.audio = audio;
             this.bandera = bandera;
@@ -114,6 +126,14 @@ final class CatalogoSeleccion {
 
         String getIzquierda() {
             return izquierda;
+        }
+
+        String getPatadaDerecha() {
+            return patadaDerecha;
+        }
+
+        String getPatadaIzquierda() {
+            return patadaIzquierda;
         }
 
         String getTitulo() {

@@ -151,6 +151,45 @@ public class Jugador {
         }
     }
 
+    /**
+     * Desplaza al jugador para resolver una colisión, respetando los
+     * límites de la cancha.
+     *
+     * @param dx desplazamiento horizontal
+     * @param dy desplazamiento vertical
+     * @param cancha cancha donde se mueve
+     */
+    public void desplazar(double dx, double dy, Cancha cancha) {
+        posicionX += dx;
+        posicionY += dy;
+
+        double ancho = cancha.getAncho();
+        double suelo = cancha.getSuelo();
+
+        if (posicionX < ParametrosJuego.RADIO_JUGADOR) {
+            posicionX = ParametrosJuego.RADIO_JUGADOR;
+        } else if (posicionX > ancho - ParametrosJuego.RADIO_JUGADOR) {
+            posicionX = ancho - ParametrosJuego.RADIO_JUGADOR;
+        }
+
+        if (posicionY + ParametrosJuego.RADIO_JUGADOR >= suelo) {
+            posicionY = suelo - ParametrosJuego.RADIO_JUGADOR;
+            if (velocidadY > 0) {
+                velocidadY = 0;
+            }
+            enSuelo = true;
+        } else {
+            enSuelo = false;
+        }
+
+        if (posicionY - ParametrosJuego.RADIO_JUGADOR < 0) {
+            posicionY = ParametrosJuego.RADIO_JUGADOR;
+            if (velocidadY < 0) {
+                velocidadY = 0;
+            }
+        }
+    }
+
     public void saltar() {
         if (!enSuelo) {
             return;
@@ -164,17 +203,22 @@ public class Jugador {
         if (balon == null) {
             return;
         }
-        double distanciaX = balon.getX() - posicionX;
-        double distanciaY = balon.getY() - posicionY;
+        double direccion = lado == Lado.IZQUIERDO ? 1 : -1;
+        double botaX = posicionX
+                + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR;
+        double botaY = posicionY + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR;
+
+        double distanciaX = balon.getX() - botaX;
+        double distanciaY = balon.getY() - botaY;
         double distancia = Math.sqrt(distanciaX * distanciaX + distanciaY * distanciaY);
-        double alcance = ParametrosJuego.RADIO_BALON + ParametrosJuego.RADIO_JUGADOR;
-        if (distancia > alcance || distancia == 0) {
+
+        if (distancia > ParametrosJuego.ALCANCE_PATADA) {
             return;
         }
-        double potencia = ParametrosJuego.POTENCIA_PATADA_BASE;
-        //IA generativa para poder realizar el calculo de la patada al balon
-        double angulo = Math.atan2(distanciaY, distanciaX);
-        balon.aplicarImpulso(potencia * Math.cos(angulo), potencia * Math.sin(angulo));
+
+        balon.aplicarImpulso(
+                direccion * ParametrosJuego.POTENCIA_PATADA_BASE,
+                -ParametrosJuego.POTENCIA_LEVANTE_PATADA);
     }
 
     public void reiniciar(double posicionX, double posicionY) {

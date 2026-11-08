@@ -18,6 +18,7 @@ public class DOPOSoccerGUI extends JFrame {
     private static final String CARTA_CONFIGURACION = "configuracionPartido";
     private static final String CARTA_SELECCION_PERSONAJE = "seleccionPersonaje";
     private static final String CARTA_CONFIGURACION_VISUAL = "configuracionVisual";
+    private static final String CARTA_JUEGO = "juego";
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
@@ -34,11 +35,16 @@ public class DOPOSoccerGUI extends JFrame {
     private final List<PerfilJugador> perfiles = new ArrayList<>();
     private boolean perfilVuelveASeleccion;
     private final GestorSonido gestorSonido = new GestorSonido();
+    private boolean cambiarPersonajeDesdeJuego;
     private ConfiguracionPartido configuracionPartido;
     private Personaje personajeJugador1;
     private Personaje personajeJugador2;
+    private PerfilJugador perfilPartido1;
+    private PerfilJugador perfilPartido2;
     private String rutaBalonSeleccionado;
     private String rutaEscenarioSeleccionado;
+    private JuegoView juegoView;
+    private JuegoController juegoController;
 
     public DOPOSoccerGUI() {
         super("DOPOSoccer");
@@ -176,15 +182,32 @@ public class DOPOSoccerGUI extends JFrame {
     }
 
     public void iniciarSeleccionPersonaje() {
+        cambiarPersonajeDesdeJuego = false;
         seleccionPersonajeController.reiniciar();
         cardLayout.show(mainPanel, CARTA_SELECCION_PERSONAJE);
         seleccionPersonajeView.repaint();
     }
 
     public void mostrarSeleccionPersonaje() {
+        cambiarPersonajeDesdeJuego = false;
         seleccionPersonajeController.refrescar();
         cardLayout.show(mainPanel, CARTA_SELECCION_PERSONAJE);
         seleccionPersonajeView.repaint();
+    }
+
+    public void cambiarPersonajeDesdeJuego() {
+        cambiarPersonajeDesdeJuego = true;
+        seleccionPersonajeController.reiniciar();
+        cardLayout.show(mainPanel, CARTA_SELECCION_PERSONAJE);
+        seleccionPersonajeView.repaint();
+    }
+
+    public boolean isCambiarPersonajeDesdeJuego() {
+        return cambiarPersonajeDesdeJuego;
+    }
+
+    public void terminarCambioPersonaje() {
+        cambiarPersonajeDesdeJuego = false;
     }
 
     public void mostrarConfiguracionVisual() {
@@ -210,12 +233,65 @@ public class DOPOSoccerGUI extends JFrame {
         this.rutaEscenarioSeleccionado = rutaEscenario;
     }
 
+    public void setPerfilesPartido(PerfilJugador perfil1, PerfilJugador perfil2) {
+        this.perfilPartido1 = perfil1;
+        this.perfilPartido2 = perfil2;
+    }
+
+    public PerfilJugador getPerfilPartido1() {
+        return perfilPartido1;
+    }
+
+    public PerfilJugador getPerfilPartido2() {
+        return perfilPartido2;
+    }
+
     public String getRutaBalonSeleccionado() {
         return rutaBalonSeleccionado;
     }
 
     public String getRutaEscenarioSeleccionado() {
         return rutaEscenarioSeleccionado;
+    }
+
+    public void iniciarJuego() {
+        if (juegoController != null) {
+            juegoController.detener();
+            if (juegoView != null) {
+                mainPanel.remove(juegoView);
+            }
+        }
+
+        juegoView = new JuegoView();
+        juegoController = new JuegoController(this, juegoView);
+        mainPanel.add(juegoView, CARTA_JUEGO);
+        gestorSonido.agregarOyente(juegoView.getBotonSonido()::setSilenciado);
+
+        boolean iniciado = juegoController.iniciar(
+                configuracionPartido,
+                personajeJugador1,
+                personajeJugador2,
+                perfilPartido1,
+                perfilPartido2,
+                rutaEscenarioSeleccionado,
+                rutaBalonSeleccionado);
+
+        if (!iniciado) {
+            mainPanel.remove(juegoView);
+            juegoView = null;
+            juegoController = null;
+            return;
+        }
+
+        cardLayout.show(mainPanel, CARTA_JUEGO);
+        juegoView.requestFocusInWindow();
+    }
+
+    public void volverAlMenuDesdeJuego() {
+        if (juegoController != null) {
+            juegoController.detener();
+        }
+        mostrarMenu();
     }
 
     public void alternarSonido() {
