@@ -37,6 +37,8 @@ public class DOPOSoccerGUI extends JFrame {
     private ConfiguracionPartido configuracionPartido;
     private Personaje personajeJugador1;
     private Personaje personajeJugador2;
+    private String rutaBalonSeleccionado;
+    private String rutaEscenarioSeleccionado;
 
     public DOPOSoccerGUI() {
         super("DOPOSoccer");
@@ -201,6 +203,19 @@ public class DOPOSoccerGUI extends JFrame {
 
     public Personaje getPersonajeJugador2() {
         return personajeJugador2;
+    }
+
+    public void setConfiguracionVisual(String rutaBalon, String rutaEscenario) {
+        this.rutaBalonSeleccionado = rutaBalon;
+        this.rutaEscenarioSeleccionado = rutaEscenario;
+    }
+
+    public String getRutaBalonSeleccionado() {
+        return rutaBalonSeleccionado;
+    }
+
+    public String getRutaEscenarioSeleccionado() {
+        return rutaEscenarioSeleccionado;
     }
 
     public void alternarSonido() {

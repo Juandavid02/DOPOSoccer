@@ -23,6 +23,7 @@ public class GestorSonido {
     private Clip musicaFondo;
     private String rutaMusicaFondo;
     private Clip efectoActual;
+    private boolean musicaPausada;
 
     public boolean isSilenciado() {
         return silenciado;
@@ -70,7 +71,11 @@ public class GestorSonido {
         }
 
         if (musicaFondo != null) {
+            musicaPausada = false;
             if (!musicaFondo.isRunning()) {
+                if (musicaFondo.getFramePosition() >= musicaFondo.getFrameLength()) {
+                    musicaFondo.setFramePosition(0);
+                }
                 musicaFondo.start();
             }
             return;
@@ -85,6 +90,20 @@ public class GestorSonido {
             AudioInputStream audio = AudioSystem.getAudioInputStream(archivo);
             Clip clip = AudioSystem.getClip();
             clip.open(audio);
+            musicaPausada = false;
+
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP
+                        && clip == musicaFondo
+                        && !musicaPausada
+                        && !silenciado) {
+                    // Reinicia el bucle si el Clip dejó de reproducir al final.
+                    clip.setFramePosition(0);
+                    clip.start();
+                }
+            });
+
+            clip.setFramePosition(0);
             clip.loop(Clip.LOOP_CONTINUOUSLY);
             if (!clip.isRunning()) {
                 clip.start();
@@ -100,6 +119,7 @@ public class GestorSonido {
      * Pausa la música de fondo sin perder la posición actual.
      */
     public void pausarMusicaFondo() {
+        musicaPausada = true;
         if (musicaFondo != null && musicaFondo.isRunning()) {
             musicaFondo.stop();
         }
@@ -120,7 +140,11 @@ public class GestorSonido {
             return;
         }
 
+        musicaPausada = false;
         if (!musicaFondo.isRunning()) {
+            if (musicaFondo.getFramePosition() >= musicaFondo.getFrameLength()) {
+                musicaFondo.setFramePosition(0);
+            }
             musicaFondo.start();
         }
     }
