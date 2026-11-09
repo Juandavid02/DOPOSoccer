@@ -9,19 +9,19 @@ import domain.BarraPoder;
 import domain.Cancha;
 import domain.ConfiguracionJugador;
 import domain.Estadisticas;
+import domain.ExcepcionDOPOSoccer;
 import domain.Jugador;
+import domain.JugadorHumano;
 import domain.Lado;
 import domain.ParametrosJuego;
 import domain.Personaje;
 import domain.PoderAuraAzul;
+import domain.Resolucion;
 
 /**
  * Clase de pruebas JugadorTest.
  * Pruebas del jugador: posición, movimiento, salto, gravedad, patada y uso
  * de sus propias estadísticas (speed, jump, kick, survival).
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class JugadorTest
 {
@@ -35,9 +35,9 @@ public class JugadorTest
     @BeforeEach
     public void setUp()
     {
-        cancha = new Cancha();
+        cancha = new Cancha(Resolucion.R1280x720);
         jugador = crearJugador("Juan", 3, 4, 5, 6, Lado.IZQUIERDO, 100,
-                ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR);
+                Resolucion.R1280x720.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
     }
 
     /** El jugador inicia en la posición indicada y sin velocidad. */
@@ -45,7 +45,7 @@ public class JugadorTest
     public void shouldStartAtRequestedPosition()
     {
         assertEquals(100, jugador.getPosicionX(), 0.0001);
-        assertEquals(ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR,
+        assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.RADIO_JUGADOR,
                 jugador.getPosicionY(), 0.0001);
         assertEquals(0, jugador.getVelocidadX(), 0.0001);
         assertEquals(0, jugador.getVelocidadY(), 0.0001);
@@ -56,7 +56,7 @@ public class JugadorTest
     @Test
     public void shouldMoveRight()
     {
-        jugador.mover(50);
+        jugador.mover(50, cancha);
         assertEquals(150, jugador.getPosicionX(), 0.0001);
     }
 
@@ -64,7 +64,7 @@ public class JugadorTest
     @Test
     public void shouldMoveLeft()
     {
-        jugador.mover(-50);
+        jugador.mover(-50, cancha);
         assertEquals(50, jugador.getPosicionX(), 0.0001);
     }
 
@@ -72,7 +72,7 @@ public class JugadorTest
     @Test
     public void shouldNotMoveOutsideLeft()
     {
-        jugador.mover(-1000);
+        jugador.mover(-1000, cancha);
         assertEquals(ParametrosJuego.RADIO_JUGADOR, jugador.getPosicionX(), 0.0001);
     }
 
@@ -80,8 +80,8 @@ public class JugadorTest
     @Test
     public void shouldNotMoveOutsideRight()
     {
-        jugador.mover(2000);
-        assertEquals(ParametrosJuego.ANCHO_CANCHA - ParametrosJuego.RADIO_JUGADOR,
+        jugador.mover(2000, cancha);
+        assertEquals(Resolucion.R1280x720.getAncho() - ParametrosJuego.RADIO_JUGADOR,
                 jugador.getPosicionX(), 0.0001);
     }
 
@@ -125,7 +125,7 @@ public class JugadorTest
             jugador.actualizar(0.05, cancha);
         }
 
-        assertEquals(ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR,
+        assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.RADIO_JUGADOR,
                 jugador.getPosicionY(), 0.0001);
         assertEquals(0, jugador.getVelocidadY(), 0.0001);
         assertTrue(jugador.isEnSuelo());
@@ -206,6 +206,17 @@ public class JugadorTest
         assertEquals(0, jugador.getPuntos().getTotal());
     }
 
+    /** La vida inicia llena y coincide con la vida máxima de sus estadísticas. */
+    @Test
+    public void shouldStartWithLifeAtMaximum()
+    {
+        double vidaMaxima = jugador.getEstadisticas().getVidaMax();
+
+        assertEquals(vidaMaxima, jugador.getVida().getMaxima(), 0.0001);
+        assertEquals(vidaMaxima, jugador.getVida().getActual(), 0.0001);
+        assertFalse(jugador.getVida().estaEnCero());
+    }
+
     /** Reiniciar devuelve al jugador a la posición indicada. */
     @Test
     public void shouldResetToRequestedPosition()
@@ -228,18 +239,22 @@ public class JugadorTest
     private Jugador crearJugador(String nombre, int speed, int jump, int kick, int survival,
                                  Lado lado, double x, double y)
     {
-        ConfiguracionJugador configuracion = new ConfiguracionJugador(
-                nombre, new Estadisticas(speed, jump, kick, survival));
+        try {
+            ConfiguracionJugador configuracion = new ConfiguracionJugador(
+                    nombre, new Estadisticas(speed, jump, kick, survival));
 
-        return new Jugador(
-                configuracion,
-                crearPersonaje(),
-                new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER,
-                        ParametrosJuego.RECARGA_BARRA_PODER),
-                lado,
-                x,
-                y
-        );
+            return new JugadorHumano(
+                    configuracion,
+                    crearPersonaje(),
+                    new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER,
+                            ParametrosJuego.RECARGA_BARRA_PODER),
+                    lado,
+                    x,
+                    y
+            );
+        } catch (ExcepcionDOPOSoccer e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

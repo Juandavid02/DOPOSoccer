@@ -13,9 +13,6 @@ import domain.Personaje;
 /**
  * Clase de pruebas CatalogoPersonajesTest.
  * Verifica los seis personajes disponibles, sus países y sus poderes.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class CatalogoPersonajesTest
 {
@@ -57,7 +54,7 @@ public class CatalogoPersonajesTest
         assertCharacter("Jungkook", "Corea del Sur", "Aura Azul");
         assertCharacter("Goku", "Japón", "Rayo");
         assertCharacter("Mario", "Italia", "Tornado");
-        assertCharacter("Mickey Mouse", "Estados Unidos", "Ilusión");
+        assertCharacter("Bob Esponja", "Estados Unidos", "Ilusión");
         assertCharacter("Betty la fea", "Colombia", "Flechazo de Amor");
         assertCharacter("El Chavo del Ocho", "México", "Barril");
     }

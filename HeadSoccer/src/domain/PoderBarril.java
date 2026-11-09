@@ -1,28 +1,23 @@
 package domain;
 
-public class PoderBarril implements Poder {
-    private final String nombre;
-    private final double duracion;
-    private final double danoTiro;
+public class PoderBarril extends PoderBase {
 
     public PoderBarril() {
-        nombre = "Barril";
-        duracion = 5.0;
-        danoTiro = 35.0;
+        super("Barril", 5.0, 35.0);
     }
 
     @Override
-    public String getNombre() {
-        return nombre;
+    public TipoEfecto getTipoEfecto() {
+        return TipoEfecto.BARRIL;
     }
 
     @Override
-    public double getDuracion() {
-        return duracion;
+    public double getImpulsoX() {
+        return 1050;
     }
 
     @Override
-    public double getDanoTiro(Jugador jugador) {
-        return danoTiro;
+    public double getImpulsoY() {
+        return -220;
     }
 }

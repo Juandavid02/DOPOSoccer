@@ -10,9 +10,6 @@ import domain.Estadisticas;
  * Clase de pruebas EstadisticasTest.
  * Pruebas de las estadísticas de un jugador (speed, jump, kick, survival),
  * sus límites 1–10 y las fórmulas del PDF final.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class EstadisticasTest
 {

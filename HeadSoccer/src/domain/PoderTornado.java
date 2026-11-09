@@ -1,29 +1,23 @@
 package domain;
 
-public class PoderTornado  implements Poder {
-    private String nombre;
-    private double duracion;
-    private double danoTiro;
+public class PoderTornado extends PoderBase {
 
     public PoderTornado() {
-        nombre = "Tornado";
-        duracion = 3.0;
-        danoTiro = 40.0;
+        super("Tornado", 3.0, 40.0);
     }
 
     @Override
-    public String getNombre() {
-        return nombre;
+    public TipoEfecto getTipoEfecto() {
+        return TipoEfecto.INCONSCIENTE;
     }
 
     @Override
-    public double getDuracion() {
-        return duracion;
+    public double getImpulsoX() {
+        return 1000;
     }
 
     @Override
-    public double getDanoTiro(Jugador jugador) {
-        return danoTiro;
+    public double getImpulsoY() {
+        return -350;
     }
-    
 }

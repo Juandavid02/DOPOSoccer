@@ -39,6 +39,18 @@ public class Balon {
         this.velocidadY += impulsoY;
     }
 
+    /**
+     * Fija la velocidad del balón. Se usa al ejecutar un tiro de poder para
+     * que salga con la trayectoria exacta del poder.
+     *
+     * @param velocidadX nueva velocidad horizontal
+     * @param velocidadY nueva velocidad vertical
+     */
+    public void establecerVelocidad(double velocidadX, double velocidadY) {
+        this.velocidadX = velocidadX;
+        this.velocidadY = velocidadY;
+    }
+
     public void actualizar(double dt, Cancha cancha) {
         velocidadY += ParametrosJuego.GRAVEDAD * dt;
         velocidadX *= Math.pow(ParametrosJuego.FRICCION, dt*60);
@@ -61,14 +73,14 @@ public class Balon {
             }
         }
 
-        if (x - radio <= 0 && !cancha.estaEnBocaArcoIzquierdo(y, radio)) {
+        if (x - radio <= 0) {
             x = radio;
             if (velocidadX < 0) {
                 velocidadX = -velocidadX * ParametrosJuego.PERDIDA_REBOTE;
             }
         }
 
-        if (x + radio > cancha.getAncho() && !cancha.estaEnBocaArcoDerecho(y, radio)) {
+        if (x + radio > cancha.getAncho()) {
             x = cancha.getAncho() - radio;
             if (velocidadX > 0) {
                 velocidadX = -velocidadX * ParametrosJuego.PERDIDA_REBOTE;
@@ -81,5 +93,17 @@ public class Balon {
         this.y = y;
         this.velocidadX = 0;
         this.velocidadY = 0;
+    }
+
+    /**
+     * Mueve el balón sin cambiar su velocidad. Se usa para sacarlo de un
+     * personaje cuando hay una colisión.
+     *
+     * @param x nueva posición horizontal
+     * @param y nueva posición vertical
+     */
+    public void reubicar(double x, double y) {
+        this.x = x;
+        this.y = y;
     }
 }

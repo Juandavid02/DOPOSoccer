@@ -10,9 +10,6 @@ import domain.ResultadoPartido;
 /**
  * Clase de pruebas ResultadoPartidoTest.
  * Pruebas del resultado final: goles, motivo, tiempo, empate y ganador.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class ResultadoPartidoTest
 {

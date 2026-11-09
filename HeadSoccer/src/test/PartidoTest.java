@@ -6,8 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import domain.Balon;
 import domain.ConfiguracionJugador;
+import domain.ConfiguracionPartido;
 import domain.EstadoPartido;
 import domain.Estadisticas;
+import domain.ExcepcionDOPOSoccer;
 import domain.Jugador;
 import domain.Lado;
 import domain.Modalidad;
@@ -16,15 +18,13 @@ import domain.ParametrosJuego;
 import domain.Partido;
 import domain.Personaje;
 import domain.PoderAuraAzul;
+import domain.Resolucion;
 import domain.TipoPartido;
 
 /**
  * Clase de pruebas PartidoTest.
  * Pruebas del partido: estado inicial, jugadores, balón, goles,
  * reinicio, pausa, tiempo y resultado final.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class PartidoTest
 {
@@ -37,14 +37,7 @@ public class PartidoTest
     @BeforeEach
     public void setUp()
     {
-        partido = new Partido(
-                Modalidad.PvsP,
-                TipoPartido.TIEMPO,
-                crearPersonaje(),
-                crearPersonaje(),
-                new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
-                new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5))
-        );
+        partido = crearPartido(TipoPartido.TIEMPO, 5);
     }
 
     /** El partido inicia 0–0. */
@@ -71,9 +64,9 @@ public class PartidoTest
         Jugador jugador1 = partido.getJugadores().get(0);
         Jugador jugador2 = partido.getJugadores().get(1);
 
-        assertEquals(ParametrosJuego.ANCHO_CANCHA / 4.0, jugador1.getPosicionX(), 0.0001);
-        assertEquals(ParametrosJuego.ANCHO_CANCHA * 3.0 / 4.0, jugador2.getPosicionX(), 0.0001);
-        assertEquals(ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_JUGADOR,
+        assertEquals(Resolucion.R1280x720.getAncho() / 4.0, jugador1.getPosicionX(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getAncho() * 3.0 / 4.0, jugador2.getPosicionX(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.RADIO_JUGADOR,
                 jugador1.getPosicionY(), 0.0001);
         assertEquals(Lado.IZQUIERDO, jugador1.getLado());
         assertEquals(Lado.DERECHO, jugador2.getLado());
@@ -85,8 +78,8 @@ public class PartidoTest
     {
         Balon balon = partido.getBalon();
 
-        assertEquals(ParametrosJuego.ANCHO_CANCHA / 2.0, balon.getX(), 0.0001);
-        assertEquals(ParametrosJuego.SUELO_Y - ParametrosJuego.RADIO_BALON,
+        assertEquals(Resolucion.R1280x720.getAncho() / 2.0, balon.getX(), 0.0001);
+        assertEquals(Resolucion.R1280x720.getSuelo() - ParametrosJuego.RADIO_BALON,
                 balon.getY(), 0.0001);
     }
 
@@ -127,16 +120,16 @@ public class PartidoTest
         partido.getBalon().reiniciar(1300, 590);
         partido.actualizar(0.016);
 
-        assertEquals(ParametrosJuego.ANCHO_CANCHA / 2.0,
+        assertEquals(Resolucion.R1280x720.getAncho() / 2.0,
                 partido.getBalon().getX(), 0.0001);
-        assertEquals(ParametrosJuego.ALTO_CANCHA / 2.0,
+        assertEquals(Resolucion.R1280x720.getAlto() / 2.0,
                 partido.getBalon().getY(), 0.0001);
         assertEquals(0, partido.getBalon().getVelocidadX(), 0.0001);
         assertEquals(0, partido.getBalon().getVelocidadY(), 0.0001);
 
-        assertEquals(ParametrosJuego.ANCHO_CANCHA / 4.0,
+        assertEquals(Resolucion.R1280x720.getAncho() / 4.0,
                 partido.getJugadores().get(0).getPosicionX(), 0.0001);
-        assertEquals(ParametrosJuego.ANCHO_CANCHA * 3.0 / 4.0,
+        assertEquals(Resolucion.R1280x720.getAncho() * 3.0 / 4.0,
                 partido.getJugadores().get(1).getPosicionX(), 0.0001);
     }
 
@@ -191,11 +184,12 @@ public class PartidoTest
         assertEquals(EstadoPartido.EN_CURSO, partido.getEstado());
     }
 
-    /** Cuando el tiempo llega a cero, el partido termina. */
+    /** Cuando el tiempo llega a cero sin empate, el partido termina. */
     @Test
     public void shouldFinishWhenTimeRunsOut()
     {
-        partido.actualizar(61);
+        partido.sumarGol(1);
+        partido.actualizar(60);
 
         assertEquals(EstadoPartido.TERMINADO, partido.getEstado());
         assertNotNull(partido.getResultado());
@@ -240,6 +234,70 @@ public class PartidoTest
             fail("Debía lanzar IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             assertEquals("El número de jugador debe ser 1 o 2", e.getMessage());
+        }
+    }
+
+    /** Un partido por goles termina al alcanzar el objetivo. */
+    @Test
+    public void shouldFinishByGoals()
+    {
+        Partido porGoles = crearPartido(TipoPartido.GOLES, 3);
+
+        porGoles.sumarGol(1);
+        porGoles.sumarGol(1);
+        porGoles.actualizar(0.016);
+        assertEquals(EstadoPartido.EN_CURSO, porGoles.getEstado());
+
+        porGoles.sumarGol(1);
+        porGoles.actualizar(0.016);
+        assertEquals(EstadoPartido.TERMINADO, porGoles.getEstado());
+        assertEquals(MotivoFin.GOLES, porGoles.getResultado().getMotivoFin());
+    }
+
+    /** Con empate al agotarse el tiempo, se juega muerte súbita. */
+    @Test
+    public void shouldStartSuddenDeathWhenTied()
+    {
+        partido.actualizar(60);
+
+        assertEquals(EstadoPartido.EN_CURSO, partido.getEstado());
+    }
+
+    /** El primer gol en muerte súbita termina el partido. */
+    @Test
+    public void shouldFinishByGoldenGoal()
+    {
+        partido.actualizar(60);
+        partido.sumarGol(1);
+        partido.actualizar(0.016);
+
+        assertEquals(EstadoPartido.TERMINADO, partido.getEstado());
+        assertEquals(MotivoFin.GOL_DE_ORO, partido.getResultado().getMotivoFin());
+    }
+
+    /**
+     * Crea un partido de prueba con el tipo y los goles indicados.
+     */
+    private Partido crearPartido(TipoPartido tipo, int goles)
+    {
+        try {
+            ConfiguracionPartido configuracion = new ConfiguracionPartido(
+                    Modalidad.PvsP,
+                    tipo,
+                    Resolucion.R1280x720,
+                    1,
+                    goles
+            );
+
+            return new Partido(
+                    configuracion,
+                    crearPersonaje(),
+                    crearPersonaje(),
+                    new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
+                    new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5))
+            );
+        } catch (ExcepcionDOPOSoccer e) {
+            throw new RuntimeException(e);
         }
     }
 

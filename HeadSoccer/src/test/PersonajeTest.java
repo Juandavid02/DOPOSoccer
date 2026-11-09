@@ -11,9 +11,6 @@ import domain.PoderAuraAzul;
  * Clase de pruebas PersonajeTest.
  * Pruebas de los datos de un personaje: nombre, país y poder.
  * Las estadísticas ya no pertenecen al personaje, sino al jugador.
- *
- * @author Juan David Rojas Heredia
- * @version 06-11-2026
  */
 public class PersonajeTest
 {

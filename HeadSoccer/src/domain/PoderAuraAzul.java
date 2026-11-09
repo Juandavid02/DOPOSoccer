@@ -1,29 +1,23 @@
 package domain;
 
-public class PoderAuraAzul implements Poder {
-    private String nombre;
-    private double duracion;
-    private double danoTiro;
-
+public class PoderAuraAzul extends PoderBase {
 
     public PoderAuraAzul() {
-        nombre = "Aura Azul";
-        duracion = 1.5;
-        danoTiro = 40;
+        super("Aura Azul", 1.5, 40.0);
     }
 
     @Override
-    public String getNombre() {
-        return nombre;
+    public TipoEfecto getTipoEfecto() {
+        return TipoEfecto.EMPUJE;
     }
 
     @Override
-    public double getDuracion() {
-        return duracion;
+    public double getImpulsoX() {
+        return 1350;
     }
 
     @Override
-    public double getDanoTiro(Jugador jugador) {
-        return danoTiro;
+    public double getImpulsoY() {
+        return -100;
     }
 }
