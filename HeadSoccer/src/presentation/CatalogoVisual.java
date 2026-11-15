@@ -21,13 +21,26 @@ final class CatalogoVisual {
             new Opcion("Tenkaichi Budokai", RUTA_ESCENARIOS + "EscennarioTenkaichiBudokai.jpg"),
             new Opcion("Vecindad del Chavo", RUTA_ESCENARIOS + "EscennarioVecindadDelCHavo.jpg"));
 
+    /**
+     * Constructor privado para evitar instancias del catálogo.
+     */
     private CatalogoVisual() {
     }
 
+    /**
+     * Devuelve los balones disponibles.
+     *
+     * @return lista de balones
+     */
     static List<Opcion> getBalones() {
         return BALONES;
     }
 
+    /**
+     * Devuelve los escenarios disponibles.
+     *
+     * @return lista de escenarios
+     */
     static List<Opcion> getEscenarios() {
         return ESCENARIOS;
     }
@@ -37,15 +50,31 @@ final class CatalogoVisual {
         private final String nombre;
         private final String ruta;
 
+        /**
+         * Construye una opción con su nombre y su ruta.
+         *
+         * @param nombre nombre visible de la opción
+         * @param ruta ruta de la imagen
+         */
         private Opcion(String nombre, String ruta) {
             this.nombre = nombre;
             this.ruta = ruta;
         }
 
+        /**
+         * Devuelve el nombre de la opción.
+         *
+         * @return el nombre
+         */
         String getNombre() {
             return nombre;
         }
 
+        /**
+         * Devuelve la ruta de la imagen de la opción.
+         *
+         * @return la ruta
+         */
         String getRuta() {
             return ruta;
         }

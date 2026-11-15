@@ -24,6 +24,8 @@ public class ParametrosJuego {
 
     // Jugador
     public static final double RADIO_JUGADOR = 20;
+    /** Velocidad base de desplazamiento; las estadísticas la modifican. */
+    public static final double VELOCIDAD_BASE_JUGADOR = 260;
 
     // Círculos de colisión del personaje: cabeza y bota.
     public static final double RADIO_CABEZA_JUGADOR = 45;
@@ -47,8 +49,8 @@ public class ParametrosJuego {
     // Estadísticas (rango y crecimiento)
     public static final int MIN_ESTADISTICA = 1;
     public static final int MAX_ESTADISTICA = 10;
-    /** Valor de cada estadística en un perfil sin mejoras. */
-    public static final int ESTADISTICA_INICIAL = 5;
+    /** Valor de cada estadística en un perfil nuevo y en la IA de PvsM. */
+    public static final int ESTADISTICA_INICIAL = 1;
     /** Cada punto de estadística suma un 10 % sobre el valor base. */
     public static final double INCREMENTO_POR_PUNTO = 0.10;
 
@@ -68,11 +70,19 @@ public class ParametrosJuego {
     /** Impulso vertical del Tornado para lanzar al rival al aire. */
     public static final double IMPULSO_INCONSCIENTE = 650;
 
+    // Ilusión: balones falsos que distraen y empujan al rival.
+    public static final int CANTIDAD_BALONES_ILUSION = 7;
+    /** Desplazamiento lateral que aplica cada balón falso al tocar al rival. */
+    public static final double DESPLAZAMIENTO_BALON_ILUSION = 14;
+    /** Pequeño salto al recibir el empuje de un balón falso. */
+    public static final double ALTURA_EMPUJE_BALON_ILUSION = 4;
+    /** Tiempo mínimo entre dos empujes consecutivos del mismo balón. */
+    public static final double TIEMPO_ENTRE_EMPUJES_ILUSION = 1.0;
+
     // Barra de poder
     public static final double CAPACIDAD_BARRA_PODER = 100;
     /** La barra se llena en 10 s: 100 / 10 = 10 unidades por segundo. */
     public static final double RECARGA_BARRA_PODER = 10;
-    public static final double TIEMPO_LLENADO_BARRA_PODER = 10.0;
     /** Al recibir un gol, la barra sube inmediatamente un cuarto. */
     public static final double FRACCION_BARRA_POR_GOL = 0.25;
 
@@ -83,9 +93,27 @@ public class ParametrosJuego {
     /** El precio de cada punto de mejora se duplica: 500, 1000, 2000... */
     public static final int FACTOR_COSTO_MEJORA = 2;
 
+    // Torneo
+    /** Puntos que cuesta inscribirse en un torneo. */
+    public static final int COSTO_TORNEO = 100;
+    /** Premio en puntos para el campeón del torneo. */
+    public static final int PREMIO_CAMPEON_TORNEO = 500;
+    /** Premio en puntos para el subcampeón del torneo. */
+    public static final int PREMIO_SUBCAMPEON_TORNEO = 150;
+    /** Estadísticas base de las IAs del torneo. */
+    public static final int ESTADISTICAS_IA_TORPE = 4;
+    public static final int ESTADISTICAS_IA_OFENSIVA = 6;
+    public static final int ESTADISTICAS_IA_DEFENSIVA = 6;
+    public static final int ESTADISTICAS_IA_EXPERTA = 7;
+    /** Mejora que recibe una IA por avanzar de ronda. */
+    public static final int MEJORA_IA_TORNEO = 1;
+
     // Juego
     public static final int TIEMPO_PARTIDO = 60;
 
+    /**
+     * Constructor privado para evitar instancias de la clase.
+     */
     private ParametrosJuego() {
     }
 }

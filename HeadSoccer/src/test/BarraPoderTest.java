@@ -60,7 +60,7 @@ public class BarraPoderTest
     public void shouldReachFullCharge()
     {
         barra.actualizarBarra(10);
-        assertTrue(barra.isfull());
+        assertTrue(barra.isFull());
     }
 
     /** La barra no está llena antes de alcanzar la capacidad. */
@@ -68,7 +68,7 @@ public class BarraPoderTest
     public void shouldNotBeFullBeforeCapacity()
     {
         barra.actualizarBarra(9.9);
-        assertFalse(barra.isfull());
+        assertFalse(barra.isFull());
     }
 
     /** La carga nunca supera la capacidad. */

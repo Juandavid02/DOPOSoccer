@@ -1,5 +1,7 @@
 package presentation;
 
+import domain.PerfilJugador;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -8,14 +10,19 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConfiguracionVisualView extends JPanel {
 
-    private static final String RUTA_BOTONES = "resources/images/Botones.java/";
+public class ConfiguracionVisualView extends VistaBase {
+
+    private static final String RUTA_BOTONES = "resources/images/Botones/";
     private static final Color COLOR_TEXTO = new Color(22, 48, 68);
+    private static final int ANCHO_READY_PVP = 280;
+    private static final int ANCHO_READY_SOLO = 250;
 
-    private BufferedImage fondo;
-    private JButton botonAtras;
-    private BotonSonido botonSonido;
+    private final BufferedImage imagenReadyPvp =
+            RecursosImagen.cargar(RUTA_BOTONES + "ReadyPerfil.png");
+    private final BufferedImage imagenReadySolo =
+            RecursosImagen.cargar(RUTA_BOTONES + "ReadySolo.png");
+
     private JButton botonReady;
 
     private final List<TarjetaVisual> tarjetasBalon = new ArrayList<>();
@@ -23,43 +30,101 @@ public class ConfiguracionVisualView extends JPanel {
 
     private TarjetaVisual balonSeleccionado;
     private TarjetaVisual escenarioSeleccionado;
+    private Desbloqueos desbloqueos;
+    private PerfilJugador perfil1;
+    private PerfilJugador perfil2;
 
+    /**
+     * Crea la pantalla de selección de balón y escenario.
+     */
     public ConfiguracionVisualView() {
-        prepareView();
-    }
-
-    private void prepareView() {
-        setLayout(new BorderLayout());
-        setOpaque(true);
-        setBackground(Color.BLACK);
-        setPreferredSize(new Dimension(1920, 1080));
-
-        fondo = RecursosImagen.cargar("resources/images/Ventanas/FondoSelecionPersonaje.jpg");
-
-        prepareViewSuperior();
+        super("resources/images/Ventanas/FondoSelecionPersonaje.jpg");
+        setTitulo("BALÓN Y ESCENARIO");
         prepareViewCentro();
     }
 
-    private void prepareViewSuperior() {
-        botonAtras = crearBotonImagen(RUTA_BOTONES + "Retroceder.png", 90);
-        botonSonido = new BotonSonido(64);
-
-        JPanel panelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        panelTitulo.setOpaque(false);
-        panelTitulo.add(new TituloVisual("BALÓN Y ESCENARIO"));
-
-        JPanel barraSuperior = new JPanel(new BorderLayout());
-        barraSuperior.setOpaque(false);
-        barraSuperior.setBorder(new EmptyBorder(18, 20, 0, 20));
-        barraSuperior.add(botonAtras, BorderLayout.WEST);
-        barraSuperior.add(panelTitulo, BorderLayout.CENTER);
-        barraSuperior.add(botonSonido, BorderLayout.EAST);
-
-        add(barraSuperior, BorderLayout.NORTH);
+    /**
+     * Guarda el estado de desbloqueos y actualiza las tarjetas.
+     *
+     * @param desbloqueos desbloqueos de los perfiles
+     */
+    public void setDesbloqueos(Desbloqueos desbloqueos) {
+        this.desbloqueos = desbloqueos;
+        actualizarDesbloqueos();
     }
 
+    /**
+     * Indica qué perfiles juegan el partido. Balones y escenarios quedan
+     * disponibles si alguno de los dos perfiles los desbloqueó.
+     *
+     * @param perfil1 perfil del jugador 1
+     * @param perfil2 perfil del jugador 2, o null si juega la máquina
+     */
+    public void setPerfilesActivos(PerfilJugador perfil1, PerfilJugador perfil2) {
+        this.perfil1 = perfil1;
+        this.perfil2 = perfil2;
+    }
+
+    /**
+     * Actualiza las cadenas de los balones y escenarios bloqueados.
+     */
+    public void actualizarDesbloqueos() {
+        if (desbloqueos == null) {
+            return;
+        }
+
+        for (TarjetaVisual tarjeta : tarjetasBalon) {
+            tarjeta.setBloqueada(!estaDesbloqueadoBalon(
+                    tarjeta.getOpcion().getNombre()));
+        }
+        for (TarjetaVisual tarjeta : tarjetasEscenario) {
+            tarjeta.setBloqueada(!estaDesbloqueadoEscenario(
+                    tarjeta.getOpcion().getNombre()));
+        }
+
+        if (balonSeleccionado != null && balonSeleccionado.isBloqueada()) {
+            balonSeleccionado = null;
+        }
+        if (escenarioSeleccionado != null && escenarioSeleccionado.isBloqueada()) {
+            escenarioSeleccionado = null;
+        }
+        seleccionarIniciales();
+        repaint();
+    }
+
+    /**
+     * Indica si un balón está desbloqueado para los perfiles activos.
+     *
+     * @param nombre nombre del balón
+     * @return true si está desbloqueado
+     */
+    private boolean estaDesbloqueadoBalon(String nombre) {
+        if (perfil1 == null && perfil2 == null) {
+            return true;
+        }
+        return desbloqueos.estaDesbloqueadoBalon(nombre, perfil1)
+                || desbloqueos.estaDesbloqueadoBalon(nombre, perfil2);
+    }
+
+    /**
+     * Indica si un escenario está desbloqueado para los perfiles activos.
+     *
+     * @param nombre nombre del escenario
+     * @return true si está desbloqueado
+     */
+    private boolean estaDesbloqueadoEscenario(String nombre) {
+        if (perfil1 == null && perfil2 == null) {
+            return true;
+        }
+        return desbloqueos.estaDesbloqueadoEscenario(nombre, perfil1)
+                || desbloqueos.estaDesbloqueadoEscenario(nombre, perfil2);
+    }
+
+    /**
+     * Construye el contenido central de la pantalla.
+     */
     private void prepareViewCentro() {
-        PanelTarjeta tarjeta = new PanelTarjeta();
+        TarjetaPanel tarjeta = new TarjetaPanel();
         tarjeta.setLayout(new BorderLayout(0, 12));
         tarjeta.setBorder(new EmptyBorder(20, 26, 16, 26));
         tarjeta.setPreferredSize(new Dimension(1120, 560));
@@ -67,14 +132,14 @@ public class ConfiguracionVisualView extends JPanel {
         tarjeta.add(prepararSecciones(), BorderLayout.CENTER);
         tarjeta.add(prepararReady(), BorderLayout.SOUTH);
 
-        JPanel contenedor = new JPanel(new GridBagLayout());
-        contenedor.setOpaque(false);
-        contenedor.setBorder(new EmptyBorder(10, 0, 26, 0));
-        contenedor.add(tarjeta);
-
-        add(contenedor, BorderLayout.CENTER);
+        setCentro(tarjeta, 10, 26);
     }
 
+    /**
+     * Prepara las secciones de balones y escenarios.
+     *
+     * @return panel con ambas secciones
+     */
     private JPanel prepararSecciones() {
         JPanel secciones = new JPanel(new GridBagLayout());
         secciones.setOpaque(false);
@@ -97,10 +162,15 @@ public class ConfiguracionVisualView extends JPanel {
         return secciones;
     }
 
+    /**
+     * Prepara la cuadrícula de balones disponibles.
+     *
+     * @return panel con las tarjetas de balones
+     */
     private JPanel prepararBalones() {
         JLabel titulo = crearEtiqueta("BALÓN");
 
-        JPanel cuadricula = new JPanel(new GridLayout(3, 1, 8, 8));
+        JPanel cuadricula = new JPanel(new GridLayout(3, 2, 8, 8));
         cuadricula.setOpaque(false);
 
         for (CatalogoVisual.Opcion opcion : CatalogoVisual.getBalones()) {
@@ -108,6 +178,10 @@ public class ConfiguracionVisualView extends JPanel {
             tarjetasBalon.add(tarjeta);
             cuadricula.add(tarjeta);
         }
+        // Tres espacios reservados para futuros balones.
+        cuadricula.add(new TarjetaVacia());
+        cuadricula.add(new TarjetaVacia());
+        cuadricula.add(new TarjetaVacia());
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -120,10 +194,15 @@ public class ConfiguracionVisualView extends JPanel {
         return panel;
     }
 
+    /**
+     * Prepara la cuadrícula de escenarios disponibles.
+     *
+     * @return panel con las tarjetas de escenarios
+     */
     private JPanel prepararEscenarios() {
         JLabel titulo = crearEtiqueta("ESCENARIO");
 
-        JPanel cuadricula = new JPanel(new GridLayout(2, 2, 10, 10));
+        JPanel cuadricula = new JPanel(new GridLayout(3, 2, 10, 8));
         cuadricula.setOpaque(false);
 
         for (CatalogoVisual.Opcion opcion : CatalogoVisual.getEscenarios()) {
@@ -131,6 +210,9 @@ public class ConfiguracionVisualView extends JPanel {
             tarjetasEscenario.add(tarjeta);
             cuadricula.add(tarjeta);
         }
+        // Dos espacios reservados para futuros escenarios.
+        cuadricula.add(new TarjetaVacia());
+        cuadricula.add(new TarjetaVacia());
 
         JPanel panel = new JPanel(new BorderLayout(0, 10));
         panel.setOpaque(false);
@@ -140,8 +222,13 @@ public class ConfiguracionVisualView extends JPanel {
         return panel;
     }
 
+    /**
+     * Prepara el botón READY en la parte inferior.
+     *
+     * @return panel con el botón READY
+     */
     private JPanel prepararReady() {
-        botonReady = crearBotonImagen(RUTA_BOTONES + "ReadyPerfil.png", 280);
+        botonReady = BotonImagen.crear(imagenReadyPvp, ANCHO_READY_PVP);
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         panel.setOpaque(false);
@@ -149,6 +236,24 @@ public class ConfiguracionVisualView extends JPanel {
         return panel;
     }
 
+    /**
+     * Cambia el botón READY entre la versión de dos jugadores y la de uno
+     * solo, según la modalidad.
+     *
+     * @param solo true para PvsM
+     */
+    public void setBotonReadySolo(boolean solo) {
+        BotonImagen.cambiarImagen(botonReady,
+                solo ? imagenReadySolo : imagenReadyPvp,
+                solo ? ANCHO_READY_SOLO : ANCHO_READY_PVP);
+    }
+
+    /**
+     * Crea una etiqueta de título con el estilo de la pantalla.
+     *
+     * @param texto texto de la etiqueta
+     * @return etiqueta creada
+     */
     private static JLabel crearEtiqueta(String texto) {
         JLabel etiqueta = new JLabel(texto, SwingConstants.CENTER);
         etiqueta.setFont(new Font("SansSerif", Font.BOLD, 20));
@@ -156,7 +261,15 @@ public class ConfiguracionVisualView extends JPanel {
         return etiqueta;
     }
 
+    /**
+     * Marca una tarjeta como balón seleccionado.
+     *
+     * @param tarjeta tarjeta de balón elegida
+     */
     public void seleccionarBalon(TarjetaVisual tarjeta) {
+        if (tarjeta == null || tarjeta.isBloqueada()) {
+            return;
+        }
         for (TarjetaVisual actual : tarjetasBalon) {
             actual.setSeleccionada(actual == tarjeta);
         }
@@ -164,7 +277,15 @@ public class ConfiguracionVisualView extends JPanel {
         repaint();
     }
 
+    /**
+     * Marca una tarjeta como escenario seleccionado.
+     *
+     * @param tarjeta tarjeta de escenario elegida
+     */
     public void seleccionarEscenario(TarjetaVisual tarjeta) {
+        if (tarjeta == null || tarjeta.isBloqueada()) {
+            return;
+        }
         for (TarjetaVisual actual : tarjetasEscenario) {
             actual.setSeleccionada(actual == tarjeta);
         }
@@ -172,92 +293,127 @@ public class ConfiguracionVisualView extends JPanel {
         repaint();
     }
 
+    /**
+     * Selecciona el primer balón y escenario desbloqueados si no hay ninguno.
+     */
     public void seleccionarIniciales() {
-        if (!tarjetasBalon.isEmpty() && balonSeleccionado == null) {
-            seleccionarBalon(tarjetasBalon.get(0));
+        if (balonSeleccionado == null) {
+            for (TarjetaVisual tarjeta : tarjetasBalon) {
+                if (!tarjeta.isBloqueada()) {
+                    seleccionarBalon(tarjeta);
+                    break;
+                }
+            }
         }
-        if (!tarjetasEscenario.isEmpty() && escenarioSeleccionado == null) {
-            seleccionarEscenario(tarjetasEscenario.get(0));
+        if (escenarioSeleccionado == null) {
+            for (TarjetaVisual tarjeta : tarjetasEscenario) {
+                if (!tarjeta.isBloqueada()) {
+                    seleccionarEscenario(tarjeta);
+                    break;
+                }
+            }
         }
     }
 
+    /**
+     * Devuelve las tarjetas de balones.
+     *
+     * @return lista de tarjetas de balones
+     */
     public List<TarjetaVisual> getTarjetasBalon() {
         return tarjetasBalon;
     }
 
+    /**
+     * Devuelve las tarjetas de escenarios.
+     *
+     * @return lista de tarjetas de escenarios
+     */
     public List<TarjetaVisual> getTarjetasEscenario() {
         return tarjetasEscenario;
     }
 
+    /**
+     * Devuelve la opción de balón seleccionada.
+     *
+     * @return opción seleccionada o null si no hay
+     */
     public CatalogoVisual.Opcion getBalonSeleccionado() {
-        if (balonSeleccionado == null) {
+        if (balonSeleccionado == null || balonSeleccionado.isBloqueada()) {
             return null;
         }
         return balonSeleccionado.getOpcion();
     }
 
+    /**
+     * Devuelve la opción de escenario seleccionada.
+     *
+     * @return opción seleccionada o null si no hay
+     */
     public CatalogoVisual.Opcion getEscenarioSeleccionado() {
-        if (escenarioSeleccionado == null) {
+        if (escenarioSeleccionado == null || escenarioSeleccionado.isBloqueada()) {
             return null;
         }
         return escenarioSeleccionado.getOpcion();
     }
 
+    /**
+     * Devuelve el botón READY.
+     *
+     * @return botón READY
+     */
     public JButton getBotonReady() {
         return botonReady;
     }
 
-    public JButton getBotonAtras() {
-        return botonAtras;
-    }
+    // ------------------------------------------------------------------
+    // Espacio reservado para un balón o escenario futuro.
+    // ------------------------------------------------------------------
+    private static final class TarjetaVacia extends JComponent {
 
-    public BotonSonido getBotonSonido() {
-        return botonSonido;
-    }
+        /**
+         * Dibuja un espacio reservado con el signo de interrogación.
+         *
+         * @param g contexto gráfico donde se dibuja
+         */
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+            int ancho = getWidth();
+            int alto = getHeight();
+            int arco = 18;
+            RoundRectangle2D forma = new RoundRectangle2D.Float(
+                    0, 0, ancho - 1, alto - 1, arco, arco);
 
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
+            g2.setColor(new Color(8, 26, 48, 235));
+            g2.fill(forma);
 
-        double escala = Math.max(
-                (double) getWidth() / fondo.getWidth(),
-                (double) getHeight() / fondo.getHeight());
-        int ancho = (int) Math.ceil(fondo.getWidth() * escala);
-        int alto = (int) Math.ceil(fondo.getHeight() * escala);
+            g2.setStroke(new BasicStroke(2.5f));
+            g2.setColor(new Color(202, 170, 92));
+            g2.draw(forma);
 
-        g2.drawImage(fondo, (getWidth() - ancho) / 2, (getHeight() - alto) / 2,
-                ancho, alto, null);
-        g2.dispose();
-    }
+            g2.setStroke(new BasicStroke(1f));
+            g2.setColor(new Color(255, 225, 145, 80));
+            g2.draw(new RoundRectangle2D.Float(
+                    3, 3, ancho - 7, alto - 7, arco, arco));
 
-    private JButton crearBotonImagen(String ruta, int ancho) {
-        BufferedImage imagen = RecursosImagen.cargar(ruta);
+            g2.setFont(new Font("SansSerif", Font.BOLD,
+                    Math.max(26, alto / 3)));
+            FontMetrics fm = g2.getFontMetrics();
+            String signo = "?";
+            int x = (ancho - fm.stringWidth(signo)) / 2;
+            int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
 
-        ImageIcon normal = crearIcono(imagen, ancho);
-        ImageIcon encima = crearIcono(imagen, ancho + Math.max(4, ancho * 7 / 100));
-        ImageIcon presionado = crearIcono(imagen, ancho + Math.max(2, ancho * 3 / 100));
+            g2.setColor(new Color(0, 0, 0, 130));
+            g2.drawString(signo, x + 2, y + 2);
+            g2.setColor(new Color(242, 205, 98));
+            g2.drawString(signo, x, y);
 
-        JButton boton = new JButton(normal);
-        boton.setRolloverIcon(encima);
-        boton.setPressedIcon(presionado);
-        boton.setRolloverEnabled(true);
-        boton.setPreferredSize(new Dimension(encima.getIconWidth(), encima.getIconHeight()));
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return boton;
-    }
-
-    private ImageIcon crearIcono(BufferedImage imagen, int ancho) {
-        int alto = ancho * imagen.getHeight() / imagen.getWidth();
-        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
+            g2.dispose();
+        }
     }
 
     // ------------------------------------------------------------------
@@ -265,18 +421,27 @@ public class ConfiguracionVisualView extends JPanel {
     // ------------------------------------------------------------------
     public static final class TarjetaVisual extends JButton {
 
+        private static final BufferedImage CADENA = cargarCadena();
+
         private final CatalogoVisual.Opcion opcion;
         private final boolean esBalon;
         private final BufferedImage imagen;
         private boolean seleccionada;
+        private boolean bloqueada;
 
+        /**
+         * Crea la tarjeta de un balón o escenario del catálogo.
+         *
+         * @param opcion opción del catálogo que representa
+         * @param esBalon true si la tarjeta es de balón
+         */
         private TarjetaVisual(CatalogoVisual.Opcion opcion, boolean esBalon) {
             this.opcion = opcion;
             this.esBalon = esBalon;
 
             BufferedImage original = RecursosImagen.cargar(opcion.getRuta());
             if (esBalon) {
-                imagen = recortar(original);
+                imagen = RecursosImagen.recortarTransparente(original);
             } else {
                 imagen = original;
             }
@@ -289,15 +454,65 @@ public class ConfiguracionVisualView extends JPanel {
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
 
+        /**
+         * Devuelve la opción del catálogo de la tarjeta.
+         *
+         * @return opción representada
+         */
         public CatalogoVisual.Opcion getOpcion() {
             return opcion;
         }
 
+        /**
+         * Cambia el estado de selección de la tarjeta.
+         *
+         * @param seleccionada true si la tarjeta queda seleccionada
+         */
         private void setSeleccionada(boolean seleccionada) {
             this.seleccionada = seleccionada;
             repaint();
         }
 
+        /**
+         * Cambia el estado de bloqueo de la tarjeta.
+         *
+         * @param bloqueada true si la tarjeta queda bloqueada
+         */
+        private void setBloqueada(boolean bloqueada) {
+            this.bloqueada = bloqueada;
+            repaint();
+        }
+
+        /**
+         * Indica si la tarjeta está bloqueada.
+         *
+         * @return true si está bloqueada
+         */
+        private boolean isBloqueada() {
+            return bloqueada;
+        }
+
+        /**
+         * Carga la imagen de la cadena de bloqueo.
+         *
+         * @return imagen de la cadena o null si no se pudo cargar
+         */
+        private static BufferedImage cargarCadena() {
+            try {
+                return RecursosImagen.cargar(
+                        "resources/images/Objetos/CadenaDeBloqueo.png");
+            } catch (RuntimeException e) {
+                System.err.println(
+                        "No se pudo cargar la cadena de bloqueo.");
+                return null;
+            }
+        }
+
+        /**
+         * Dibuja la tarjeta con su imagen y estado.
+         *
+         * @param g contexto gráfico donde se dibuja
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -320,7 +535,21 @@ public class ConfiguracionVisualView extends JPanel {
                 dibujarEscenario(g2, ancho, alto);
             }
 
-            if (getModel().isRollover()) {
+            if (bloqueada && CADENA != null) {
+                double escalaCadena = Math.max(
+                        (double) ancho / CADENA.getWidth(),
+                        (double) alto / CADENA.getHeight());
+                int anchoCadena = (int) Math.ceil(
+                        CADENA.getWidth() * escalaCadena);
+                int altoCadena = (int) Math.ceil(
+                        CADENA.getHeight() * escalaCadena);
+                g2.drawImage(CADENA,
+                        (ancho - anchoCadena) / 2,
+                        (alto - altoCadena) / 2,
+                        anchoCadena, altoCadena, null);
+            }
+
+            if (getModel().isRollover() && !bloqueada) {
                 g2.setColor(new Color(255, 255, 255, 45));
                 g2.fill(forma);
             }
@@ -339,6 +568,13 @@ public class ConfiguracionVisualView extends JPanel {
             g2.dispose();
         }
 
+        /**
+         * Dibuja la imagen del balón con su nombre.
+         *
+         * @param g2 contexto gráfico donde se dibuja
+         * @param ancho ancho disponible de la tarjeta
+         * @param alto alto disponible de la tarjeta
+         */
         private void dibujarBalon(Graphics2D g2, int ancho, int alto) {
             g2.setColor(new Color(246, 250, 252));
             g2.fillRect(0, 0, ancho, alto);
@@ -363,6 +599,13 @@ public class ConfiguracionVisualView extends JPanel {
                     alto - 7);
         }
 
+        /**
+         * Dibuja la imagen del escenario con su nombre.
+         *
+         * @param g2 contexto gráfico donde se dibuja
+         * @param ancho ancho disponible de la tarjeta
+         * @param alto alto disponible de la tarjeta
+         */
         private void dibujarEscenario(Graphics2D g2, int ancho, int alto) {
             double escala = Math.max(
                     (double) ancho / imagen.getWidth(),
@@ -383,127 +626,6 @@ public class ConfiguracionVisualView extends JPanel {
                     (ancho - fm.stringWidth(opcion.getNombre())) / 2,
                     alto - 9);
         }
-
-        private static BufferedImage recortar(BufferedImage imagen) {
-            int minX = imagen.getWidth();
-            int minY = imagen.getHeight();
-            int maxX = -1;
-            int maxY = -1;
-
-            for (int y = 0; y < imagen.getHeight(); y++) {
-                for (int x = 0; x < imagen.getWidth(); x++) {
-                    int alpha = (imagen.getRGB(x, y) >>> 24) & 0xff;
-                    if (alpha > 10) {
-                        if (x < minX) {
-                            minX = x;
-                        }
-                        if (x > maxX) {
-                            maxX = x;
-                        }
-                        if (y < minY) {
-                            minY = y;
-                        }
-                        if (y > maxY) {
-                            maxY = y;
-                        }
-                    }
-                }
-            }
-
-            if (maxX < minX || maxY < minY) {
-                return imagen;
-            }
-
-            return imagen.getSubimage(minX, minY, maxX - minX + 1, maxY - minY + 1);
-        }
     }
 
-    // ------------------------------------------------------------------
-    // Componentes auxiliares de dibujo.
-    // ------------------------------------------------------------------
-    private static final class PanelTarjeta extends JPanel {
-
-        private PanelTarjeta() {
-            setOpaque(false);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            int arco = 38;
-
-            g2.setPaint(new GradientPaint(
-                    0, 0, new Color(236, 246, 252, 130),
-                    0, alto, new Color(204, 228, 242, 100)));
-            g2.fillRoundRect(0, 0, ancho - 1, alto - 1, arco, arco);
-
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 255, 255, 120));
-            g2.drawRoundRect(1, 1, ancho - 3, alto - 3, arco, arco);
-
-            g2.dispose();
-        }
-    }
-
-    private static final class TituloVisual extends JComponent {
-
-        private final String texto;
-        private final Font fuente = new Font("SansSerif", Font.BOLD, 28);
-
-        private TituloVisual(String texto) {
-            this.texto = texto;
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            FontMetrics fm = getFontMetrics(fuente);
-            return new Dimension(fm.stringWidth(texto) + 80, 58);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            int arco = alto;
-
-            g2.setColor(new Color(0, 0, 0, 90));
-            g2.fillRoundRect(4, 6, ancho - 8, alto - 10, arco, arco);
-
-            g2.setPaint(new GradientPaint(
-                    0, 0, new Color(78, 160, 198, 235),
-                    0, alto, new Color(26, 82, 122, 235)));
-            g2.fillRoundRect(2, 2, ancho - 4, alto - 8, arco, arco);
-
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 255, 255, 170));
-            g2.drawRoundRect(4, 4, ancho - 9, alto - 13, arco, arco);
-
-            g2.setFont(fuente);
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (ancho - fm.stringWidth(texto)) / 2;
-            int y = (alto - 6 - fm.getHeight()) / 2 + fm.getAscent();
-
-            g2.setColor(new Color(16, 32, 46));
-            for (int dx = -2; dx <= 2; dx++) {
-                for (int dy = -2; dy <= 2; dy++) {
-                    if (dx != 0 || dy != 0) {
-                        g2.drawString(texto, x + dx, y + dy);
-                    }
-                }
-            }
-            g2.setColor(Color.WHITE);
-            g2.drawString(texto, x, y);
-
-            g2.dispose();
-        }
-    }
 }

@@ -18,10 +18,16 @@ public class CatalogoPersonajesTest
 {
     private List<Personaje> personajes;
 
+    /**
+     * Constructor de la clase de pruebas CatalogoPersonajesTest.
+     */
     public CatalogoPersonajesTest()
     {
     }
 
+    /**
+     * Prepara el escenario de pruebas cargando el catálogo.
+     */
     @BeforeEach
     public void setUp()
     {
@@ -55,7 +61,7 @@ public class CatalogoPersonajesTest
         assertCharacter("Goku", "Japón", "Rayo");
         assertCharacter("Mario", "Italia", "Tornado");
         assertCharacter("Bob Esponja", "Estados Unidos", "Ilusión");
-        assertCharacter("Betty la fea", "Colombia", "Flechazo de Amor");
+        assertCharacter("Betty la fea", "Colombia", "Beso de la Fea");
         assertCharacter("El Chavo del Ocho", "México", "Barril");
     }
 
@@ -75,6 +81,13 @@ public class CatalogoPersonajesTest
                 () -> CatalogoPersonajes.getPersonajes().clear());
     }
 
+    /**
+     * Verifica que un personaje del catálogo tenga el país y el poder esperados.
+     *
+     * @param nombre nombre del personaje a buscar
+     * @param pais país esperado
+     * @param poder nombre del poder esperado
+     */
     private void assertCharacter(String nombre, String pais, String poder)
     {
         Personaje encontrado = buscarPorNombre(nombre);
@@ -83,6 +96,12 @@ public class CatalogoPersonajesTest
         assertEquals(poder, encontrado.getPoder().getNombre());
     }
 
+    /**
+     * Busca un personaje del catálogo por su nombre.
+     *
+     * @param nombre nombre del personaje a buscar
+     * @return el personaje encontrado o nulo si no existe
+     */
     private Personaje buscarPorNombre(String nombre)
     {
         for (Personaje personaje : personajes) {
@@ -93,6 +112,9 @@ public class CatalogoPersonajesTest
         return null;
     }
 
+    /**
+     * Libera el escenario de pruebas.
+     */
     @AfterEach
     public void tearDown()
     {

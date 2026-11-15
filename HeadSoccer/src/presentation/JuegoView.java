@@ -2,9 +2,11 @@ package presentation;
 
 import domain.Arco;
 import domain.Balon;
+import domain.BalonIlusion;
 import domain.Cancha;
 import domain.Efecto;
 import domain.Jugador;
+import domain.Modalidad;
 import domain.ParametrosJuego;
 import domain.Partido;
 import domain.Poder;
@@ -18,12 +20,55 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 public class JuegoView extends JPanel {
 
-    private static final String RUTA_BOTONES = "resources/images/Botones.java/";
+    private static final String RUTA_BOTONES = "resources/images/Botones/";
+    private static final String RUTA_MARCO_MARCADOR =
+            "resources/images/Cancha/MarcoMarcador.png";
+    private static final String RUTA_GOL =
+            "resources/images/Cancha/gol.png";
+    private static final String RUTA_FUENTE_DIGITAL =
+            "resources/fuentes/ds_digital/DS-DIGI.TTF";
+    private static final long DURACION_GOL_MS = 1400;
+
+    // Zona de la imagen del marcador que se dibuja sobre la cancha.
+    private static final int MARCO_Y = 178;
+    private static final int MARCO_ANCHO = 1920;
+    private static final int MARCO_ALTO = 278;
+
+    // Coordenadas de cada elemento dentro de esa zona de la imagen.
+    private static final int TIEMPO_X = 958;
+    private static final int TIEMPO_Y = 214;
+    private static final int GOL_IZQUIERDA_X = 800;
+    private static final int GOL_DERECHA_X = 1099;
+    private static final int GOL_Y = 297;
+    private static final int NOMBRE_IZQUIERDA_CENTRO_X = 383;
+    private static final int NOMBRE_DERECHA_CENTRO_X = 1534;
+    private static final int NOMBRE_Y = 309;
+    private static final int NOMBRE_ANCHO = 540;
+    private static final int VIDA_IZQUIERDA_X = 158;
+    private static final int VIDA_IZQUIERDA_ANCHO = 506;
+    private static final int VIDA_DERECHA_X = 1396;
+    private static final int VIDA_DERECHA_ANCHO = 506;
+    private static final int VIDA_Y = 369;
+    private static final int VIDA_ALTO = 32;
+    private static final int PODER_IZQUIERDA_X = 154;
+    private static final int PODER_IZQUIERDA_ANCHO = 511;
+    private static final int PODER_DERECHA_X = 1390;
+    private static final int PODER_DERECHA_ANCHO = 511;
+    private static final int PODER_Y = 416;
+    private static final int PODER_ALTO = 32;
+    private static final int CIRCULO_IZQUIERDA_X = 81;
+    private static final int CIRCULO_DERECHA_X = 1324;
+    private static final int CIRCULO_Y = 428;
+    private static final int CIRCULO_ANCHO = 132;
+    private static final int CIRCULO_ALTO = 54;
 
     private Partido partido;
     private BufferedImage escenario;
@@ -39,6 +84,13 @@ public class JuegoView extends JPanel {
     private BufferedImage auraJugador2;
     private BufferedImage tiroJugador1;
     private BufferedImage tiroJugador2;
+    private BufferedImage emojiJugador1;
+    private BufferedImage emojiJugador2;
+    private BufferedImage marcoMarcador;
+    private BufferedImage imagenGol;
+    private long inicioGol;
+    private long finGol;
+    private final Font fuenteDigital;
     private final Map<TipoEfecto, BufferedImage> efectosPoder =
             new EnumMap<>(TipoEfecto.class);
     private long finPatadaJugador1;
@@ -50,14 +102,20 @@ public class JuegoView extends JPanel {
     private final PanelPausa panelPausa;
     private final PanelResultado panelResultado;
 
+    /**
+     * Construye la vista del partido con sus paneles y botones.
+     */
     public JuegoView() {
         setOpaque(true);
         setBackground(Color.BLACK);
         setFocusable(true);
         setLayout(null);
 
-        botonAtras = crearBotonImagen(RUTA_BOTONES + "Retroceder.png", 90);
-        botonSonido = new BotonSonido(64);
+        fuenteDigital = cargarFuenteDigital();
+
+        botonAtras = crearBotonImagen(RUTA_BOTONES + "Retroceder.png",
+                VistaBase.ANCHO_BOTON_ATRAS);
+        botonSonido = new BotonSonido(VistaBase.ANCHO_BOTON_SONIDO);
 
         barraSuperior = new JPanel(new BorderLayout());
         barraSuperior.setOpaque(false);
@@ -78,6 +136,9 @@ public class JuegoView extends JPanel {
         setComponentZOrder(panelResultado, 0);
     }
 
+    /**
+     * Ubica los paneles de la vista dentro de la ventana.
+     */
     @Override
     public void doLayout() {
         barraSuperior.setBounds(0, 0, getWidth(), 84);
@@ -85,16 +146,33 @@ public class JuegoView extends JPanel {
         panelResultado.setBounds(0, 0, getWidth(), getHeight());
     }
 
+    /**
+     * Prepara la vista con el partido y las imágenes del escenario y el balón.
+     *
+     * @param partido partido que se va a mostrar
+     * @param rutaEscenario ruta de la imagen del escenario
+     * @param rutaBalon ruta de la imagen del balón
+     */
     public void iniciar(Partido partido, String rutaEscenario, String rutaBalon) {
         this.partido = partido;
         escenario = RecursosImagen.cargar(rutaEscenario);
-        balon = recortar(RecursosImagen.cargar(rutaBalon));
-        arcoIzquierdo = recortar(RecursosImagen.cargar(
-                "resources/images/RedDeLaCancha/RedDelaCanchaIzquierda.png"));
-        arcoDerecho = recortar(RecursosImagen.cargar(
-                "resources/images/RedDeLaCancha/RedDelaCanchaDerecha.png"));
-        efectoAturdimiento = recortar(RecursosImagen.cargar(
+        balon = RecursosImagen.recortarTransparente(RecursosImagen.cargar(rutaBalon));
+        arcoIzquierdo = RecursosImagen.recortarTransparente(RecursosImagen.cargar(
+                "resources/images/Cancha/RedDelaCanchaIzquierda.png"));
+        arcoDerecho = RecursosImagen.recortarTransparente(RecursosImagen.cargar(
+                "resources/images/Cancha/RedDelaCanchaDerecha.png"));
+        efectoAturdimiento = RecursosImagen.recortarTransparente(RecursosImagen.cargar(
                 "resources/images/Efectos/EfectoAturdimiento.png"));
+
+        BufferedImage marco = RecursosImagen.cargar(RUTA_MARCO_MARCADOR);
+        if (MARCO_ANCHO > marco.getWidth()
+                || MARCO_Y + MARCO_ALTO > marco.getHeight()) {
+            throw new IllegalStateException(
+                    "La imagen del marcador no tiene el tamaño esperado: "
+                            + RUTA_MARCO_MARCADOR);
+        }
+        marcoMarcador = marco.getSubimage(0, MARCO_Y, MARCO_ANCHO, MARCO_ALTO);
+        imagenGol = RecursosImagen.recortarTransparente(RecursosImagen.cargar(RUTA_GOL));
 
         spriteJugador1 = cargarSprite(partido.getJugadores().get(0), true, false);
         spriteJugador2 = cargarSprite(partido.getJugadores().get(1), false, false);
@@ -107,17 +185,21 @@ public class JuegoView extends JPanel {
         auraJugador2 = cargarOpcional(CatalogoPoderes.rutaAura(poder2));
         tiroJugador1 = cargarOpcional(CatalogoPoderes.rutaTiro(poder1));
         tiroJugador2 = cargarOpcional(CatalogoPoderes.rutaTiro(poder2));
+        emojiJugador1 = recortarOpcional(CatalogoPoderes.rutaEmoji(poder1));
+        emojiJugador2 = recortarOpcional(CatalogoPoderes.rutaEmoji(poder2));
 
         efectosPoder.clear();
         for (TipoEfecto tipo : TipoEfecto.values()) {
             BufferedImage imagen = cargarOpcional(CatalogoPoderes.rutaEfecto(tipo));
             if (imagen != null) {
-                efectosPoder.put(tipo, recortar(imagen));
+                efectosPoder.put(tipo, RecursosImagen.recortarTransparente(imagen));
             }
         }
 
         finPatadaJugador1 = 0;
         finPatadaJugador2 = 0;
+        inicioGol = 0;
+        finGol = 0;
 
         panelPausa.setVisible(false);
         panelResultado.setVisible(false);
@@ -125,32 +207,106 @@ public class JuegoView extends JPanel {
         repaint();
     }
 
+    /**
+     * Muestra u oculta el menú de pausa.
+     *
+     * @param visible true para mostrar el menú de pausa
+     */
     public void setPausaVisible(boolean visible) {
         panelPausa.setVisible(visible);
         revalidate();
         repaint();
     }
 
-    public void mostrarResultado(Partido partido) {
+    /**
+     * Ajusta la interfaz cuando el partido pertenece a un torneo: no se
+     * permite cambiar de personaje ni salir por el botón superior.
+     *
+     * @param modoTorneo true si es un partido de torneo
+     */
+    public void setModoTorneo(boolean modoTorneo) {
+        panelPausa.setCambiarPersonajeVisible(!modoTorneo);
+        panelPausa.setReiniciarVisible(!modoTorneo);
+        botonAtras.setVisible(!modoTorneo);
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Muestra el panel con el resultado final del partido.
+     *
+     * @param partido partido terminado
+     * @param modoTorneo true si el partido pertenece a un torneo
+     */
+    public void mostrarResultado(Partido partido, boolean modoTorneo) {
         panelPausa.setVisible(false);
-        panelResultado.mostrar(partido);
+        panelResultado.mostrar(partido, modoTorneo);
         panelResultado.setVisible(true);
         revalidate();
         repaint();
     }
 
+    /**
+     * Devuelve el botón para continuar en el torneo.
+     *
+     * @return el botón del torneo
+     */
+    public JButton getBotonResultadoTorneo() {
+        return panelResultado.getBotonTorneo();
+    }
+
+    /**
+     * Devuelve el botón de revancha del resultado.
+     *
+     * @return el botón de revancha
+     */
     public JButton getBotonResultadoRevancha() {
         return panelResultado.getBotonRevancha();
     }
 
+    /**
+     * Devuelve el botón para cambiar de personaje desde el resultado.
+     *
+     * @return el botón de cambiar personaje
+     */
     public JButton getBotonResultadoCambiarPersonaje() {
         return panelResultado.getBotonCambiarPersonaje();
     }
 
+    /**
+     * Devuelve el botón para volver al menú principal desde el resultado.
+     *
+     * @return el botón de menú principal
+     */
     public JButton getBotonResultadoMenu() {
         return panelResultado.getBotonMenu();
     }
 
+    /**
+     * Muestra la imagen de gol durante unos segundos.
+     */
+    public void mostrarGol() {
+        inicioGol = System.currentTimeMillis();
+        finGol = inicioGol + DURACION_GOL_MS;
+        repaint();
+    }
+
+    /**
+     * Indica si la imagen de gol sigue visible; mientras lo esté, el
+     * partido debe quedar congelado.
+     *
+     * @return true si la imagen de gol sigue visible
+     */
+    public boolean isGolVisible() {
+        return imagenGol != null && inicioGol > 0
+                && System.currentTimeMillis() < finGol;
+    }
+
+    /**
+     * Activa la animación de patada de un jugador.
+     *
+     * @param jugador número del jugador que patea (1 o 2)
+     */
     public void mostrarPatada(int jugador) {
         long fin = System.currentTimeMillis() + 150;
         if (jugador == 1) {
@@ -161,58 +317,86 @@ public class JuegoView extends JPanel {
         repaint();
     }
 
+    /**
+     * Devuelve el botón para volver atrás.
+     *
+     * @return el botón de retroceso
+     */
     public JButton getBotonAtras() {
         return botonAtras;
     }
 
+    /**
+     * Devuelve el botón de sonido.
+     *
+     * @return el botón de sonido
+     */
     public BotonSonido getBotonSonido() {
         return botonSonido;
     }
 
+    /**
+     * Devuelve el botón de continuar del menú de pausa.
+     *
+     * @return el botón de continuar
+     */
     public JButton getBotonPausaContinuar() {
         return panelPausa.getBotonContinuar();
     }
 
+    /**
+     * Devuelve el botón de reiniciar del menú de pausa.
+     *
+     * @return el botón de reiniciar
+     */
     public JButton getBotonPausaReiniciar() {
         return panelPausa.getBotonReiniciar();
     }
 
+    /**
+     * Devuelve el botón de cambiar personaje del menú de pausa.
+     *
+     * @return el botón de cambiar personaje
+     */
     public JButton getBotonPausaCambiarPersonaje() {
         return panelPausa.getBotonCambiarPersonaje();
     }
 
+    /**
+     * Devuelve el botón de configuración del menú de pausa.
+     *
+     * @return el botón de configuración
+     */
     public JButton getBotonPausaConfiguracion() {
         return panelPausa.getBotonConfiguracion();
     }
 
+    /**
+     * Devuelve el botón de salir del menú de pausa.
+     *
+     * @return el botón de salir
+     */
     public JButton getBotonPausaSalir() {
         return panelPausa.getBotonSalir();
     }
 
+    /**
+     * Crea un botón de imagen a partir de una ruta.
+     *
+     * @param ruta ruta de la imagen del botón
+     * @param ancho ancho normal del botón
+     * @return el botón creado
+     */
     private static JButton crearBotonImagen(String ruta, int ancho) {
-        BufferedImage imagen = RecursosImagen.cargar(ruta);
-
-        ImageIcon normal = crearIcono(imagen, ancho);
-        ImageIcon encima = crearIcono(imagen, ancho + Math.max(4, ancho * 7 / 100));
-        ImageIcon presionado = crearIcono(imagen, ancho + Math.max(2, ancho * 3 / 100));
-
-        JButton boton = new JButton(normal);
-        boton.setRolloverIcon(encima);
-        boton.setPressedIcon(presionado);
-        boton.setRolloverEnabled(true);
-        boton.setPreferredSize(new Dimension(encima.getIconWidth(), encima.getIconHeight()));
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return boton;
+        return BotonImagen.crear(ruta, ancho);
     }
 
-    private static ImageIcon crearIcono(BufferedImage imagen, int ancho) {
-        int alto = ancho * imagen.getHeight() / imagen.getWidth();
-        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
-    }
-
+    /**
+     * Carga una imagen y devuelve null si falla.
+     *
+     * @param ruta ruta de la imagen
+     * @return la imagen cargada o null
+     */
     private static BufferedImage cargarOpcional(String ruta) {
         if (ruta == null) {
             return null;
@@ -221,10 +405,45 @@ public class JuegoView extends JPanel {
             return RecursosImagen.cargar(ruta);
         } catch (RuntimeException e) {
             System.err.println("No se pudo cargar la imagen de poder: " + ruta);
+            e.printStackTrace();
             return null;
         }
     }
 
+    /**
+     * Carga una imagen y le quita el fondo transparente si es posible.
+     *
+     * @param ruta ruta de la imagen
+     * @return la imagen recortada o null
+     */
+    private static BufferedImage recortarOpcional(String ruta) {
+        BufferedImage imagen = cargarOpcional(ruta);
+        return imagen == null ? null : RecursosImagen.recortarTransparente(imagen);
+    }
+
+    /**
+     * Carga la fuente digital del marcador o una fuente por defecto.
+     *
+     * @return la fuente del marcador
+     */
+    private static Font cargarFuenteDigital() {
+        try {
+            return Font.createFont(Font.TRUETYPE_FONT, new File(RUTA_FUENTE_DIGITAL));
+        } catch (FontFormatException | IOException e) {
+            System.err.println("No se pudo cargar la fuente: " + RUTA_FUENTE_DIGITAL);
+            e.printStackTrace();
+            return new Font("SansSerif", Font.BOLD, 12);
+        }
+    }
+
+    /**
+     * Carga el sprite del jugador según su lado y si está pateando.
+     *
+     * @param jugador jugador del que se carga el sprite
+     * @param jugador1 true si es el jugador de la izquierda
+     * @param patada true para usar el sprite de patada
+     * @return el sprite cargado o null
+     */
     private BufferedImage cargarSprite(Jugador jugador, boolean jugador1, boolean patada) {
         CatalogoSeleccion.Opcion opcion = CatalogoSeleccion.buscar(jugador.getPersonaje());
         if (opcion == null) {
@@ -246,9 +465,14 @@ public class JuegoView extends JPanel {
             }
         }
 
-        return recortar(RecursosImagen.cargar(ruta));
+        return RecursosImagen.recortarTransparente(RecursosImagen.cargar(ruta));
     }
 
+    /**
+     * Dibuja el estado actual de la vista.
+     *
+     * @param g contexto gráfico
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -317,11 +541,23 @@ public class JuegoView extends JPanel {
         dibujarArco(g2, cancha.getArcoIzquierdo(), arcoIzquierdo, escala, campoX, campoY, true);
         dibujarArco(g2, cancha.getArcoDerecho(), arcoDerecho, escala, campoX, campoY, false);
 
+        dibujarGol(g2);
+
         dibujarHud(g2);
 
         g2.dispose();
     }
 
+    /**
+     * Dibuja el aura activa de un jugador.
+     *
+     * @param g2 contexto gráfico
+     * @param jugador jugador dueño del aura
+     * @param aura imagen del aura
+     * @param escala escala de la cancha
+     * @param campoX posición horizontal de la cancha
+     * @param campoY posición vertical de la cancha
+     */
     private void dibujarAura(Graphics2D g2, Jugador jugador, BufferedImage aura,
                              double escala, double campoX, double campoY) {
         if (aura == null || !jugador.isAuraActiva()) {
@@ -347,6 +583,15 @@ public class JuegoView extends JPanel {
         gAura.dispose();
     }
 
+    /**
+     * Dibuja el disparo de poder cuando está activo.
+     *
+     * @param g2 contexto gráfico
+     * @param cancha cancha del partido
+     * @param escala escala de la cancha
+     * @param campoX posición horizontal de la cancha
+     * @param campoY posición vertical de la cancha
+     */
     private void dibujarTiroPoder(Graphics2D g2, Cancha cancha,
                                   double escala, double campoX, double campoY) {
         TiroPoder tiro = partido.getTiroPoder();
@@ -383,6 +628,17 @@ public class JuegoView extends JPanel {
         gTiro.dispose();
     }
 
+    /**
+     * Dibuja un arco con su red en la cancha.
+     *
+     * @param g2 contexto gráfico
+     * @param arco arco que se dibuja
+     * @param imagen imagen de la red del arco
+     * @param escala escala de la cancha
+     * @param campoX posición horizontal de la cancha
+     * @param campoY posición vertical de la cancha
+     * @param izquierdo true si el arco es el izquierdo
+     */
     private void dibujarArco(Graphics2D g2, Arco arco, BufferedImage imagen,
                              double escala, double campoX, double campoY,
                              boolean izquierdo) {
@@ -398,6 +654,16 @@ public class JuegoView extends JPanel {
         dibujarAjustado(g2, imagen, x, y, ancho, alto, izquierdo);
     }
 
+    /**
+     * Dibuja un jugador con su sprite y sus efectos.
+     *
+     * @param g2 contexto gráfico
+     * @param jugador jugador que se dibuja
+     * @param sprite imagen del jugador
+     * @param escala escala de la cancha
+     * @param campoX posición horizontal de la cancha
+     * @param campoY posición vertical de la cancha
+     */
     private void dibujarJugador(Graphics2D g2, Jugador jugador, BufferedImage sprite,
                                 double escala, double campoX, double campoY) {
         double centroX = campoX + jugador.getPosicionX() * escala;
@@ -439,34 +705,71 @@ public class JuegoView extends JPanel {
         }
     }
 
+    /**
+     * Dibuja todos los efectos de poder activos de un jugador.
+     *
+     * @param g2 contexto gráfico
+     * @param jugador jugador con los efectos
+     * @param centroX centro horizontal del jugador
+     * @param y posición vertical superior del jugador
+     * @param anchoJugador ancho del jugador
+     * @param altoJugador alto del jugador
+     */
     private void dibujarEfectoPoder(Graphics2D g2, Jugador jugador,
                                     double centroX, double y,
                                     double anchoJugador, double altoJugador) {
-        Efecto efecto = jugador.getEfectoActivo();
-        if (efecto == null) {
+        List<Efecto> efectos = jugador.getEfectosActivos();
+        if (efectos.isEmpty()) {
             return;
         }
 
+        for (int i = 0; i < efectos.size(); i++) {
+            dibujarEfectoPoder(g2, efectos.get(i), i, efectos.size(),
+                    centroX, y, anchoJugador, altoJugador);
+        }
+    }
+
+    /**
+     * Dibuja un efecto de poder concreto de un jugador.
+     *
+     * @param g2 contexto gráfico
+     * @param efecto efecto que se dibuja
+     * @param indice posición del efecto en la lista
+     * @param total cantidad de efectos activos
+     * @param centroX centro horizontal del jugador
+     * @param y posición vertical superior del jugador
+     * @param anchoJugador ancho del jugador
+     * @param altoJugador alto del jugador
+     */
+    private void dibujarEfectoPoder(Graphics2D g2, Efecto efecto,
+                                    int indice, int total,
+                                    double centroX, double y,
+                                    double anchoJugador, double altoJugador) {
         BufferedImage imagen = efectosPoder.get(efecto.getTipo());
         if (imagen == null) {
             return;
         }
 
         long tiempo = System.currentTimeMillis();
-        double pulso = 1.0 + 0.07 * Math.sin(tiempo / 140.0);
+        double pulso = 1.0 + 0.07 * Math.sin(tiempo / 140.0 + indice);
         boolean barril = efecto.getTipo() == TipoEfecto.BARRIL;
 
         double anchoEfecto = anchoJugador * (barril ? 1.45 : 1.05) * pulso;
         double altoEfecto = anchoEfecto * imagen.getHeight() / imagen.getWidth();
 
-        int x = (int) (centroX - anchoEfecto / 2);
+        // Los efectos se abren en abanico para que varios sean visibles a la vez.
+        double separacion = anchoJugador * 0.30;
+        double desplazamiento = (indice - (total - 1) / 2.0) * separacion;
+        double centroEfectoX = centroX + (barril ? 0 : desplazamiento);
+
+        int x = (int) (centroEfectoX - anchoEfecto / 2);
         int yEfecto;
         if (barril) {
             yEfecto = (int) (y + altoJugador * 0.20
                     - altoEfecto * 0.50);
         } else {
             yEfecto = (int) (y - altoEfecto * 0.75
-                    + Math.sin(tiempo / 180.0) * 4);
+                    + Math.sin(tiempo / 180.0 + indice) * 4);
         }
 
         Graphics2D gEfecto = (Graphics2D) g2.create();
@@ -476,13 +779,26 @@ public class JuegoView extends JPanel {
                 RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         if (barril) {
             gEfecto.rotate(Math.toRadians(5 * Math.sin(tiempo / 190.0)),
-                    centroX, yEfecto + altoEfecto / 2);
+                    centroEfectoX, yEfecto + altoEfecto / 2);
+        } else if (total > 1) {
+            gEfecto.rotate(Math.toRadians(6 * (indice - (total - 1) / 2.0)),
+                    centroEfectoX, yEfecto + altoEfecto / 2);
         }
         gEfecto.drawImage(imagen, x, yEfecto,
                 (int) anchoEfecto, (int) altoEfecto, null);
         gEfecto.dispose();
     }
 
+    /**
+     * Dibuja el balón con su sombra dentro de la cancha.
+     *
+     * @param g2 contexto gráfico
+     * @param balon balón del partido
+     * @param cancha cancha del partido
+     * @param escala escala de la cancha
+     * @param campoX posición horizontal de la cancha
+     * @param campoY posición vertical de la cancha
+     */
     private void dibujarBalon(Graphics2D g2, Balon balon, Cancha cancha,
                               double escala, double campoX, double campoY) {
         if (this.balon == null) {
@@ -520,199 +836,544 @@ public class JuegoView extends JPanel {
     /**
      * Mientras algún jugador está confundido, dibuja siete balones falsos
      * alrededor del balón real.
+     *
+     * @param g2 contexto gráfico
+     * @param balon imagen del balón real
+     * @param cancha cancha del partido
+     * @param escala escala de dibujo del campo
+     * @param campoX desplazamiento horizontal del campo
+     * @param campoY desplazamiento vertical del campo
      */
     private void dibujarBalonesFalsos(Graphics2D g2, Balon balon, Cancha cancha,
                                       double escala, double campoX, double campoY) {
-        boolean confundido = false;
-        for (Jugador jugador : partido.getJugadores()) {
-            if (jugador.tieneEfecto(TipoEfecto.CONFUNDIDO)) {
-                confundido = true;
-                break;
-            }
-        }
-        if (!confundido) {
+        List<BalonIlusion> ilusiones = partido.getBalonesIlusion();
+        if (this.balon == null || ilusiones.isEmpty()) {
             return;
         }
 
         double radioVisual = ParametrosJuego.RADIO_BALON_COLISION;
-        double centroX = campoX + balon.getX() * escala;
-        double centroY = campoY
-                + (balon.getY() - (radioVisual - balon.getRadio())) * escala;
-        double diametro = radioVisual * 2 * escala;
+        int diametro = (int) (radioVisual * 2 * escala);
 
-        double minX = campoX + radioVisual * escala;
-        double maxX = campoX + (cancha.getAncho() - radioVisual) * escala;
-        double minY = campoY + radioVisual * escala;
-        double maxY = campoY + (cancha.getSuelo() - radioVisual) * escala;
+        for (BalonIlusion ilusion : ilusiones) {
+            int x = (int) (campoX + ilusion.getX() * escala);
+            int y = (int) (campoY
+                    + (ilusion.getY() - (radioVisual - balon.getRadio())) * escala);
 
-        Graphics2D gFalso = (Graphics2D) g2.create();
-        gFalso.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.55f));
-        long tiempo = System.currentTimeMillis();
+            // Los balones falsos son idénticos al balón real, incluida su sombra.
+            g2.setColor(new Color(0, 0, 0, 70));
+            g2.fillOval(x - diametro / 2, y - diametro / 4,
+                    diametro, Math.max(4, diametro / 2));
 
-        for (int i = 0; i < 7; i++) {
-            double angulo = Math.toRadians(i * 360.0 / 7.0)
-                    + Math.toRadians(tiempo / 20.0);
-            double radioOrbita = diametro * 1.4;
-            int x = (int) (centroX + Math.cos(angulo) * radioOrbita);
-            int y = (int) (centroY + Math.sin(angulo) * radioOrbita * 0.6);
-
-            x = (int) Math.max(minX, Math.min(maxX, x));
-            y = (int) Math.max(minY, Math.min(maxY, y));
-
-            gFalso.drawImage(this.balon,
-                    x - (int) (diametro / 2), y - (int) (diametro / 2),
-                    (int) diametro, (int) diametro, null);
+            g2.drawImage(this.balon,
+                    x - diametro / 2, y - diametro / 2,
+                    diametro, diametro, null);
         }
-
-        gFalso.dispose();
     }
 
-    private void dibujarHud(Graphics2D g2) {
-        int anchoPanel = Math.min(1240, Math.max(620, getWidth() - 260));
-        int altoPanel = 112;
-        int x = (getWidth() - anchoPanel) / 2;
-        int y = 16;
+    /**
+     * Dibuja la imagen de gol con una pequeña animación de entrada y salida.
+     *
+     * @param g2 contexto gráfico
+     */
+    private void dibujarGol(Graphics2D g2) {
+        long ahora = System.currentTimeMillis();
+        if (imagenGol == null || inicioGol <= 0 || ahora >= finGol) {
+            return;
+        }
 
-        g2.setColor(new Color(0, 0, 0, 150));
-        g2.fillRoundRect(x, y, anchoPanel, altoPanel, 24, 24);
-        g2.setStroke(new BasicStroke(2f));
-        g2.setColor(new Color(255, 255, 255, 130));
-        g2.drawRoundRect(x, y, anchoPanel, altoPanel, 24, 24);
+        long duracion = finGol - inicioGol;
+        double progreso = (double) (ahora - inicioGol) / duracion;
+        double aparicion = Math.min(1.0, progreso / 0.16);
+        double escala = 0.55 + 0.45 * (1 - Math.pow(1 - aparicion, 3));
+        double pulso = 1.0 + 0.035 * Math.sin((ahora - inicioGol) / 85.0);
+        double alpha = progreso > 0.82
+                ? Math.max(0, (1 - progreso) / 0.18)
+                : 1;
+
+        double anchoMaximo = getWidth() * 0.42;
+        double escalaImagen = anchoMaximo / imagenGol.getWidth()
+                * escala * pulso;
+        int ancho = Math.max(1,
+                (int) Math.round(imagenGol.getWidth() * escalaImagen));
+        int alto = Math.max(1,
+                (int) Math.round(imagenGol.getHeight() * escalaImagen));
+        int x = (getWidth() - ancho) / 2;
+        double centroY = getHeight() * 0.45;
+        int y = (int) centroY - alto / 2;
+
+        Graphics2D gGol = (Graphics2D) g2.create();
+        gGol.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        gGol.setComposite(AlphaComposite.getInstance(
+                AlphaComposite.SRC_OVER,
+                (float) Math.max(0, Math.min(1, alpha))));
+        gGol.rotate(Math.toRadians(
+                2.0 * Math.sin((ahora - inicioGol) / 120.0)),
+                getWidth() / 2.0, centroY);
+        gGol.drawImage(imagenGol, x, y, ancho, alto, null);
+        gGol.dispose();
+    }
+
+    /**
+     * Dibuja el marcador superior del partido.
+     *
+     * @param g2 contexto gráfico
+     */
+    private void dibujarHud(Graphics2D g2) {
+        if (marcoMarcador == null) {
+            return;
+        }
+
+        // El marcador ocupa la mayor parte del ancho sin llegar a los bordes.
+        int anchoHud = Math.max(320, (int) Math.round(getWidth() * 0.78));
+        int altoHud = (int) Math.round(
+                anchoHud * (double) MARCO_ALTO / MARCO_ANCHO);
+        if (altoHud > getHeight() * 0.40) {
+            altoHud = (int) Math.round(getHeight() * 0.40);
+            anchoHud = (int) Math.round(
+                    altoHud * (double) MARCO_ANCHO / MARCO_ALTO);
+        }
+
+        int hudX = (getWidth() - anchoHud) / 2;
+        int hudY = 0;
+        double escala = (double) anchoHud / MARCO_ANCHO;
+
+        g2.drawImage(marcoMarcador, hudX, hudY, anchoHud, altoHud, null);
 
         Jugador jugador1 = partido.getJugadores().get(0);
         Jugador jugador2 = partido.getJugadores().get(1);
-        int goles1 = partido.getMarcador().getGoles(1);
-        int goles2 = partido.getMarcador().getGoles(2);
 
-        int anchoCentro = 300;
-        int anchoLateral = (anchoPanel - anchoCentro) / 2;
-        int contenidoY = y + 12;
-
-        // Separadores entre las zonas laterales y el marcador central.
-        g2.setStroke(new BasicStroke(1f));
-        g2.setColor(new Color(255, 255, 255, 45));
-        g2.drawLine(x + anchoLateral, y + 14,
-                x + anchoLateral, y + altoPanel - 14);
-        g2.drawLine(x + anchoLateral + anchoCentro, y + 14,
-                x + anchoLateral + anchoCentro, y + altoPanel - 14);
-
-        dibujarBarrasJugador(g2, jugador1,
-                x + 18, contenidoY, anchoLateral - 36, false);
-        dibujarBarrasJugador(g2, jugador2,
-                x + anchoPanel - anchoLateral + 18, contenidoY,
-                anchoLateral - 36, true);
-
-        g2.setFont(new Font("SansSerif", Font.BOLD, 36));
-        g2.setColor(Color.WHITE);
-        String marcador = goles1 + "  -  " + goles2;
-        FontMetrics fmMarcador = g2.getFontMetrics();
-        g2.drawString(marcador,
-                x + (anchoPanel - fmMarcador.stringWidth(marcador)) / 2, y + 54);
-
-        String tiempo = formatearTiempo();
-        g2.setFont(new Font("SansSerif", Font.BOLD, 22));
-        FontMetrics fmTiempo = g2.getFontMetrics();
-        g2.drawString(tiempo,
-                x + (anchoPanel - fmTiempo.stringWidth(tiempo)) / 2, y + 88);
+        dibujarTiempo(g2, hudX, hudY, escala);
+        dibujarGoles(g2, hudX, hudY, escala);
+        dibujarNombre(g2, jugador1, hudX, hudY, escala, true);
+        dibujarNombre(g2, jugador2, hudX, hudY, escala, false);
+        dibujarBarrasJugador(g2, jugador1, hudX, hudY, escala, true);
+        dibujarBarrasJugador(g2, jugador2, hudX, hudY, escala, false);
     }
 
-    private String formatearTiempo() {
+    /**
+     * Dibuja el tiempo restante o la etiqueta de goles en el marcador.
+     *
+     * @param g2 contexto gráfico
+     * @param hudX posición horizontal del marcador
+     * @param hudY posición vertical del marcador
+     * @param escala escala del marcador
+     */
+    private void dibujarTiempo(Graphics2D g2, int hudX, int hudY, double escala) {
+        String texto;
+        Font fuente;
         if (partido.getTipo() == TipoPartido.GOLES) {
-            return "GOLES";
+            texto = "GOLES";
+            fuente = new Font("SansSerif", Font.BOLD,
+                    Math.max(12, (int) Math.round(44 * escala)));
+        } else {
+            texto = formatearTiempo();
+            fuente = fuenteDigital.deriveFont(Font.PLAIN,
+                    Math.max(12f, (float) (54 * escala)));
         }
 
+        dibujarTextoCentrado(g2, texto, fuente,
+                xMarco(TIEMPO_X, hudX, escala),
+                yMarco(TIEMPO_Y, hudY, escala),
+                new Color(215, 240, 255));
+    }
+
+    /**
+     * Dibuja los goles de cada jugador en el marcador.
+     *
+     * @param g2 contexto gráfico
+     * @param hudX posición horizontal del marcador
+     * @param hudY posición vertical del marcador
+     * @param escala escala del marcador
+     */
+    private void dibujarGoles(Graphics2D g2, int hudX, int hudY, double escala) {
+        Font fuente = fuenteDigital.deriveFont(Font.PLAIN,
+                Math.max(16f, (float) (104 * escala)));
+        int y = yMarco(GOL_Y, hudY, escala);
+
+        dibujarTextoCentrado(g2, String.valueOf(partido.getMarcador().getGoles(1)),
+                fuente, xMarco(GOL_IZQUIERDA_X, hudX, escala), y, Color.WHITE);
+        dibujarTextoCentrado(g2, String.valueOf(partido.getMarcador().getGoles(2)),
+                fuente, xMarco(GOL_DERECHA_X, hudX, escala), y, Color.WHITE);
+    }
+
+    /**
+     * Dibuja el nombre del jugador en el marcador.
+     *
+     * @param g2 contexto gráfico
+     * @param jugador jugador cuyo nombre se dibuja
+     * @param hudX posición horizontal del marcador
+     * @param hudY posición vertical del marcador
+     * @param escala escala del marcador
+     * @param izquierda true si el nombre va a la izquierda
+     */
+    private void dibujarNombre(Graphics2D g2, Jugador jugador, int hudX, int hudY,
+                               double escala, boolean izquierda) {
+        int centroX = xMarco(izquierda ? NOMBRE_IZQUIERDA_CENTRO_X
+                : NOMBRE_DERECHA_CENTRO_X, hudX, escala);
+        int anchoMaximo = Math.max(30, (int) Math.round(NOMBRE_ANCHO * escala));
+        int tamano = Math.max(12, (int) Math.round(46 * escala));
+
+        Font fuente = new Font("SansSerif", Font.BOLD, tamano);
+        TextoAjustado ajustado = ajustarTexto(g2, jugador.getNombre(), fuente,
+                anchoMaximo, Math.max(10, tamano * 2 / 5));
+
+        g2.setFont(ajustado.fuente);
+        FontMetrics fm = g2.getFontMetrics();
+        int lineaBase = yMarco(NOMBRE_Y, hudY, escala)
+                + (fm.getAscent() - fm.getDescent()) / 2;
+        int x = centroX - fm.stringWidth(ajustado.texto) / 2;
+
+        g2.setColor(new Color(0, 0, 0, 160));
+        g2.drawString(ajustado.texto, x + 1, lineaBase + 1);
+        g2.setColor(Color.WHITE);
+        g2.drawString(ajustado.texto, x, lineaBase);
+
+        dibujarEstadoJugador(g2, jugador, hudX, hudY, escala, izquierda);
+    }
+
+    /**
+     * Muestra los estados temporales (aturdido, efectos) en una etiqueta
+     * debajo de las barras, sin mover el nombre centrado.
+     *
+     * @param g2 contexto gráfico
+     * @param jugador jugador cuyo estado se muestra
+     * @param hudX posición horizontal del marcador
+     * @param hudY posición vertical del marcador
+     * @param escala escala de dibujo
+     * @param izquierda indica si el marcador está a la izquierda
+     */
+    private void dibujarEstadoJugador(Graphics2D g2, Jugador jugador,
+                                      int hudX, int hudY, double escala,
+                                      boolean izquierda) {
+        String estado = estadoJugador(jugador);
+        if (estado == null) {
+            return;
+        }
+
+        Color colorEstado = new Color(255, 205, 80);
+        List<Efecto> efectos = jugador.getEfectosActivos();
+        if (!jugador.isAturdido() && !efectos.isEmpty()) {
+            colorEstado = CatalogoPoderes.colorEfecto(efectos.get(0).getTipo());
+        }
+
+        int centroBarra = izquierda
+                ? VIDA_IZQUIERDA_X + VIDA_IZQUIERDA_ANCHO / 2
+                : VIDA_DERECHA_X + VIDA_DERECHA_ANCHO / 2;
+        int centroX = xMarco(centroBarra, hudX, escala);
+        int y = yMarco(PODER_Y + PODER_ALTO + 34, hudY, escala);
+        int tamano = Math.max(11, (int) Math.round(30 * escala));
+
+        Font fuente = new Font("SansSerif", Font.BOLD, tamano);
+        TextoAjustado ajustado = ajustarTexto(g2, estado, fuente,
+                Math.max(40, (int) Math.round(320 * escala)),
+                Math.max(9, tamano / 2));
+
+        g2.setFont(ajustado.fuente);
+        FontMetrics fm = g2.getFontMetrics();
+        int ancho = fm.stringWidth(ajustado.texto)
+                + (int) Math.round(24 * escala);
+        int alto = fm.getHeight() + (int) Math.round(8 * escala);
+        int x = centroX - ancho / 2;
+        int yCaja = y - alto / 2;
+
+        Graphics2D gCaja = (Graphics2D) g2.create();
+        gCaja.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        gCaja.setColor(new Color(0, 0, 0, 170));
+        gCaja.fillRoundRect(x, yCaja, ancho, alto, alto, alto);
+        gCaja.setStroke(new BasicStroke(
+                Math.max(1f, (float) (2 * escala))));
+        gCaja.setColor(new Color(colorEstado.getRed(), colorEstado.getGreen(),
+                colorEstado.getBlue(), 220));
+        gCaja.drawRoundRect(x, yCaja, ancho, alto, alto, alto);
+        gCaja.setColor(colorEstado);
+        gCaja.drawString(ajustado.texto,
+                x + (ancho - fm.stringWidth(ajustado.texto)) / 2,
+                yCaja + (alto - fm.getHeight()) / 2 + fm.getAscent());
+        gCaja.dispose();
+    }
+
+    /**
+     * Dibuja las barras de vida y poder de un jugador.
+     *
+     * @param g2 contexto gráfico
+     * @param jugador jugador de las barras
+     * @param hudX posición horizontal del marcador
+     * @param hudY posición vertical del marcador
+     * @param escala escala del marcador
+     * @param izquierda true si el jugador está a la izquierda
+     */
+    private void dibujarBarrasJugador(Graphics2D g2, Jugador jugador,
+                                      int hudX, int hudY, double escala,
+                                      boolean izquierda) {
+        int xVida = xMarco(izquierda ? VIDA_IZQUIERDA_X : VIDA_DERECHA_X,
+                hudX, escala);
+        int xPoder = xMarco(izquierda ? PODER_IZQUIERDA_X : PODER_DERECHA_X,
+                hudX, escala);
+        int anchoVida = (int) Math.round(
+                (izquierda ? VIDA_IZQUIERDA_ANCHO : VIDA_DERECHA_ANCHO) * escala);
+        int anchoPoder = (int) Math.round(
+                (izquierda ? PODER_IZQUIERDA_ANCHO : PODER_DERECHA_ANCHO) * escala);
+        int altoVida = (int) Math.round(VIDA_ALTO * escala);
+        int altoPoder = (int) Math.round(PODER_ALTO * escala);
+
+        double vida = jugador.getVida().getActual() / jugador.getVida().getMaxima();
+        double poder = jugador.getBarraPoder().getCarga()
+                / jugador.getBarraPoder().getCapacidad();
+
+        dibujarRellenoBarra(g2, xVida, yMarco(VIDA_Y, hudY, escala),
+                anchoVida, altoVida, vida, new Color(64, 205, 105));
+
+        int yPoder = yMarco(PODER_Y, hudY, escala);
+        dibujarRellenoBarra(g2, xPoder, yPoder,
+                anchoPoder, altoPoder, poder, new Color(70, 155, 245));
+
+        boolean barraLlena = jugador.getBarraPoder().isFull();
+        if (barraLlena) {
+            Graphics2D gGlow = (Graphics2D) g2.create();
+            gGlow.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            float pulso = (float) (0.5 + 0.5 * Math.sin(
+                    System.currentTimeMillis() / 180.0));
+            gGlow.setStroke(new BasicStroke(
+                    Math.max(1.5f, (float) (3 * escala))));
+            gGlow.setColor(new Color(255, 220, 90, (int) (150 + 105 * pulso)));
+            gGlow.drawRoundRect(xPoder - 2, yPoder - 2,
+                    anchoPoder + 4, altoPoder + 4,
+                    altoPoder + 4, altoPoder + 4);
+            gGlow.dispose();
+        }
+
+        BufferedImage emoji = izquierda ? emojiJugador1 : emojiJugador2;
+        dibujarEmoji(g2, emoji,
+                xMarco(izquierda ? CIRCULO_IZQUIERDA_X : CIRCULO_DERECHA_X,
+                        hudX, escala),
+                yMarco(CIRCULO_Y, hudY, escala),
+                (int) Math.round(CIRCULO_ANCHO * escala),
+                (int) Math.round(CIRCULO_ALTO * escala),
+                barraLlena);
+    }
+
+    /**
+     * Devuelve el tiempo restante con formato de minutos y segundos.
+     *
+     * @return el tiempo restante como texto
+     */
+    private String formatearTiempo() {
         int segundos = (int) Math.ceil(partido.getTiempoRestante());
         int minutos = segundos / 60;
         int resto = segundos % 60;
         return String.format("%02d:%02d", minutos, resto);
     }
 
-    private void dibujarBarrasJugador(Graphics2D g2, Jugador jugador,
-                                      int x, int y, int ancho, boolean derecha) {
-        int alto = 12;
+    /**
+     * Describe el estado temporal actual de un jugador.
+     *
+     * @param jugador jugador que se consulta
+     * @return el texto del estado o null si no tiene ninguno
+     */
+    private static String estadoJugador(Jugador jugador) {
+        StringBuilder estado = new StringBuilder();
 
-        g2.setFont(new Font("SansSerif", Font.BOLD, 16));
-        g2.setColor(Color.WHITE);
-        String nombre = jugador.getNombre();
-        FontMetrics fm = g2.getFontMetrics();
-        int xTexto = derecha ? x + ancho - fm.stringWidth(nombre) : x;
-        g2.drawString(nombre, xTexto, y + 18);
-
-        double vida = jugador.getVida().getActual() / jugador.getVida().getMaxima();
-        double poder = jugador.getBarraPoder().getCarga() / jugador.getBarraPoder().getCapacidad();
-
-        dibujarBarra(g2, x, y + 26, ancho, alto, vida,
-                new Color(70, 200, 100), derecha);
-
-        int yPoder = y + 44;
-        dibujarBarra(g2, x, yPoder, ancho, alto, poder,
-                new Color(70, 150, 240), derecha);
-
-        boolean barraLlena = jugador.getBarraPoder().isfull();
-        if (barraLlena) {
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 220, 90));
-            g2.drawRoundRect(x - 2, yPoder - 2, ancho + 4, alto + 4,
-                    alto + 4, alto + 4);
-        }
-
-        Poder poderJugador = jugador.getPersonaje().getPoder();
-        String textoPoder;
-        if (jugador.isAuraActiva()) {
-            textoPoder = "AURA: " + poderJugador.getNombre();
-        } else if (barraLlena) {
-            textoPoder = "PODER LISTO: " + poderJugador.getNombre();
-        } else {
-            textoPoder = "Poder: " + poderJugador.getNombre();
-        }
-
-        g2.setFont(new Font("SansSerif", Font.BOLD, 12));
-        FontMetrics fmPoder = g2.getFontMetrics();
-        int xPoderTexto = derecha
-                ? x + ancho - fmPoder.stringWidth(textoPoder)
-                : x;
-        g2.setColor(CatalogoPoderes.colorPoder(poderJugador));
-        g2.drawString(textoPoder, xPoderTexto, y + 74);
-
-        String estado = null;
-        Color colorEstado = new Color(255, 205, 80);
         if (jugador.isAturdido()) {
-            estado = "ATURDIDO "
-                    + (int) Math.ceil(jugador.getTiempoAturdimientoRestante()) + " s";
-        } else if (jugador.getEfectoActivo() != null) {
-            Efecto efecto = jugador.getEfectoActivo();
-            estado = nombreEfecto(efecto.getTipo()) + " "
-                    + String.format("%.1f", efecto.getTiempoRestante()) + " s";
-            colorEstado = CatalogoPoderes.colorEfecto(efecto.getTipo());
+            estado.append("ATURDIDO ")
+                    .append((int) Math.ceil(jugador.getTiempoAturdimientoRestante()))
+                    .append(" s");
         }
 
-        if (estado != null) {
-            g2.setFont(new Font("SansSerif", Font.BOLD, 12));
-            FontMetrics fmEstado = g2.getFontMetrics();
-            int xEstado = derecha
-                    ? x + ancho - fmEstado.stringWidth(estado)
-                    : x;
-            g2.setColor(colorEstado);
-            g2.drawString(estado, xEstado, y + 90);
+        for (Efecto efecto : jugador.getEfectosActivos()) {
+            if (estado.length() > 0) {
+                estado.append(" · ");
+            }
+            estado.append(nombreEfecto(efecto.getTipo()))
+                    .append(' ')
+                    .append(String.format("%.1f", efecto.getTiempoRestante()))
+                    .append(" s");
         }
+
+        return estado.length() == 0 ? null : estado.toString();
     }
 
-    private static void dibujarBarra(Graphics2D g2, int x, int y,
-                                     int ancho, int alto, double valor,
-                                     Color color, boolean derecha) {
-        g2.setColor(new Color(0, 0, 0, 150));
-        g2.fillRoundRect(x, y, ancho, alto, alto, alto);
-
-        int anchoLleno = (int) Math.round(ancho * Math.max(0, Math.min(1, valor)));
-        if (anchoLleno <= 0) {
+    /**
+     * Rellena una barra con un color según su valor.
+     *
+     * @param g2 contexto gráfico
+     * @param x posición horizontal de la barra
+     * @param y posición vertical de la barra
+     * @param ancho ancho de la barra
+     * @param alto alto de la barra
+     * @param valor cantidad que se debe rellenar
+     * @param color color del relleno
+     */
+    private static void dibujarRellenoBarra(Graphics2D g2, int x, int y,
+                                            int ancho, int alto, double valor,
+                                            Color color) {
+        double cantidad = Math.max(0, Math.min(1, valor));
+        int anchoLleno = (int) Math.round(ancho * cantidad);
+        if (anchoLleno <= 0 || alto <= 0) {
             return;
         }
 
-        int xLleno = derecha ? x + ancho - anchoLleno : x;
-        g2.setColor(color);
-        g2.fillRoundRect(xLleno, y, anchoLleno, alto, alto, alto);
+        Graphics2D g = (Graphics2D) g2.create();
+        g.setClip(new RoundRectangle2D.Double(x, y, ancho, alto, alto, alto));
+        g.setPaint(new GradientPaint(x, y, color.brighter(),
+                x, y + alto, color.darker()));
+        g.fillRect(x, y, anchoLleno, alto);
+        g.setColor(new Color(255, 255, 255, 70));
+        g.fillRect(x, y + Math.max(1, alto / 8),
+                anchoLleno, Math.max(1, alto / 3));
+        g.dispose();
     }
 
+    /**
+     * Dibuja el emoji del personaje dentro del círculo del marcador.
+     *
+     * @param g2 contexto gráfico
+     * @param emoji imagen del emoji
+     * @param centroX centro horizontal del círculo
+     * @param centroY centro vertical del círculo
+     * @param anchoCirculo ancho del círculo
+     * @param altoCirculo alto del círculo
+     * @param lleno true si la barra de poder está llena
+     */
+    private static void dibujarEmoji(Graphics2D g2, BufferedImage emoji,
+                                     int centroX, int centroY,
+                                     int anchoCirculo, int altoCirculo,
+                                     boolean lleno) {
+        if (emoji == null || anchoCirculo <= 0 || altoCirculo <= 0) {
+            return;
+        }
+
+        double pulso = lleno
+                ? 1.0 + 0.08 * Math.sin(System.currentTimeMillis() / 160.0)
+                : 1.0;
+        double escala = Math.min(
+                anchoCirculo * 0.68 / emoji.getWidth(),
+                altoCirculo * 0.80 / emoji.getHeight()) * pulso;
+        int ancho = Math.max(1, (int) Math.round(emoji.getWidth() * escala));
+        int alto = Math.max(1, (int) Math.round(emoji.getHeight() * escala));
+
+        Graphics2D g = (Graphics2D) g2.create();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(emoji, centroX - ancho / 2, centroY - alto / 2,
+                ancho, alto, null);
+        g.dispose();
+    }
+
+    /**
+     * Dibuja un texto centrado con una pequeña sombra.
+     *
+     * @param g2 contexto gráfico
+     * @param texto texto que se dibuja
+     * @param fuente fuente del texto
+     * @param centroX centro horizontal del texto
+     * @param centroY centro vertical del texto
+     * @param color color del texto
+     */
+    private static void dibujarTextoCentrado(Graphics2D g2, String texto,
+                                             Font fuente, int centroX,
+                                             int centroY, Color color) {
+        g2.setFont(fuente);
+        FontMetrics fm = g2.getFontMetrics();
+        int x = centroX - fm.stringWidth(texto) / 2;
+        int y = centroY + (fm.getAscent() - fm.getDescent()) / 2;
+
+        g2.setColor(new Color(0, 0, 0, 140));
+        g2.drawString(texto, x + 1, y + 1);
+        g2.setColor(color);
+        g2.drawString(texto, x, y);
+    }
+
+    /**
+     * Reduce la fuente hasta que el texto quepa y, si aun así no cabe,
+     * lo recorta con puntos suspensivos para que nunca se salga del cuadro.
+     *
+     * @param g2 contexto gráfico
+     * @param texto texto que se quiere ajustar
+     * @param fuente fuente inicial
+     * @param anchoMaximo ancho máximo disponible
+     * @param tamanoMinimo tamaño mínimo permitido de la fuente
+     * @return el texto ajustado con su fuente resultante
+     */
+    private static TextoAjustado ajustarTexto(Graphics2D g2, String texto,
+                                              Font fuente, int anchoMaximo,
+                                              int tamanoMinimo) {
+        if (texto == null) {
+            texto = "";
+        }
+        if (anchoMaximo <= 0) {
+            return new TextoAjustado(texto, fuente);
+        }
+
+        Font resultado = fuente;
+        FontMetrics fm = g2.getFontMetrics(resultado);
+        while (fm.stringWidth(texto) > anchoMaximo
+                && resultado.getSize() > tamanoMinimo) {
+            resultado = resultado.deriveFont((float) (resultado.getSize() - 1));
+            fm = g2.getFontMetrics(resultado);
+        }
+
+        String visible = texto;
+        if (fm.stringWidth(visible) > anchoMaximo) {
+            String puntos = "...";
+            while (visible.length() > 1
+                    && fm.stringWidth(visible + puntos) > anchoMaximo) {
+                visible = visible.substring(0, visible.length() - 1);
+            }
+            visible = visible + puntos;
+        }
+        return new TextoAjustado(visible, resultado);
+    }
+
+    private static final class TextoAjustado {
+
+        private final String texto;
+        private final Font fuente;
+
+        /**
+         * Construye el texto ajustado con su fuente.
+         *
+         * @param texto texto ya ajustado
+         * @param fuente fuente usada para el texto
+         */
+        private TextoAjustado(String texto, Font fuente) {
+            this.texto = texto;
+            this.fuente = fuente;
+        }
+    }
+
+    /**
+     * Convierte una coordenada horizontal del marcador a la pantalla.
+     *
+     * @param x coordenada dentro de la imagen del marco
+     * @param hudX posición horizontal del marcador
+     * @param escala escala del marcador
+     * @return la coordenada horizontal en pantalla
+     */
+    private static int xMarco(int x, int hudX, double escala) {
+        return hudX + (int) Math.round(x * escala);
+    }
+
+    /**
+     * Convierte una coordenada vertical del marcador a la pantalla.
+     *
+     * @param y coordenada dentro de la imagen del marco
+     * @param hudY posición vertical del marcador
+     * @param escala escala del marcador
+     * @return la coordenada vertical en pantalla
+     */
+    private static int yMarco(int y, int hudY, double escala) {
+        return hudY + (int) Math.round((y - MARCO_Y) * escala);
+    }
+
+    /**
+     * Devuelve el nombre visible de un tipo de efecto.
+     *
+     * @param tipo tipo de efecto
+     * @return el nombre del efecto
+     */
     private static String nombreEfecto(TipoEfecto tipo) {
         switch (tipo) {
             case EMPUJE:
@@ -733,6 +1394,17 @@ public class JuegoView extends JPanel {
     }
 
 
+    /**
+     * Dibuja una imagen ajustada dentro de un rectángulo.
+     *
+     * @param g2 contexto gráfico
+     * @param imagen imagen que se dibuja
+     * @param x posición horizontal del rectángulo
+     * @param y posición vertical del rectángulo
+     * @param ancho ancho del rectángulo
+     * @param alto alto del rectángulo
+     * @param alinearIzquierda true para alinear la imagen a la izquierda
+     */
     private static void dibujarAjustado(Graphics2D g2, BufferedImage imagen,
                                         int x, int y, int ancho, int alto,
                                         boolean alinearIzquierda) {
@@ -752,39 +1424,6 @@ public class JuegoView extends JPanel {
         g2.drawImage(imagen, xImagen, yImagen, anchoImagen, altoImagen, null);
     }
 
-    private static BufferedImage recortar(BufferedImage imagen) {
-        int minX = imagen.getWidth();
-        int minY = imagen.getHeight();
-        int maxX = -1;
-        int maxY = -1;
-
-        for (int y = 0; y < imagen.getHeight(); y++) {
-            for (int x = 0; x < imagen.getWidth(); x++) {
-                int alpha = (imagen.getRGB(x, y) >>> 24) & 0xff;
-                if (alpha > 10) {
-                    if (x < minX) {
-                        minX = x;
-                    }
-                    if (x > maxX) {
-                        maxX = x;
-                    }
-                    if (y < minY) {
-                        minY = y;
-                    }
-                    if (y > maxY) {
-                        maxY = y;
-                    }
-                }
-            }
-        }
-
-        if (maxX < minX || maxY < minY) {
-            return imagen;
-        }
-
-        return imagen.getSubimage(minX, minY, maxX - minX + 1, maxY - minY + 1);
-    }
-
     // ------------------------------------------------------------------
     // Menú de pausa.
     // ------------------------------------------------------------------
@@ -796,6 +1435,9 @@ public class JuegoView extends JPanel {
         private final JButton botonConfiguracion;
         private final JButton botonSalir;
 
+        /**
+         * Construye el menú de pausa con sus botones.
+         */
         private PanelPausa() {
             setOpaque(false);
             setLayout(new GridBagLayout());
@@ -844,12 +1486,23 @@ public class JuegoView extends JPanel {
             add(menu, c);
         }
 
+        /**
+         * Agrega un botón al menú de pausa con separación.
+         *
+         * @param menu panel del menú
+         * @param boton botón que se agrega
+         */
         private static void agregarBoton(JPanel menu, JButton boton) {
             boton.setAlignmentX(Component.CENTER_ALIGNMENT);
             menu.add(boton);
             menu.add(Box.createVerticalStrut(4));
         }
 
+        /**
+         * Dibuja el fondo oscuro del menú de pausa.
+         *
+         * @param g contexto gráfico
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -858,22 +1511,66 @@ public class JuegoView extends JPanel {
             g2.dispose();
         }
 
+        /**
+         * Devuelve el botón de continuar.
+         *
+         * @return el botón de continuar
+         */
         private JButton getBotonContinuar() {
             return botonContinuar;
         }
 
+        /**
+         * Devuelve el botón de reiniciar.
+         *
+         * @return el botón de reiniciar
+         */
         private JButton getBotonReiniciar() {
             return botonReiniciar;
         }
 
+        /**
+         * Devuelve el botón de cambiar personaje.
+         *
+         * @return el botón de cambiar personaje
+         */
         private JButton getBotonCambiarPersonaje() {
             return botonCambiarPersonaje;
         }
 
+        /**
+         * Muestra u oculta el botón de cambiar personaje.
+         *
+         * @param visible true para mostrar el botón
+         */
+        private void setCambiarPersonajeVisible(boolean visible) {
+            botonCambiarPersonaje.setVisible(visible);
+        }
+
+        /**
+         * Muestra u oculta el botón de reiniciar.
+         *
+         * @param visible true para mostrar el botón
+         */
+        private void setReiniciarVisible(boolean visible) {
+            botonReiniciar.setVisible(visible);
+            botonReiniciar.setEnabled(visible);
+        }
+
+        /**
+         * Devuelve el botón de configuración.
+         *
+         * @return el botón de configuración
+         */
         private JButton getBotonConfiguracion() {
             return botonConfiguracion;
         }
 
+        /**
+         * Devuelve el botón de salir.
+         *
+         * @return el botón de salir
+         */
         private JButton getBotonSalir() {
             return botonSalir;
         }
@@ -881,13 +1578,22 @@ public class JuegoView extends JPanel {
 
     private static final class PanelResultado extends JPanel {
 
+        private static final int MAX_CARACTERES_NOMBRE = 22;
+
         private final JButton botonRevancha;
         private final JButton botonCambiarPersonaje;
+        private final JButton botonTorneo;
         private final JButton botonMenu;
-        private final JLabel marcador;
+        private final JPanel marcador;
+        private final JLabel marcadorNombre1;
+        private final JLabel marcadorGoles;
+        private final JLabel marcadorNombre2;
         private final JLabel ganador;
         private final JLabel puntos;
 
+        /**
+         * Construye el panel de resultado final del partido.
+         */
         private PanelResultado() {
             setOpaque(false);
             setLayout(new GridBagLayout());
@@ -896,6 +1602,9 @@ public class JuegoView extends JPanel {
                     RUTA_BOTONES + "Revancha.png", 280);
             botonCambiarPersonaje = crearBotonImagen(
                     RUTA_BOTONES + "CambiarPersonajeEnPartido.png", 280);
+            botonTorneo = crearBotonImagen(
+                    RUTA_BOTONES + "ContinuarSeleccionPerfil.png", 280);
+            botonTorneo.setVisible(false);
             botonMenu = crearBotonImagen(
                     RUTA_BOTONES + "MenuPrincipal.png", 280);
 
@@ -904,10 +1613,32 @@ public class JuegoView extends JPanel {
             titulo.setForeground(Color.WHITE);
             titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            marcador = new JLabel("", SwingConstants.CENTER);
-            marcador.setFont(new Font("SansSerif", Font.BOLD, 28));
-            marcador.setForeground(Color.WHITE);
+            marcador = new JPanel(new GridBagLayout());
+            marcador.setOpaque(false);
             marcador.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            Font fuenteMarcador = new Font("SansSerif", Font.BOLD, 28);
+            marcadorNombre1 = crearEtiquetaMarcador(
+                    fuenteMarcador, SwingConstants.RIGHT);
+            marcadorGoles = crearEtiquetaMarcador(
+                    fuenteMarcador, SwingConstants.CENTER);
+            marcadorNombre2 = crearEtiquetaMarcador(
+                    fuenteMarcador, SwingConstants.LEFT);
+
+            GridBagConstraints cm = new GridBagConstraints();
+            cm.gridy = 0;
+            cm.insets = new Insets(0, 12, 0, 12);
+            cm.gridx = 0;
+            cm.anchor = GridBagConstraints.EAST;
+            marcador.add(marcadorNombre1, cm);
+
+            cm.gridx = 1;
+            cm.anchor = GridBagConstraints.CENTER;
+            marcador.add(marcadorGoles, cm);
+
+            cm.gridx = 2;
+            cm.anchor = GridBagConstraints.WEST;
+            marcador.add(marcadorNombre2, cm);
 
             ganador = new JLabel("", SwingConstants.CENTER);
             ganador.setFont(new Font("SansSerif", Font.BOLD, 22));
@@ -933,6 +1664,7 @@ public class JuegoView extends JPanel {
             menu.add(Box.createVerticalStrut(16));
             agregarBoton(menu, botonRevancha);
             agregarBoton(menu, botonCambiarPersonaje);
+            agregarBoton(menu, botonTorneo);
             agregarBoton(menu, botonMenu);
 
             GridBagConstraints c = new GridBagConstraints();
@@ -942,26 +1674,69 @@ public class JuegoView extends JPanel {
             add(menu, c);
         }
 
+        /**
+         * Crea una etiqueta para el marcador con su alineación.
+         *
+         * @param fuente fuente de la etiqueta
+         * @param alineacion alineación horizontal del texto
+         * @return la etiqueta creada
+         */
+        private static JLabel crearEtiquetaMarcador(Font fuente, int alineacion) {
+            JLabel etiqueta = new JLabel("", alineacion);
+            etiqueta.setFont(fuente);
+            etiqueta.setForeground(Color.WHITE);
+            etiqueta.setPreferredSize(new Dimension(120, 34));
+            return etiqueta;
+        }
+
+        /**
+         * Agrega un botón al menú de resultado con separación.
+         *
+         * @param menu panel del menú
+         * @param boton botón que se agrega
+         */
         private static void agregarBoton(JPanel menu, JButton boton) {
             boton.setAlignmentX(Component.CENTER_ALIGNMENT);
             menu.add(boton);
             menu.add(Box.createVerticalStrut(4));
         }
 
-        private void mostrar(Partido partido) {
+        /**
+         * Rellena el panel con los datos del resultado del partido.
+         *
+         * @param partido partido terminado
+         * @param modoTorneo true si el partido pertenece a un torneo
+         */
+        private void mostrar(Partido partido, boolean modoTorneo) {
             ResultadoPartido resultado = partido.getResultado();
             if (resultado == null) {
-                marcador.setText("");
+                marcadorNombre1.setText("");
+                marcadorGoles.setText("");
+                marcadorNombre2.setText("");
                 ganador.setText("");
                 puntos.setText("");
                 return;
             }
 
-            String nombre1 = partido.getJugadores().get(0).getNombre();
-            String nombre2 = partido.getJugadores().get(1).getNombre();
+            String nombre1 = limitarNombre(
+                    partido.getJugadores().get(0).getNombre());
+            String nombre2 = limitarNombre(
+                    partido.getJugadores().get(1).getNombre());
 
-            marcador.setText(nombre1 + "  " + resultado.getGolesJugador1()
-                    + " - " + resultado.getGolesJugador2() + "  " + nombre2);
+            FontMetrics fm = marcadorGoles.getFontMetrics(
+                    marcadorGoles.getFont());
+            int anchoNombre1 = fm.stringWidth(nombre1);
+            int anchoNombre2 = fm.stringWidth(nombre2);
+            int anchoLado = Math.min(220,
+                    Math.max(110, Math.max(anchoNombre1, anchoNombre2)));
+
+            marcadorNombre1.setPreferredSize(new Dimension(anchoLado, 34));
+            marcadorNombre2.setPreferredSize(new Dimension(anchoLado, 34));
+            marcadorNombre1.setText(recortar(nombre1, fm, anchoLado));
+            marcadorGoles.setText(resultado.getGolesJugador1()
+                    + " - " + resultado.getGolesJugador2());
+            marcadorNombre2.setText(recortar(nombre2, fm, anchoLado));
+            marcador.revalidate();
 
             int ganadorPartido = resultado.getGanador();
             if (ganadorPartido == 1) {
@@ -972,13 +1747,79 @@ public class JuegoView extends JPanel {
                 ganador.setText("Empate");
             }
 
-            puntos.setText("<html><div style='text-align:center'>"
-                    + nombre1 + ": +" + partido.getPuntosJugador1() + " puntos"
-                    + "&nbsp;&nbsp;|&nbsp;&nbsp;"
-                    + nombre2 + ": +" + partido.getPuntosJugador2() + " puntos"
-                    + "</div></html>");
+            if (modoTorneo) {
+                puntos.setText("Partido de torneo · sin puntos por partido");
+                botonRevancha.setVisible(false);
+                botonCambiarPersonaje.setVisible(false);
+                botonTorneo.setVisible(true);
+                botonMenu.setVisible(false);
+            } else {
+                if (partido.getModalidad() == Modalidad.PvsM) {
+                    puntos.setText(nombre1 + ": +"
+                            + partido.getPuntosJugador1() + " puntos");
+                } else {
+                    puntos.setText("<html><div style='text-align:center'>"
+                            + nombre1 + ": +" + partido.getPuntosJugador1() + " puntos"
+                            + "&nbsp;&nbsp;|&nbsp;&nbsp;"
+                            + nombre2 + ": +" + partido.getPuntosJugador2() + " puntos"
+                            + "</div></html>");
+                }
+                botonRevancha.setVisible(true);
+                botonCambiarPersonaje.setVisible(true);
+                botonTorneo.setVisible(false);
+                botonMenu.setVisible(true);
+            }
+            revalidate();
+            repaint();
         }
 
+        /**
+         * Recorta un texto con puntos suspensivos si no cabe.
+         *
+         * @param texto texto original
+         * @param fm métricas de la fuente
+         * @param anchoMaximo ancho disponible
+         * @return el texto recortado
+         */
+        private static String recortar(String texto, FontMetrics fm,
+                                       int anchoMaximo) {
+            if (texto == null) {
+                return "";
+            }
+            if (fm.stringWidth(texto) <= anchoMaximo) {
+                return texto;
+            }
+
+            String puntos = "...";
+            String recortado = texto;
+            while (recortado.length() > 1
+                    && fm.stringWidth(recortado + puntos) > anchoMaximo) {
+                recortado = recortado.substring(0, recortado.length() - 1);
+            }
+            return recortado + puntos;
+        }
+
+        /**
+         * Limita el largo de un nombre con puntos suspensivos.
+         *
+         * @param nombre nombre original
+         * @return el nombre limitado
+         */
+        private static String limitarNombre(String nombre) {
+            if (nombre == null) {
+                return "";
+            }
+            if (nombre.length() <= MAX_CARACTERES_NOMBRE) {
+                return nombre;
+            }
+            return nombre.substring(0, MAX_CARACTERES_NOMBRE - 3) + "...";
+        }
+
+        /**
+         * Dibuja el fondo oscuro del panel de resultado.
+         *
+         * @param g contexto gráfico
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -987,14 +1828,38 @@ public class JuegoView extends JPanel {
             g2.dispose();
         }
 
+        /**
+         * Devuelve el botón de revancha.
+         *
+         * @return el botón de revancha
+         */
         private JButton getBotonRevancha() {
             return botonRevancha;
         }
 
+        /**
+         * Devuelve el botón de torneo.
+         *
+         * @return el botón de torneo
+         */
+        private JButton getBotonTorneo() {
+            return botonTorneo;
+        }
+
+        /**
+         * Devuelve el botón de cambiar personaje del resultado.
+         *
+         * @return el botón de cambiar personaje
+         */
         private JButton getBotonCambiarPersonaje() {
             return botonCambiarPersonaje;
         }
 
+        /**
+         * Devuelve el botón de menú principal.
+         *
+         * @return el botón de menú principal
+         */
         private JButton getBotonMenu() {
             return botonMenu;
         }
@@ -1002,10 +1867,18 @@ public class JuegoView extends JPanel {
 
     private static final class PanelMenu extends JPanel {
 
+        /**
+         * Construye el panel del menú con fondo redondeado.
+         */
         private PanelMenu() {
             setOpaque(false);
         }
 
+        /**
+         * Dibuja el fondo redondeado del menú.
+         *
+         * @param g contexto gráfico
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();

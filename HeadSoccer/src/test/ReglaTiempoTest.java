@@ -26,10 +26,16 @@ public class ReglaTiempoTest
 {
     private Partido partido;
 
+    /**
+     * Constructor de la clase de pruebas ReglaTiempoTest.
+     */
     public ReglaTiempoTest()
     {
     }
 
+    /**
+     * Prepara el escenario de pruebas.
+     */
     @BeforeEach
     public void setUp()
     {
@@ -78,6 +84,11 @@ public class ReglaTiempoTest
         assertEquals(MotivoFin.GOL_DE_ORO, partido.getResultado().getMotivoFin());
     }
 
+    /**
+     * Crea un partido de prueba con la regla de tiempo.
+     *
+     * @return partido configurado para las pruebas
+     */
     private Partido crearPartido()
     {
         try {
@@ -101,11 +112,19 @@ public class ReglaTiempoTest
         }
     }
 
+    /**
+     * Crea un personaje de prueba.
+     *
+     * @return personaje de prueba
+     */
     private Personaje crearPersonaje()
     {
         return new Personaje("Prueba", "Prueba", new PoderAuraAzul());
     }
 
+    /**
+     * Libera el escenario de pruebas.
+     */
     @AfterEach
     public void tearDown()
     {

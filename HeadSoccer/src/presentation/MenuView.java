@@ -6,14 +6,15 @@ import java.awt.image.BufferedImage;
 
 public class MenuView extends JPanel {
 
-    private static final String RUTA_BOTONES = "resources/images/Botones.java/";
+    private static final String RUTA_BOTONES = "resources/images/Botones/";
 
-    private BufferedImage fondo; //IA generativa para poder cargar la imagen de fondo y luego poder escalarla al tamaño del panel
-    private JButton botonContinuar;
-    private JButton botonPvsP;
-    private JButton botonPractica;
+    /** Imagen de fondo escalada al tamaño del panel. */
+    private BufferedImage fondo;
+    private JButton botonGestionarProgreso;
+    private JButton botonArcade;
+    private JButton botonTorneo;
     private JButton botonConfiguracion;
-    private JButton botonMejoras;
+    private JButton botonTienda;
     private JButton botonPerfil;
     private JButton botonSalir;
 
@@ -49,21 +50,22 @@ public class MenuView extends JPanel {
      * Prepara los botones principales en una grilla de dos columnas.
      */
     private void prepareViewBotones() {
-        botonContinuar = crearBoton(RUTA_BOTONES + "ContinuarPartida.png", 380);
-        botonPvsP = crearBoton(RUTA_BOTONES + "PvsP.png", 380);
-        botonPractica = crearBoton(RUTA_BOTONES + "PvsM.png", 380);
+        botonGestionarProgreso = crearBoton(
+                RUTA_BOTONES + "GestionarProgreso.png", 380);
+        botonArcade = crearBoton(RUTA_BOTONES + "Arcade.png", 380);
+        botonTorneo = crearBoton(RUTA_BOTONES + "Torne.png", 380);
         botonConfiguracion = crearBoton(RUTA_BOTONES + "Configuracion.png", 380);
-        botonMejoras = crearBoton(RUTA_BOTONES + "Mejoras.png", 380);
+        botonTienda = crearBoton(RUTA_BOTONES + "Tienda.png", 380);
         botonPerfil = crearBoton(RUTA_BOTONES + "Perfil.png", 380);
         botonSalir = crearBoton(RUTA_BOTONES + "SalirMenu.png", 380);
 
         JPanel panelBotones = new JPanel(new GridLayout(3, 3, 24, 16));
         panelBotones.setOpaque(false);
-        panelBotones.add(botonContinuar);
-        panelBotones.add(botonPvsP);
-        panelBotones.add(botonPractica);
+        panelBotones.add(botonGestionarProgreso);
+        panelBotones.add(botonArcade);
+        panelBotones.add(botonTorneo);
         panelBotones.add(botonConfiguracion);
-        panelBotones.add(botonMejoras);
+        panelBotones.add(botonTienda);
         panelBotones.add(botonPerfil);
         panelBotones.add(crearEspacioVacio());
         panelBotones.add(botonSalir);
@@ -93,9 +95,10 @@ public class MenuView extends JPanel {
      * (arriba a la derecha).
      */
     private void prepareViewIconos() {
-        botonAtras = crearBoton(RUTA_BOTONES + "Retroceder.png", 110);
+        botonAtras = crearBoton(RUTA_BOTONES + "Retroceder.png",
+                VistaBase.ANCHO_BOTON_ATRAS);
 
-        botonSonido = new BotonSonido(72);
+        botonSonido = new BotonSonido(VistaBase.ANCHO_BOTON_SONIDO);
 
         JPanel panelIconos = new JPanel(new BorderLayout());
         panelIconos.setOpaque(false);
@@ -107,122 +110,130 @@ public class MenuView extends JPanel {
     }
 
     /**
-     * Crea un botón con imagen. La imagen se agranda un poco cuando el
-     * mouse está encima y se encoge un poco cuando se presiona.
+     * Crea un botón con imagen.
      *
      * @param ruta la ruta de la imagen del botón
      * @param ancho el ancho normal de la imagen
      * @return el botón con la imagen
      */
     private JButton crearBoton(String ruta, int ancho) {
-        return crearBotonConIconos(crearIconos(ruta, ancho));
-    }
-
-    /**
-     * Crea los tres íconos de un botón: normal, con el mouse encima y
-     * presionado.
-     *
-     * @param ruta la ruta de la imagen del botón
-     * @param ancho el ancho normal de la imagen
-     * @return los íconos normal, encima y presionado
-     */
-    private ImageIcon[] crearIconos(String ruta, int ancho) {
-        BufferedImage imagen = RecursosImagen.cargar(ruta);
-
-        int anchoEncima = ancho + Math.max(4, ancho * 7 / 100);
-        int anchoPresionado = ancho + Math.max(2, ancho * 3 / 100);
-
-        return new ImageIcon[]{crearIcono(imagen, ancho), crearIcono(imagen, anchoEncima), crearIcono(imagen, anchoPresionado)
-        };
-    }
-
-    /**
-     * Crea un botón con los íconos ya preparados.
-     *
-     * @param iconos los íconos normal, encima y presionado
-     * @return el botón con los íconos
-     */
-    private JButton crearBotonConIconos(ImageIcon[] iconos) {
-        JButton boton = new JButton(iconos[0]);
-        boton.setRolloverIcon(iconos[1]);
-        boton.setPressedIcon(iconos[2]);
-        boton.setRolloverEnabled(true);
-        boton.setPreferredSize(new Dimension(iconos[1].getIconWidth(), iconos[1].getIconHeight()));
-
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return boton;
-    }
-
-    /**
-     * Crea un ícono con el ancho dado, manteniendo la proporción de la imagen.
-     *
-     * @param imagen la imagen original
-     * @param ancho el ancho que debe tener el ícono
-     * @return el ícono ya cambiado de tamaño
-     */
-    private ImageIcon crearIcono(BufferedImage imagen, int ancho) {
-        int alto = ancho * imagen.getHeight() / imagen.getWidth();
-        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
+        return BotonImagen.crear(ruta, ancho);
     }
 
     /**
      * Dibuja el fondo ocupando todo el panel.
+     *
+     * @param g contexto gráfico del componente
      */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
+
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+
+        double escala = Math.max(
+                (double) getWidth() / fondo.getWidth(),
+                (double) getHeight() / fondo.getHeight());
+        int ancho = (int) Math.ceil(fondo.getWidth() * escala);
+        int alto = (int) Math.ceil(fondo.getHeight() * escala);
+
+        g2.drawImage(fondo, (getWidth() - ancho) / 2,
+                (getHeight() - alto) / 2, ancho, alto, null);
+        g2.dispose();
     }
 
-    public JButton getBotonContinuar() {
-        return botonContinuar;
+    /**
+     * Devuelve el botón de gestionar progreso.
+     *
+     * @return el botón de gestionar progreso
+     */
+    public JButton getBotonGestionarProgreso() {
+        return botonGestionarProgreso;
     }
 
-    public JButton getBotonPvsP() {
-        return botonPvsP;
+    /**
+     * Devuelve el botón de arcade.
+     *
+     * @return el botón de arcade
+     */
+    public JButton getBotonArcade() {
+        return botonArcade;
     }
 
-    public JButton getBotonPractica() {
-        return botonPractica;
+    /**
+     * Devuelve el botón de torneo.
+     *
+     * @return el botón de torneo
+     */
+    public JButton getBotonTorneo() {
+        return botonTorneo;
     }
 
+    /**
+     * Devuelve el botón de configuración.
+     *
+     * @return el botón de configuración
+     */
     public JButton getBotonConfiguracion() {
         return botonConfiguracion;
     }
 
-    public JButton getBotonMejoras() {
-        return botonMejoras;
+    /**
+     * Devuelve el botón de tienda.
+     *
+     * @return el botón de tienda
+     */
+    public JButton getBotonTienda() {
+        return botonTienda;
     }
 
+    /**
+     * Devuelve el botón de perfil.
+     *
+     * @return el botón de perfil
+     */
     public JButton getBotonPerfil() {
         return botonPerfil;
     }
 
+    /**
+     * Devuelve el botón de salir.
+     *
+     * @return el botón de salir
+     */
     public JButton getBotonSalir() {
         return botonSalir;
     }
 
+    /**
+     * Devuelve el botón de sonido.
+     *
+     * @return el botón de sonido
+     */
     public BotonSonido getBotonSonido() {
         return botonSonido;
     }
 
+    /**
+     * Devuelve el botón de atrás.
+     *
+     * @return el botón de atrás
+     */
     public JButton getBotonAtras() {
         return botonAtras;
     }
 
+    /**
+     * Devuelve el botón principal del menú.
+     *
+     * @return el botón principal del menú
+     */
     public JButton getBotonPrincipal() {
-        return botonPvsP;
+        return botonArcade;
     }
 
-    /**
-     * Actualiza el ícono del botón de sonido.
-     *
-     * @param silenciado true si el sonido está silenciado
-     */
-    public void setSilenciado(boolean silenciado) {
-        botonSonido.setSilenciado(silenciado);
-    }
 }

@@ -27,10 +27,6 @@ public class GestorSonido {
     private Clip efectoActual;
     private boolean musicaPausada;
 
-    public boolean isSilenciado() {
-        return silenciado;
-    }
-
     /**
      * Volumen general del juego: afecta música y efectos.
      *
@@ -81,6 +77,15 @@ public class GestorSonido {
     }
 
     /**
+     * Deja de notificar a un componente que ya no está en pantalla.
+     *
+     * @param oyente oyente registrado previamente
+     */
+    public void quitarOyente(Consumer<Boolean> oyente) {
+        oyentes.remove(oyente);
+    }
+
+    /**
      * Inicia la música de fondo en bucle.
      *
      * @param ruta la ruta del archivo de música
@@ -105,11 +110,12 @@ public class GestorSonido {
 
         File archivo = new File(ruta);
         if (!archivo.isFile()) {
+            System.err.println("No se encontró la música: " + ruta);
             return;
         }
 
-        try {
-            AudioInputStream audio = AudioSystem.getAudioInputStream(archivo);
+        try (AudioInputStream audio =
+                     AudioSystem.getAudioInputStream(archivo)) {
             Clip clip = AudioSystem.getClip();
             clip.open(audio);
             musicaPausada = false;
@@ -135,6 +141,7 @@ public class GestorSonido {
         } catch (Exception e) {
             System.err.println("No se pudo reproducir la música: " + ruta
                     + " (" + e.getMessage() + ")");
+            e.printStackTrace();
         }
     }
 
@@ -240,14 +247,15 @@ public class GestorSonido {
 
         File archivo = new File(ruta);
         if (!archivo.isFile()) {
+            System.err.println("No se encontró el audio: " + ruta);
             return;
         }
 
         detenerEfectoActual(false);
         pausarMusicaFondo();
 
-        try {
-            AudioInputStream audio = AudioSystem.getAudioInputStream(archivo);
+        try (AudioInputStream audio =
+                     AudioSystem.getAudioInputStream(archivo)) {
             Clip clip = AudioSystem.getClip();
             clip.open(audio);
             efectoActual = clip;
@@ -270,9 +278,55 @@ public class GestorSonido {
             reanudarMusicaFondo();
             System.err.println("No se pudo reproducir el audio: " + ruta
                     + " (" + e.getMessage() + ")");
+            e.printStackTrace();
         }
     }
 
+    /**
+     * Reproduce un sonido corto del partido (gol, golpe, pito) sin detener
+     * la música de fondo. Varios sonidos cortos pueden sonar a la vez.
+     *
+     * @param ruta la ruta del archivo de audio
+     */
+    public void reproducirSonidoCorto(String ruta) {
+        if (silenciado) {
+            return;
+        }
+
+        File archivo = new File(ruta);
+        if (!archivo.isFile()) {
+            System.err.println("No se encontró el sonido: " + ruta);
+            return;
+        }
+
+        try (AudioInputStream audio = AudioSystem.getAudioInputStream(archivo)) {
+            Clip clip = AudioSystem.getClip();
+            clip.open(audio);
+            aplicarVolumen(clip);
+
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    try {
+                        clip.close();
+                    } catch (Exception e) {
+                        // El clip pudo haberse cerrado antes.
+                    }
+                }
+            });
+
+            clip.start();
+        } catch (Exception e) {
+            System.err.println("No se pudo reproducir el sonido: " + ruta
+                    + " (" + e.getMessage() + ")");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Detiene y libera el efecto actual, reanudando la música si se pide.
+     *
+     * @param reanudarMusica true para reanudar la música de fondo
+     */
     private void detenerEfectoActual(boolean reanudarMusica) {
         Clip clip = efectoActual;
         efectoActual = null;

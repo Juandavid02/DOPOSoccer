@@ -1,11 +1,21 @@
 package domain;
 
+/**
+ * Barra de poder de un jugador. Se llena con el tiempo y se vacía cuando el
+ * jugador activa su tiro de poder.
+ */
 public class BarraPoder {
     private final double capacidad;
     private final double recargaPorSegundo;
     private double carga;
 
-    public BarraPoder(double capacidad, double recargaPorSegundo){
+    /**
+     * Crea una barra de poder con la capacidad y la recarga indicadas.
+     *
+     * @param capacidad capacidad máxima de la barra
+     * @param recargaPorSegundo carga que se suma por segundo
+     */
+    public BarraPoder(double capacidad, double recargaPorSegundo) {
         if (capacidad <= 0) {
             throw new IllegalArgumentException("La capacidad debe ser mayor que 0");
         }
@@ -17,19 +27,39 @@ public class BarraPoder {
         this.carga = 0;
     }
 
+    /**
+     * Obtiene la carga actual de la barra.
+     *
+     * @return carga actual
+     */
     public double getCarga() {
         return carga;
     }
 
+    /**
+     * Obtiene la capacidad máxima de la barra.
+     *
+     * @return capacidad máxima
+     */
     public double getCapacidad() {
         return capacidad;
     }
 
+    /**
+     * Obtiene la recarga por segundo de la barra.
+     *
+     * @return recarga por segundo
+     */
     public double getRecargaPorSegundo() {
         return recargaPorSegundo;
     }
 
-    public void actualizarBarra(double dt){
+    /**
+     * Actualiza la carga de la barra según el tiempo transcurrido.
+     *
+     * @param dt tiempo transcurrido
+     */
+    public void actualizarBarra(double dt) {
         if (dt <= 0) {
             throw new IllegalArgumentException("El tiempo delta no puede ser negativo ni cero");
         }
@@ -38,20 +68,32 @@ public class BarraPoder {
             this.carga = capacidad;
         }
     }
-    
-    public boolean isfull() {
+
+    /**
+     * Indica si la barra está completamente cargada.
+     *
+     * @return true si la barra está llena
+     */
+    public boolean isFull() {
         return carga >= capacidad;
     }
 
+    /**
+     * Consume la barra si está llena y la reinicia.
+     *
+     * @return true si se pudo consumir
+     */
     public boolean consumir() {
-        if (isfull()) {
-            reiniciar();
-            return true;
-        } else {
+        if (!isFull()) {
             return false;
         }
+        reiniciar();
+        return true;
     }
 
+    /**
+     * Reinicia la carga de la barra a cero.
+     */
     public void reiniciar() {
         this.carga = 0;
     }

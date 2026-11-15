@@ -1,6 +1,8 @@
 package domain;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Partido {
     private final Modalidad modalidad;
@@ -14,13 +16,63 @@ public class Partido {
     private ResultadoPartido resultado;
     private final Resolucion resolucion;
     private final ReglaPartido regla;
+    private final PerfilIA perfilIA;
+    private final boolean otorgarPuntos;
     private final double tiempoTotal;
     private double tiempoTranscurrido;
     private int puntosJugador1;
     private int puntosJugador2;
     private TiroPoder tiroPoder;
+    private final List<BalonIlusion> balonesIlusion = new ArrayList<>();
+    private final Random randomIlusion = new Random();
+    private boolean patadaJugador1;
+    private boolean patadaJugador2;
 
-    public Partido(ConfiguracionPartido configuracion, Personaje p1, Personaje p2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2) {
+    /**
+     * Crea un partido sin perfil de IA y otorgando puntos.
+     *
+     * @param configuracion configuración del partido
+     * @param p1 personaje del jugador 1
+     * @param p2 personaje del jugador 2
+     * @param configuracion1 configuración del jugador 1
+     * @param configuracion2 configuración del jugador 2
+     */
+    public Partido(ConfiguracionPartido configuracion, Personaje p1,
+                    Personaje p2, ConfiguracionJugador configuracion1,
+                    ConfiguracionJugador configuracion2) {
+        this(configuracion, p1, p2, configuracion1, configuracion2, null, true);
+    }
+
+    /**
+     * Crea un partido con un perfil de IA y otorgando puntos.
+     *
+     * @param configuracion configuración del partido
+     * @param p1 personaje del jugador 1
+     * @param p2 personaje del jugador 2
+     * @param configuracion1 configuración del jugador 1
+     * @param configuracion2 configuración del jugador 2
+     * @param perfilIA perfil de comportamiento de la máquina
+     */
+    public Partido(ConfiguracionPartido configuracion, Personaje p1, Personaje p2,
+                    ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2,
+                    PerfilIA perfilIA) {
+        this(configuracion, p1, p2, configuracion1, configuracion2, perfilIA, true);
+    }
+
+    /**
+     * Crea un partido con todos sus datos.
+     *
+     * @param configuracion configuración del partido
+     * @param p1 personaje del jugador 1
+     * @param p2 personaje del jugador 2
+     * @param configuracion1 configuración del jugador 1
+     * @param configuracion2 configuración del jugador 2
+     * @param perfilIA perfil de comportamiento de la máquina
+     * @param otorgarPuntos indica si el partido reparte puntos al terminar
+     */
+    public Partido(ConfiguracionPartido configuracion, Personaje p1, Personaje p2,
+                    ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2,
+                    PerfilIA perfilIA, boolean otorgarPuntos) {
         if (configuracion == null) {
             throw new IllegalArgumentException("La configuración del partido no puede ser nula");
         }
@@ -39,6 +91,15 @@ public class Partido {
         this.modalidad = configuracion.getModalidad();
         this.tipo = configuracion.getTipo();
         this.resolucion = configuracion.getResolucion();
+        // Si el perfil de la IA viene en la configuración, se usa como
+        // respaldo para que el constructor corto también funcione en PvsM.
+        this.perfilIA = perfilIA != null
+                ? perfilIA : configuracion.getPerfilIA();
+        if (modalidad == Modalidad.PvsM && this.perfilIA == null) {
+            throw new IllegalArgumentException(
+                    "En PvsM se necesita el perfil de la IA");
+        }
+        this.otorgarPuntos = otorgarPuntos;
         this.cancha = new Cancha(resolucion);
         this.jugadores = List.of(
                 new JugadorHumano(configuracion1, p1,
@@ -46,13 +107,12 @@ public class Partido {
                         Lado.IZQUIERDO,
                         cancha.getAncho() / 4.0,
                         cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR),
-                new JugadorHumano(configuracion2, p2,
-                        new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER, ParametrosJuego.RECARGA_BARRA_PODER),
-                        Lado.DERECHO,
-                        cancha.getAncho() * 3.0 / 4.0,
-                        cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR)
+                crearJugadorDerecho(configuracion2, p2)
         );
-        this.balon = new Balon(cancha.getAncho() / 2.0, cancha.getSuelo() - ParametrosJuego.RADIO_BALON, ParametrosJuego.RADIO_BALON);
+        this.balon = new Balon(
+                cancha.getAncho() / 2.0,
+                cancha.getSuelo() - ParametrosJuego.RADIO_BALON,
+                ParametrosJuego.RADIO_BALON);
         this.marcador = new Marcador();
         this.estado = EstadoPartido.LISTO;
         this.tiempoTotal = configuracion.getTiempo() * 60.0;
@@ -61,6 +121,36 @@ public class Partido {
         this.tiempoTranscurrido = 0;
     }
 
+    /**
+     * Crea el jugador que ocupa el lado derecho de la cancha.
+     *
+     * @param configuracion configuración del jugador
+     * @param personaje personaje elegido
+     * @return jugador humano o máquina según la modalidad
+     */
+    private Jugador crearJugadorDerecho(ConfiguracionJugador configuracion,
+                                        Personaje personaje) {
+        BarraPoder barra = new BarraPoder(
+                ParametrosJuego.CAPACIDAD_BARRA_PODER,
+                ParametrosJuego.RECARGA_BARRA_PODER);
+        if (modalidad == Modalidad.PvsM && perfilIA != null) {
+            return new JugadorMaquina(configuracion, personaje, barra,
+                    Lado.DERECHO,
+                    cancha.getAncho() * 3.0 / 4.0,
+                    cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR,
+                    perfilIA);
+        }
+        return new JugadorHumano(configuracion, personaje, barra,
+                Lado.DERECHO,
+                cancha.getAncho() * 3.0 / 4.0,
+                cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
+    }
+
+    /**
+     * Actualiza el estado del partido durante un instante.
+     *
+     * @param dt tiempo transcurrido en segundos
+     */
     public void actualizar(double dt) {
         if (dt <= 0) {
             return;
@@ -80,6 +170,7 @@ public class Partido {
         }
         balon.actualizar(dt, cancha);
         for (Jugador jugador : jugadores) {
+            jugador.actualizarControl(this, dt);
             jugador.actualizar(dt, cancha);
             jugador.getBarraPoder().actualizarBarra(dt);
         }
@@ -91,6 +182,7 @@ public class Partido {
         resolverColisionJugadores();
         resolverColisionBalonJugador();
         resolverColisionArcos();
+        actualizarBalonesIlusion(dt);
 
         if (cancha.getArcoIzquierdo().estaDentro(balon)) {
             marcador.sumarGol(2);
@@ -148,6 +240,16 @@ public class Partido {
         }
     }
 
+    /**
+     * Resuelve la separación entre dos círculos de dos jugadores.
+     *
+     * @param jugador1 primer jugador
+     * @param jugador2 segundo jugador
+     * @param circulo1 centro del círculo del primer jugador
+     * @param radio1 radio del círculo del primer jugador
+     * @param circulo2 centro del círculo del segundo jugador
+     * @param radio2 radio del círculo del segundo jugador
+     */
     private void resolverCirculosJugadores(Jugador jugador1, Jugador jugador2,
                                            double[] circulo1, double radio1,
                                            double[] circulo2, double radio2) {
@@ -200,6 +302,14 @@ public class Partido {
         }
     }
 
+    /**
+     * Resuelve el choque entre el balón y un círculo del jugador.
+     *
+     * @param jugador jugador que choca con el balón
+     * @param centroX centro del círculo en X
+     * @param centroY centro del círculo en Y
+     * @param radio radio del círculo
+     */
     private void resolverColisionBalonCirculo(Jugador jugador,
                                               double centroX, double centroY,
                                               double radio) {
@@ -288,6 +398,8 @@ public class Partido {
     /**
      * Consume el aura del jugador y lanza su tiro de poder con la trayectoria
      * definida por el poder.
+     *
+     * @param jugador jugador que dispara el poder
      */
     private void dispararPoder(Jugador jugador) {
         Poder poder = jugador.getPersonaje().getPoder();
@@ -303,6 +415,8 @@ public class Partido {
 
     /**
      * Aplica al rival el daño y el efecto del tiro de poder activo.
+     *
+     * @param rival jugador que recibe el impacto
      */
     private void impactarPoder(Jugador rival) {
         Jugador dueno = tiroPoder.getDueno();
@@ -317,6 +431,79 @@ public class Partido {
     }
 
     /**
+     * Crea, mueve y resuelve los empujes de los balones falsos de la
+     * Ilusión. Solo existen mientras algún jugador está confundido.
+     *
+     * @param dt tiempo transcurrido desde la última actualización
+     */
+    private void actualizarBalonesIlusion(double dt) {
+        boolean hayConfundido = false;
+        for (Jugador jugador : jugadores) {
+            if (jugador.tieneEfecto(TipoEfecto.CONFUNDIDO)) {
+                hayConfundido = true;
+                break;
+            }
+        }
+
+        if (!hayConfundido) {
+            balonesIlusion.clear();
+            return;
+        }
+
+        if (balonesIlusion.isEmpty()) {
+            crearBalonesIlusion();
+        }
+
+        for (BalonIlusion ilusion : balonesIlusion) {
+            ilusion.actualizar(dt, cancha);
+            if (!ilusion.puedeEmpujar()) {
+                continue;
+            }
+
+            for (Jugador jugador : jugadores) {
+                if (jugador.tieneEfecto(TipoEfecto.CONFUNDIDO)
+                        && ilusion.tocaA(jugador)) {
+                    empujarPorIlusion(jugador, ilusion);
+                    ilusion.reiniciarEmpuje();
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Crea los balones falsos de la Ilusión en posiciones aleatorias.
+     */
+    private void crearBalonesIlusion() {
+        balonesIlusion.clear();
+        double margen = ParametrosJuego.RADIO_BALON_COLISION + 10;
+        double ancho = cancha.getAncho();
+        double alto = cancha.getSuelo();
+
+        for (int i = 0; i < ParametrosJuego.CANTIDAD_BALONES_ILUSION; i++) {
+            double x = margen + randomIlusion.nextDouble()
+                    * Math.max(1, ancho - margen * 2);
+            double y = margen + randomIlusion.nextDouble()
+                    * Math.max(1, alto - margen * 2);
+            balonesIlusion.add(new BalonIlusion(x, y, randomIlusion));
+        }
+    }
+
+    /**
+     * Empuja a un jugador cuando lo toca un balón falso.
+     *
+     * @param jugador jugador empujado
+     * @param ilusion balón falso que produce el empuje
+     */
+    private void empujarPorIlusion(Jugador jugador, BalonIlusion ilusion) {
+        double direccion = jugador.getPosicionX() >= ilusion.getX() ? 1 : -1;
+        jugador.desplazar(
+                direccion * ParametrosJuego.DESPLAZAMIENTO_BALON_ILUSION,
+                -ParametrosJuego.ALTURA_EMPUJE_BALON_ILUSION,
+                cancha);
+    }
+
+    /**
      * Hace rebotar el balón contra el travesaño superior de los arcos.
      */
     private void resolverColisionArcos() {
@@ -324,6 +511,11 @@ public class Partido {
         resolverColisionArco(cancha.getArcoDerecho());
     }
 
+    /**
+     * Resuelve el choque del balón con el travesaño de un arco.
+     *
+     * @param arco arco con el que puede chocar el balón
+     */
     private void resolverColisionArco(Arco arco) {
         double radio = ParametrosJuego.RADIO_BALON_COLISION;
         double centroVisualY = balon.getY()
@@ -366,6 +558,12 @@ public class Partido {
         }
     }
 
+    /**
+     * Devuelve el centro del círculo de la cabeza de un jugador.
+     *
+     * @param jugador jugador consultado
+     * @return coordenadas X e Y del centro de la cabeza
+     */
     private double[] centroCabeza(Jugador jugador) {
         return new double[]{
                 jugador.getPosicionX(),
@@ -373,6 +571,12 @@ public class Partido {
         };
     }
 
+    /**
+     * Devuelve el centro del círculo de la bota de un jugador.
+     *
+     * @param jugador jugador consultado
+     * @return coordenadas X e Y del centro de la bota
+     */
     private double[] centroBota(Jugador jugador) {
         double direccion = jugador.getLado() == Lado.IZQUIERDO ? 1 : -1;
         return new double[]{
@@ -382,6 +586,12 @@ public class Partido {
         };
     }
 
+    /**
+     * Mueve a un jugador si el partido está en juego.
+     *
+     * @param jugador número del jugador: 1 o 2
+     * @param dx desplazamiento horizontal
+     */
     public void mover(int jugador, double dx) {
         if (!puedeJugar()) {
             return;
@@ -389,6 +599,11 @@ public class Partido {
         jugador(jugador).mover(dx, cancha);
     }
 
+    /**
+     * Hace saltar a un jugador si el partido está en juego.
+     *
+     * @param jugador número del jugador: 1 o 2
+     */
     public void saltar(int jugador) {
         if (!puedeJugar()) {
             return;
@@ -421,7 +636,7 @@ public class Partido {
     }
 
     /**
-     * Indica si un jugador tiene sus controles invertidos por el Flechazo.
+     * Indica si un jugador tiene sus controles invertidos por el Beso de la Fea.
      *
      * @param jugador número del jugador: 1 o 2
      * @return true si debe invertir sus teclas
@@ -430,10 +645,29 @@ public class Partido {
         return jugador(jugador).tieneControlesInvertidos();
     }
 
+    /**
+     * Devuelve el tiro de poder activo del partido.
+     *
+     * @return tiro de poder activo o null si no hay ninguno
+     */
     public TiroPoder getTiroPoder() {
         return tiroPoder;
     }
 
+    /**
+     * Devuelve los balones falsos activos de la Ilusión.
+     *
+     * @return lista de balones falsos
+     */
+    public List<BalonIlusion> getBalonesIlusion() {
+        return balonesIlusion;
+    }
+
+    /**
+     * Ejecuta la patada de un jugador e impacta al rival si está al alcance.
+     *
+     * @param jugador número del jugador: 1 o 2
+     */
     public void patear(int jugador) {
         if (!puedeJugar()) {
             return;
@@ -441,6 +675,11 @@ public class Partido {
         Jugador pateador = jugador(jugador);
         if (!pateador.puedePatear()) {
             return;
+        }
+        if (jugador == 1) {
+            patadaJugador1 = true;
+        } else {
+            patadaJugador2 = true;
         }
 
         // Si la patada toca el balón, solo se impulsa el balón.
@@ -454,7 +693,33 @@ public class Partido {
         }
     }
 
-    private boolean rivalEstaAlAlcanceDePatada(Jugador pateador, Jugador rival) {
+    /**
+     * Indica si hubo una patada desde la última consulta y reinicia el aviso.
+     * Lo usa la presentación para animar la patada de la máquina.
+     *
+     * @param jugador número del jugador: 1 o 2
+     * @return true si el jugador pateó desde la última consulta
+     */
+    public boolean consumirPatada(int jugador) {
+        if (jugador == 1) {
+            boolean hubo = patadaJugador1;
+            patadaJugador1 = false;
+            return hubo;
+        }
+        boolean hubo = patadaJugador2;
+        patadaJugador2 = false;
+        return hubo;
+    }
+
+    /**
+     * Indica si el rival está al alcance de la bota del pateador.
+     *
+     * @param pateador jugador que patea
+     * @param rival jugador rival
+     * @return true si la patada alcanza al rival
+     */
+    private boolean rivalEstaAlAlcanceDePatada(Jugador pateador,
+                                               Jugador rival) {
         double[] bota = centroBota(pateador);
         double[] cabezaRival = centroCabeza(rival);
         double[] botaRival = centroBota(rival);
@@ -471,39 +736,71 @@ public class Partido {
         return distanciaCabeza <= alcanceCabeza || distanciaBota <= alcanceBota;
     }
 
+    /**
+     * Calcula la distancia entre dos puntos.
+     *
+     * @param punto1 primer punto
+     * @param punto2 segundo punto
+     * @return distancia entre los puntos
+     */
     private double distancia(double[] punto1, double[] punto2) {
         double dx = punto2[0] - punto1[0];
         double dy = punto2[1] - punto1[1];
         return Math.sqrt(dx * dx + dy * dy);
     }
 
+    /**
+     * Suma un gol al marcador del jugador indicado.
+     *
+     * @param jugador número del jugador: 1 o 2
+     */
     public void sumarGol(int jugador) {
         marcador.sumarGol(jugador);
     }
 
+    /**
+     * Reinicia el partido después de un gol.
+     */
     public void reiniciarDespuesDeGol() {
         tiroPoder = null;
+        balonesIlusion.clear();
         balon.reiniciar(cancha.getAncho() / 2.0, cancha.getAlto() / 2.0);
+        jugador(1).limpiarEfectos();
+        jugador(2).limpiarEfectos();
         jugador(1).reiniciar(cancha.getAncho() / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
         jugador(2).reiniciar(cancha.getAncho() * 3.0 / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
     }
 
+    /**
+     * Pausa el partido si está listo o en curso.
+     */
     public void pausar() {
         if (estado == EstadoPartido.LISTO || estado == EstadoPartido.EN_CURSO) {
             estado = EstadoPartido.PAUSADO;
         }
     }
 
+    /**
+     * Reanuda el partido si estaba pausado.
+     */
     public void reanudar() {
         if (estado == EstadoPartido.PAUSADO) {
             estado = EstadoPartido.EN_CURSO;
         }
     }
 
+    /**
+     * Termina el partido por fin de tiempo.
+     */
     public void terminar() {
         terminar(MotivoFin.TIEMPO);
     }
 
+    /**
+     * Termina el partido con el motivo indicado.
+     *
+     * @param motivo motivo de finalización
+     */
     public void terminar(MotivoFin motivo) {
         if (motivo == null) {
             throw new IllegalArgumentException("El motivo de finalización no puede ser nulo");
@@ -513,7 +810,9 @@ public class Partido {
         }
         estado = EstadoPartido.TERMINADO;
         resultado = new ResultadoPartido(marcador.getGoles(1), marcador.getGoles(2), motivo, tiempoTranscurrido);
-        otorgarPuntos();
+        if (otorgarPuntos) {
+            otorgarPuntos();
+        }
     }
 
     /**
@@ -539,10 +838,21 @@ public class Partido {
         jugadores.get(1).getPuntos().sumar(puntosJugador2);
     }
 
+    /**
+     * Indica si el partido permite jugar en este momento.
+     *
+     * @return true si el partido está listo o en curso
+     */
     private boolean puedeJugar() {
         return estado == EstadoPartido.LISTO || estado == EstadoPartido.EN_CURSO;
     }
 
+    /**
+     * Devuelve el jugador con el número indicado.
+     *
+     * @param numero número del jugador: 1 o 2
+     * @return jugador correspondiente
+     */
     private Jugador jugador(int numero) {
         if (numero != 1 && numero != 2) {
             throw new IllegalArgumentException("El número de jugador debe ser 1 o 2");
@@ -550,58 +860,110 @@ public class Partido {
         return jugadores.get(numero - 1);
     }
 
+    /**
+     * Devuelve el marcador del partido.
+     *
+     * @return marcador del partido
+     */
     public Marcador getMarcador() {
         return marcador;
     }
 
+    /**
+     * Devuelve el estado actual del partido.
+     *
+     * @return estado del partido
+     */
     public EstadoPartido getEstado() {
         return estado;
     }
 
+    /**
+     * Devuelve el tipo de partido.
+     *
+     * @return tipo de partido
+     */
     public TipoPartido getTipo() {
         return tipo;
     }
 
+    /**
+     * Devuelve la modalidad del partido.
+     *
+     * @return modalidad del partido
+     */
+    public Modalidad getModalidad() {
+        return modalidad;
+    }
+
+    /**
+     * Devuelve el balón del partido.
+     *
+     * @return balón del partido
+     */
     public Balon getBalon() {
         return balon;
     }
 
+    /**
+     * Devuelve la lista de jugadores del partido.
+     *
+     * @return jugadores del partido
+     */
     public List<Jugador> getJugadores() {
         return jugadores;
     }
 
+    /**
+     * Devuelve el tiempo restante del partido.
+     *
+     * @return segundos restantes
+     */
     public double getTiempoRestante() {
         return tiempoRestante;
     }
 
-    public double getTiempoTotal() {
-        return tiempoTotal;
-    }
-
-    public double getTiempoTranscurrido() {
-        return tiempoTranscurrido;
-    }
-
+    /**
+     * Devuelve la regla de finalización del partido.
+     *
+     * @return regla del partido
+     */
     public ReglaPartido getRegla() {
         return regla;
     }
 
-    public Resolucion getResolucion() {
-        return resolucion;
-    }
-
+    /**
+     * Devuelve la cancha del partido.
+     *
+     * @return cancha del partido
+     */
     public Cancha getCancha() {
         return cancha;
     }
 
+    /**
+     * Devuelve el resultado del partido.
+     *
+     * @return resultado o null si aún no terminó
+     */
     public ResultadoPartido getResultado() {
         return resultado;
     }
 
+    /**
+     * Devuelve los puntos obtenidos por el jugador 1.
+     *
+     * @return puntos del jugador 1
+     */
     public int getPuntosJugador1() {
         return puntosJugador1;
     }
 
+    /**
+     * Devuelve los puntos obtenidos por el jugador 2.
+     *
+     * @return puntos del jugador 2
+     */
     public int getPuntosJugador2() {
         return puntosJugador2;
     }

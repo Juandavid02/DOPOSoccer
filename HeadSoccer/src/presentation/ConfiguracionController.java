@@ -13,12 +13,21 @@ public class ConfiguracionController {
     private ConfiguracionControles borrador;
     private int volumenAnterior;
 
+    /**
+     * Crea el controlador de la configuración general.
+     *
+     * @param gui ventana principal del juego
+     * @param view vista de configuración
+     */
     public ConfiguracionController(DOPOSoccerGUI gui, ConfiguracionView view) {
         this.gui = gui;
         this.view = view;
         prepareController();
     }
 
+    /**
+     * Conecta los botones de la vista con el controlador.
+     */
     private void prepareController() {
         view.getBotonAtras().addActionListener(e -> atras());
         view.getBotonGuardar().addActionListener(e -> guardar());
@@ -31,6 +40,12 @@ public class ConfiguracionController {
         prepararBotones(2, view.getBotonesJugador2());
     }
 
+    /**
+     * Asigna el cambio de tecla a los botones de un jugador.
+     *
+     * @param jugador número del jugador: 1 o 2
+     * @param botones botones de tecla del jugador
+     */
     private void prepararBotones(int jugador,
                                  java.util.Map<ConfiguracionControles.Accion,
                                          ConfiguracionView.BotonTecla> botones) {
@@ -63,6 +78,9 @@ public class ConfiguracionController {
         view.setVolumen(volumenAnterior);
     }
 
+    /**
+     * Guarda las teclas y el volumen elegidos.
+     */
     private void guardar() {
         view.cancelarCaptura();
         gui.setConfiguracionControles(borrador);
@@ -70,12 +88,18 @@ public class ConfiguracionController {
         gui.volverDeConfiguracion();
     }
 
+    /**
+     * Cancela los cambios y vuelve a la pantalla anterior.
+     */
     private void atras() {
         view.cancelarCaptura();
         gui.setVolumen(volumenAnterior);
         gui.volverDeConfiguracion();
     }
 
+    /**
+     * Restablece el volumen y las teclas por defecto.
+     */
     private void reiniciar() {
         int opcion = JOptionPane.showConfirmDialog(
                 view,

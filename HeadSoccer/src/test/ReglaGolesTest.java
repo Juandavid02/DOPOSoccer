@@ -26,10 +26,16 @@ public class ReglaGolesTest
     private Partido partido;
     private ReglaGoles regla;
 
+    /**
+     * Constructor de la clase de pruebas ReglaGolesTest.
+     */
     public ReglaGolesTest()
     {
     }
 
+    /**
+     * Prepara el escenario de pruebas.
+     */
     @BeforeEach
     public void setUp()
     {
@@ -79,6 +85,12 @@ public class ReglaGolesTest
         assertThrows(IllegalArgumentException.class, () -> new ReglaGoles(-1));
     }
 
+    /**
+     * Crea un partido de prueba con el objetivo de goles indicado.
+     *
+     * @param goles goles necesarios para ganar
+     * @return partido configurado para las pruebas
+     */
     private Partido crearPartido(int goles)
     {
         try {
@@ -102,11 +114,19 @@ public class ReglaGolesTest
         }
     }
 
+    /**
+     * Crea un personaje de prueba.
+     *
+     * @return personaje de prueba
+     */
     private Personaje crearPersonaje()
     {
         return new Personaje("Prueba", "Prueba", new PoderAuraAzul());
     }
 
+    /**
+     * Libera el escenario de pruebas.
+     */
     @AfterEach
     public void tearDown()
     {

@@ -14,7 +14,7 @@ import domain.Personaje;
 import domain.Poder;
 import domain.PoderAuraAzul;
 import domain.PoderBarril;
-import domain.PoderFlechazoDeAmor;
+import domain.PoderBesoDeLaFea;
 import domain.PoderIlusion;
 import domain.PoderRayo;
 import domain.PoderTornado;
@@ -31,6 +31,7 @@ public class PartidoPoderTest {
 
     private Partido partido;
 
+    /** Prepara el partido de prueba antes de cada test. */
     @BeforeEach
     public void setUp() {
         partido = crearPartido(
@@ -40,12 +41,14 @@ public class PartidoPoderTest {
                 new Estadisticas(5, 5, 5, 5));
     }
 
+    /** Verifica que no se activa el poder con la barra vacía. */
     @Test
     public void shouldNotActivatePowerWithEmptyBar() {
         assertFalse(partido.activarPoder(1));
         assertFalse(partido.getJugadores().get(0).isAuraActiva());
     }
 
+    /** Verifica que el poder se activa y consume la barra completa. */
     @Test
     public void shouldActivatePowerAndConsumeFullBar() {
         Jugador jugador = partido.getJugadores().get(0);
@@ -56,6 +59,7 @@ public class PartidoPoderTest {
         assertEquals(0, jugador.getBarraPoder().getCarga(), 0.0001);
     }
 
+    /** Verifica que no se activa otra aura mientras una está activa. */
     @Test
     public void shouldNotActivateASecondAuraWhileOneIsActive() {
         Jugador jugador = partido.getJugadores().get(0);
@@ -66,6 +70,7 @@ public class PartidoPoderTest {
         assertFalse(partido.activarPoder(1));
     }
 
+    /** Verifica que el aura al tocar el balón crea un tiro de poder. */
     @Test
     public void shouldCreatePowerShotWhenAuraTouchesBall() {
         Jugador jugador = partido.getJugadores().get(0);
@@ -82,6 +87,7 @@ public class PartidoPoderTest {
         assertTrue(partido.getTiroPoder().isActivo());
     }
 
+    /** Verifica que el tiro de poder daña y aplica el efecto al rival. */
     @Test
     public void shouldApplyDamageAndEffectWhenShotHitsRival() {
         Jugador atacante = partido.getJugadores().get(0);
@@ -105,6 +111,7 @@ public class PartidoPoderTest {
         assertFalse(rival.puedeSaltar());
     }
 
+    /** Verifica que quien recibe un gol gana un cuarto de barra de poder. */
     @Test
     public void shouldAddQuarterBarToPlayerWhoConcedesGoal() {
         Jugador jugador2 = partido.getJugadores().get(1);
@@ -116,20 +123,66 @@ public class PartidoPoderTest {
                 jugador2.getBarraPoder().getCarga(), 1.0);
     }
 
+    /** Verifica que se pueden tener varios efectos activos a la vez. */
     @Test
-    public void shouldReplacePreviousEffectWithNewOne() {
+    public void shouldKeepMultipleEffectsAtTheSameTime() {
         Jugador jugador = partido.getJugadores().get(0);
 
         jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 3);
         jugador.aplicarEfecto(TipoEfecto.CONFUNDIDO, 2.5);
 
+        assertTrue(jugador.tieneEfecto(TipoEfecto.ELECTROCUTADO));
         assertTrue(jugador.tieneEfecto(TipoEfecto.CONFUNDIDO));
-        assertFalse(jugador.tieneEfecto(TipoEfecto.ELECTROCUTADO));
-        assertEquals(2.5, jugador.getEfectoActivo().getTiempoRestante(), 0.0001);
+        assertEquals(2, jugador.getEfectosActivos().size());
     }
 
+    /** Verifica que cada efecto expira de forma independiente. */
     @Test
-    public void shouldInvertControlsWithFlechazoEffect() {
+    public void shouldExpireEachEffectIndependently() {
+        Jugador jugador = partido.getJugadores().get(0);
+
+        jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 1);
+        jugador.aplicarEfecto(TipoEfecto.CONFUNDIDO, 5);
+
+        jugador.actualizar(1.1, partido.getCancha());
+
+        assertFalse(jugador.tieneEfecto(TipoEfecto.ELECTROCUTADO));
+        assertTrue(jugador.tieneEfecto(TipoEfecto.CONFUNDIDO));
+        assertEquals(1, jugador.getEfectosActivos().size());
+    }
+
+    /** Verifica que al anotar un gol se eliminan todos los efectos. */
+    @Test
+    public void shouldClearEveryEffectWhenGoalIsScored() {
+        Jugador jugador = partido.getJugadores().get(0);
+
+        jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 3);
+        jugador.aplicarEfecto(TipoEfecto.CONFUNDIDO, 2.5);
+
+        partido.reiniciarDespuesDeGol();
+
+        assertFalse(jugador.tieneEfecto(TipoEfecto.ELECTROCUTADO));
+        assertFalse(jugador.tieneEfecto(TipoEfecto.CONFUNDIDO));
+        assertTrue(jugador.getEfectosActivos().isEmpty());
+    }
+
+    /** Verifica que un efecto repetido renueva su duración. */
+    @Test
+    public void shouldRenewDurationWhenTheSameEffectIsAppliedAgain() {
+        Jugador jugador = partido.getJugadores().get(0);
+
+        jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 1);
+        jugador.actualizar(0.6, partido.getCancha());
+        jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 3);
+
+        assertEquals(1, jugador.getEfectosActivos().size());
+        assertEquals(3, jugador.getEfectosActivos().get(0).getTiempoRestante(),
+                0.0001);
+    }
+
+    /** Verifica que el efecto del beso de la fea invierte los controles. */
+    @Test
+    public void shouldInvertControlsWithBesoDeLaFeaEffect() {
         Jugador jugador = partido.getJugadores().get(0);
 
         jugador.aplicarEfecto(TipoEfecto.CONTROLES_INVERTIDOS, 2.5);
@@ -138,6 +191,7 @@ public class PartidoPoderTest {
         assertFalse(partido.tieneControlesInvertidos(2));
     }
 
+    /** Verifica que el efecto barril reinicia y luego restaura las estadísticas. */
     @Test
     public void shouldResetAndRestoreStatsWithBarrelEffect() {
         Estadisticas estadisticas = new Estadisticas(8, 7, 6, 9);
@@ -164,6 +218,7 @@ public class PartidoPoderTest {
         assertEquals(9, jugador.getEstadisticas().getSurvival());
     }
 
+    /** Verifica que cada poder aplica el efecto que le corresponde. */
     @Test
     public void shouldApplyTheCorrectEffectForEveryPower() {
         Poder[] poderes = {
@@ -171,7 +226,7 @@ public class PartidoPoderTest {
                 new PoderRayo(),
                 new PoderTornado(),
                 new PoderIlusion(),
-                new PoderFlechazoDeAmor(),
+                new PoderBesoDeLaFea(),
                 new PoderBarril()
         };
         TipoEfecto[] efectos = {
@@ -210,6 +265,7 @@ public class PartidoPoderTest {
         }
     }
 
+    /** Verifica que el efecto barril no modifica las estadísticas del perfil. */
     @Test
     public void shouldNotModifyProfileStatsWhenBarrelIsApplied() {
         Estadisticas estadisticasPerfil = new Estadisticas(8, 7, 6, 9);
@@ -227,6 +283,15 @@ public class PartidoPoderTest {
         assertEquals(9, estadisticasPerfil.getSurvival());
     }
 
+    /**
+     * Crea un partido de prueba con los personajes y estadísticas indicados.
+     *
+     * @param personaje1 personaje del jugador 1
+     * @param personaje2 personaje del jugador 2
+     * @param estadisticas1 estadísticas del jugador 1
+     * @param estadisticas2 estadísticas del jugador 2
+     * @return partido configurado para la prueba
+     */
     private Partido crearPartido(Personaje personaje1, Personaje personaje2,
                                  Estadisticas estadisticas1,
                                  Estadisticas estadisticas2) {

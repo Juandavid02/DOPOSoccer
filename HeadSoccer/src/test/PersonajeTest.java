@@ -16,10 +16,16 @@ public class PersonajeTest
 {
     private Personaje personaje;
 
+    /**
+     * Constructor de la clase de pruebas PersonajeTest.
+     */
     public PersonajeTest()
     {
     }
 
+    /**
+     * Prepara el escenario de pruebas.
+     */
     @BeforeEach
     public void setUp()
     {
@@ -109,6 +115,9 @@ public class PersonajeTest
         assertEquals("El poder no puede ser nulo", e.getMessage());
     }
 
+    /**
+     * Libera el escenario de pruebas.
+     */
     @AfterEach
     public void tearDown()
     {
