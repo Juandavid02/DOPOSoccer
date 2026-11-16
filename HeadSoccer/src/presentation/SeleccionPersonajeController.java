@@ -52,9 +52,24 @@ public class SeleccionPersonajeController {
             });
         }
 
-        view.getBotonCambiar1().addActionListener(e -> cambiar(1));
-        view.getBotonCambiar2().addActionListener(e -> cambiar(2));
-        view.getBotonAleatorio().addActionListener(e -> elegirAleatorio());
+        view.getBotonCambiar1().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiar(1);
+            }
+        });
+        view.getBotonCambiar2().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiar(2);
+            }
+        });
+        view.getBotonAleatorio().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                elegirAleatorio();
+            }
+        });
 
         view.getBotonReady().addActionListener(new ActionListener() {
             /**
@@ -68,31 +83,39 @@ public class SeleccionPersonajeController {
             }
         });
 
-        view.getBotonAtras().addActionListener(e -> {
-            gui.detenerSonido();
-            if (soloHumano) {
-                int opcion = JOptionPane.showConfirmDialog(
-                        view,
-                        "Si vuelves perderás los "
-                                + ParametrosJuego.COSTO_TORNEO
-                                + " puntos de inscripción y quedarás "
-                                + "descalificado del torneo.\n"
-                                + "¿Quieres volver a la inscripción?",
-                        "Volver a la inscripción",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
-                if (opcion == JOptionPane.YES_OPTION) {
-                    gui.volverAInscripcionTorneo();
+        view.getBotonAtras().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.detenerSonido();
+                if (soloHumano) {
+                    int opcion = JOptionPane.showConfirmDialog(
+                            view,
+                            "Si vuelves perderás los "
+                                    + ParametrosJuego.COSTO_TORNEO
+                                    + " puntos de inscripción y quedarás "
+                                    + "descalificado del torneo.\n"
+                                    + "¿Quieres volver a la inscripción?",
+                            "Volver a la inscripción",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE);
+                    if (opcion == JOptionPane.YES_OPTION) {
+                        gui.volverAInscripcionTorneo();
+                    }
+                    return;
                 }
-                return;
-            }
-            if (gui.isTorneoPendiente()) {
-                gui.mostrarSeleccionPerfil();
-            } else {
-                gui.mostrarConfiguracionPartido();
+                if (gui.isTorneoPendiente()) {
+                    gui.mostrarSeleccionPerfil();
+                } else {
+                    gui.mostrarConfiguracionPartido();
+                }
             }
         });
-        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
     }
 
     /**

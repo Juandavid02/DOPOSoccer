@@ -3,6 +3,8 @@ package presentation;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.util.EnumMap;
@@ -113,8 +115,18 @@ public class ConfiguracionView extends VistaBase {
         control.add(valorVolumen);
         control.add(botonVolumenMas);
 
-        botonVolumenMenos.addActionListener(e -> cambiarVolumen(-5));
-        botonVolumenMas.addActionListener(e -> cambiarVolumen(5));
+        botonVolumenMenos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarVolumen(-5);
+            }
+        });
+        botonVolumenMas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarVolumen(5);
+            }
+        });
         actualizarBotonesVolumen();
 
         GridBagConstraints c = new GridBagConstraints();
@@ -393,7 +405,12 @@ public class ConfiguracionView extends VistaBase {
             setFocusPainted(false);
             setFocusable(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            addActionListener(e -> iniciarCaptura());
+            addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    iniciarCaptura();
+                }
+            });
             setText("—");
         }
 

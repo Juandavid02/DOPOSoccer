@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Controlador del torneo: cobra la inscripción, deja elegir personaje y
@@ -57,10 +59,30 @@ public class TorneoController {
      * Conecta los botones de la vista con las acciones del controlador.
      */
     private void prepareController() {
-        view.getBotonInscribirse().addActionListener(e -> inscribir());
-        view.getBotonJugar().addActionListener(e -> jugarOSiguiente());
-        view.getBotonAtras().addActionListener(e -> salir());
-        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
+        view.getBotonInscribirse().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                inscribir();
+            }
+        });
+        view.getBotonJugar().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jugarOSiguiente();
+            }
+        });
+        view.getBotonAtras().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                salir();
+            }
+        });
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
     }
 
     /**

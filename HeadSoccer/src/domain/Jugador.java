@@ -341,8 +341,7 @@ public abstract class Jugador {
             if (efecto.getTipo() == TipoEfecto.BARRIL) {
                 teniaBarril = true;
             }
-            if (efecto.getTipo() == TipoEfecto.EMPUJE
-                    || efecto.getTipo() == TipoEfecto.INCONSCIENTE) {
+            if (efecto.getTipo() == TipoEfecto.EMPUJE || efecto.getTipo() == TipoEfecto.INCONSCIENTE) {
                 teniaEmpuje = true;
             }
         }
@@ -620,8 +619,7 @@ public abstract class Jugador {
             return false;
         }
         double direccion = lado == Lado.IZQUIERDO ? 1 : -1;
-        double botaX = posicionX
-                + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR;
+        double botaX = posicionX + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR;
         double botaY = posicionY + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR;
 
         double distanciaX = balon.getX() - botaX;

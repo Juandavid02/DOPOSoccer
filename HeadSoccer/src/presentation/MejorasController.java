@@ -6,6 +6,8 @@ import domain.TipoEstadistica;
 
 import javax.swing.*;
 import java.util.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Controlador de la pantalla de mejoras de estadísticas.
@@ -23,8 +25,7 @@ public class MejorasController {
      * @param view vista de mejoras
      * @param perfiles perfiles disponibles
      */
-    public MejorasController(DOPOSoccerGUI gui, MejorasView view,
-                             List<PerfilJugador> perfiles) {
+    public MejorasController(DOPOSoccerGUI gui, MejorasView view, List<PerfilJugador> perfiles) {
         this.gui = gui;
         this.view = view;
         this.perfiles = perfiles;
@@ -35,8 +36,18 @@ public class MejorasController {
      * Conecta los listeners de la vista con las acciones del controlador.
      */
     private void prepareController() {
-        view.getBotonAtras().addActionListener(e -> gui.mostrarMenu());
-        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
+        view.getBotonAtras().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarMenu();
+            }
+        });
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
 
         view.getListaPerfiles().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -45,7 +56,12 @@ public class MejorasController {
         });
 
         for (TipoEstadistica tipo : TipoEstadistica.values()) {
-            view.getBotonMejorar(tipo).addActionListener(e -> mejorar(tipo));
+            view.getBotonMejorar(tipo).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    mejorar(tipo);
+                }
+            });
         }
 
         view.setAccionCompra(this::comprar);

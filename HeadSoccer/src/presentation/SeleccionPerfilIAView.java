@@ -7,6 +7,8 @@ import domain.TipoEstadistica;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.*;
 import java.util.EnumMap;
 import java.util.Map;
@@ -87,7 +89,12 @@ public class SeleccionPerfilIAView extends VistaBase {
                             RecursosImagen.cargar(imagen(perfil))));
             tarjeta.setPreferredSize(new Dimension(230, 195));
             grupo.add(tarjeta);
-            tarjeta.addActionListener(e -> perfilSeleccionado = perfil);
+            tarjeta.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    perfilSeleccionado = perfil;
+                }
+            });
             cuadricula.add(tarjeta);
         }
 
@@ -277,8 +284,18 @@ public class SeleccionPerfilIAView extends VistaBase {
                 BotonPaso mas = new BotonPaso("+");
                 botonesMenos.put(tipo, menos);
                 botonesMas.put(tipo, mas);
-                menos.addActionListener(e -> cambiar(tipo, -1));
-                mas.addActionListener(e -> cambiar(tipo, 1));
+                menos.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        cambiar(tipo, -1);
+                    }
+                });
+                mas.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        cambiar(tipo, 1);
+                    }
+                });
 
                 c.gridx = 3;
                 c.insets = new Insets(4, 0, 4, 4);

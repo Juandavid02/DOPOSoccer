@@ -1,6 +1,8 @@
 package presentation;
 
 import domain.Modalidad;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Controlador de la selección de modo dentro de Arcade.
@@ -26,12 +28,30 @@ public class SeleccionModoController {
      * Conecta los botones de la vista con las acciones del controlador.
      */
     private void prepareController() {
-        view.getBotonPvsP().addActionListener(
-                e -> iniciarModo(Modalidad.PvsP));
-        view.getBotonPvsM().addActionListener(
-                e -> iniciarModo(Modalidad.PvsM));
-        view.getBotonAtras().addActionListener(e -> gui.mostrarMenu());
-        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
+        view.getBotonPvsP().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                iniciarModo(Modalidad.PvsP);
+            }
+        });
+        view.getBotonPvsM().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                iniciarModo(Modalidad.PvsM);
+            }
+        });
+        view.getBotonAtras().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarMenu();
+            }
+        });
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
     }
 
     /**

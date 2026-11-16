@@ -13,6 +13,8 @@ import domain.PerfilJugador;
 import domain.Personaje;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
@@ -74,23 +76,74 @@ public class JuegoController {
      * Asigna una acción a cada botón de la vista.
      */
     private void prepareController() {
-        view.getBotonAtras().addActionListener(e -> volverASeleccionVisual());
-        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
+        view.getBotonAtras().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                volverASeleccionVisual();
+            }
+        });
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
 
-        view.getBotonPausaContinuar().addActionListener(e -> reanudarPartido());
-        view.getBotonPausaReiniciar().addActionListener(e -> reiniciarPartido());
-        view.getBotonPausaCambiarPersonaje().addActionListener(e -> cambiarPersonaje());
-        view.getBotonPausaConfiguracion().addActionListener(
-                e -> gui.mostrarConfiguracionDesdePausa());
-        view.getBotonPausaSalir().addActionListener(e -> salirAlMenu());
+        view.getBotonPausaContinuar().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reanudarPartido();
+            }
+        });
+        view.getBotonPausaReiniciar().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reiniciarPartido();
+            }
+        });
+        view.getBotonPausaCambiarPersonaje().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarPersonaje();
+            }
+        });
+        view.getBotonPausaConfiguracion().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarConfiguracionDesdePausa();
+            }
+        });
+        view.getBotonPausaSalir().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                salirAlMenu();
+            }
+        });
 
-        view.getBotonResultadoRevancha().addActionListener(e -> revancha());
-        view.getBotonResultadoCambiarPersonaje().addActionListener(
-                e -> cambiarPersonajeDesdeResultado());
-        view.getBotonResultadoMenu().addActionListener(
-                e -> volverAlMenuDesdeResultado());
-        view.getBotonResultadoTorneo().addActionListener(
-                e -> volverAlTorneo());
+        view.getBotonResultadoRevancha().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                revancha();
+            }
+        });
+        view.getBotonResultadoCambiarPersonaje().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarPersonajeDesdeResultado();
+            }
+        });
+        view.getBotonResultadoMenu().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                volverAlMenuDesdeResultado();
+            }
+        });
+        view.getBotonResultadoTorneo().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                volverAlTorneo();
+            }
+        });
     }
 
     /**

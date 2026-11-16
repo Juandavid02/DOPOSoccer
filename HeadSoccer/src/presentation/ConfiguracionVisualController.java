@@ -26,11 +26,21 @@ public class ConfiguracionVisualController {
      */
     private void prepareController() {
         for (ConfiguracionVisualView.TarjetaVisual tarjeta : view.getTarjetasBalon()) {
-            tarjeta.addActionListener(e -> view.seleccionarBalon(tarjeta));
+            tarjeta.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    view.seleccionarBalon(tarjeta);
+                }
+            });
         }
 
         for (ConfiguracionVisualView.TarjetaVisual tarjeta : view.getTarjetasEscenario()) {
-            tarjeta.addActionListener(e -> view.seleccionarEscenario(tarjeta));
+            tarjeta.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    view.seleccionarEscenario(tarjeta);
+                }
+            });
         }
 
         view.getBotonAtras().addActionListener(new ActionListener() {
@@ -45,7 +55,12 @@ public class ConfiguracionVisualController {
                 gui.mostrarSeleccionPersonaje();
             }
         });
-        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
         view.getBotonReady().addActionListener(new ActionListener() {
             /**
              * Confirma la selección e inicia el juego.

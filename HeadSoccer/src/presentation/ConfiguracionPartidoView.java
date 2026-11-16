@@ -6,6 +6,8 @@ import domain.TipoPartido;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -178,12 +180,42 @@ public class ConfiguracionPartidoView extends VistaBase {
         relleno.setOpaque(false);
         panel.add(relleno, c);
 
-        botonTiempoMenos.addActionListener(e -> cambiarTiempo(-1));
-        botonTiempoMas.addActionListener(e -> cambiarTiempo(1));
-        botonGolesMenos.addActionListener(e -> cambiarGoles(-1));
-        botonGolesMas.addActionListener(e -> cambiarGoles(1));
-        botonTipoTiempo.addActionListener(e -> actualizarControles());
-        botonTipoGoles.addActionListener(e -> actualizarControles());
+        botonTiempoMenos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarTiempo(-1);
+            }
+        });
+        botonTiempoMas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarTiempo(1);
+            }
+        });
+        botonGolesMenos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarGoles(-1);
+            }
+        });
+        botonGolesMas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarGoles(1);
+            }
+        });
+        botonTipoTiempo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarControles();
+            }
+        });
+        botonTipoGoles.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarControles();
+            }
+        });
 
         return panel;
     }

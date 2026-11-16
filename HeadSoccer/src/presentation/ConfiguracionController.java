@@ -1,6 +1,8 @@
 package presentation;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Controlador de la pantalla de configuración general.
@@ -29,10 +31,30 @@ public class ConfiguracionController {
      * Conecta los botones de la vista con el controlador.
      */
     private void prepareController() {
-        view.getBotonAtras().addActionListener(e -> atras());
-        view.getBotonGuardar().addActionListener(e -> guardar());
-        view.getBotonReiniciar().addActionListener(e -> reiniciar());
-        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
+        view.getBotonAtras().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                atras();
+            }
+        });
+        view.getBotonGuardar().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                guardar();
+            }
+        });
+        view.getBotonReiniciar().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reiniciar();
+            }
+        });
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
 
         view.setAlCambiarVolumen(gui::setVolumen);
 

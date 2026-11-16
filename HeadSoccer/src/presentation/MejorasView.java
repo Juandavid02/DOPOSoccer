@@ -8,6 +8,8 @@ import domain.TipoEstadistica;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
@@ -265,7 +267,12 @@ public class MejorasView extends VistaBase {
      */
     private void agregarBotonSeccion(String nombre) {
         BotonSeccion boton = new BotonSeccion(nombre);
-        boton.addActionListener(e -> seleccionarSeccion(nombre));
+        boton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                seleccionarSeccion(nombre);
+            }
+        });
         botonesSeccion.put(nombre, boton);
         barraSecciones.add(boton);
     }
@@ -415,8 +422,12 @@ public class MejorasView extends VistaBase {
         }
 
         if (tarjeta.getBotonComprar() != null) {
-            tarjeta.getBotonComprar().addActionListener(
-                    e -> accionCompra.accept(tarjeta));
+            tarjeta.getBotonComprar().addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    accionCompra.accept(tarjeta);
+                }
+            });
         }
 
         tarjetasTienda.add(tarjeta);
@@ -683,9 +694,12 @@ public class MejorasView extends VistaBase {
 
             boton = new BotonMejora("COMPRAR");
             boton.setAlignmentX(Component.CENTER_ALIGNMENT);
-            boton.addActionListener(e -> {
-                if (tarjeta != null) {
-                    accionCompra.accept(tarjeta);
+            boton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (tarjeta != null) {
+                        accionCompra.accept(tarjeta);
+                    }
                 }
             });
             add(boton);

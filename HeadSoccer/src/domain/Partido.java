@@ -288,8 +288,7 @@ public class Partido {
             for (Jugador jugador : jugadores) {
                 // La cabeza solo choca con balones que estén a su altura;
                 // un balón rodando por el suelo no debe subir a la cabeza.
-                if (balon.getY() < jugador.getPosicionY()
-                        + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR) {
+                if (balon.getY() < jugador.getPosicionY() + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR) {
                     double[] cabeza = centroCabeza(jugador);
                     resolverColisionBalonCirculo(jugador, cabeza[0], cabeza[1],
                             ParametrosJuego.RADIO_CABEZA_JUGADOR);
@@ -406,9 +405,7 @@ public class Partido {
         jugador.consumirAura();
 
         double direccion = jugador.getLado() == Lado.IZQUIERDO ? 1 : -1;
-        balon.establecerVelocidad(
-                direccion * poder.getImpulsoX(),
-                poder.getImpulsoY());
+        balon.establecerVelocidad(direccion * poder.getImpulsoX(), poder.getImpulsoY());
 
         tiroPoder = new TiroPoder(jugador, poder);
     }
@@ -461,8 +458,7 @@ public class Partido {
             }
 
             for (Jugador jugador : jugadores) {
-                if (jugador.tieneEfecto(TipoEfecto.CONFUNDIDO)
-                        && ilusion.tocaA(jugador)) {
+                if (jugador.tieneEfecto(TipoEfecto.CONFUNDIDO) && ilusion.tocaA(jugador)) {
                     empujarPorIlusion(jugador, ilusion);
                     ilusion.reiniciarEmpuje();
                     break;
@@ -718,8 +714,7 @@ public class Partido {
      * @param rival jugador rival
      * @return true si la patada alcanza al rival
      */
-    private boolean rivalEstaAlAlcanceDePatada(Jugador pateador,
-                                               Jugador rival) {
+    private boolean rivalEstaAlAlcanceDePatada(Jugador pateador, Jugador rival) {
         double[] bota = centroBota(pateador);
         double[] cabezaRival = centroCabeza(rival);
         double[] botaRival = centroBota(rival);

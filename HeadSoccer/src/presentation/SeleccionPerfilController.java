@@ -101,26 +101,59 @@ public class SeleccionPerfilController {
             }
         });
 
-        panel1.getBotonCrear().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
-        panel2.getBotonCrear().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
-        panel1.getBotonCrearListo().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
-        panel2.getBotonCrearListo().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
-
-        view.getBotonContinuarCentral().addActionListener(e -> {
-            if (modo == Modalidad.PvsM) {
-                gui.setPerfilesPartido(perfil1, null);
-                if (gui.isTorneoPendiente()) {
-                    gui.mostrarInscripcionTorneo();
-                } else {
-                    gui.iniciarSeleccionPerfilIA();
-                }
-                return;
+        panel1.getBotonCrear().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarPerfilDesdeSeleccion();
             }
-            gui.setPerfilesPartido(perfil1, perfil2);
-            gui.mostrarConfiguracionPartido();
         });
-        view.getBotonAtras().addActionListener(e -> gui.mostrarMenu());
-        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
+        panel2.getBotonCrear().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarPerfilDesdeSeleccion();
+            }
+        });
+        panel1.getBotonCrearListo().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarPerfilDesdeSeleccion();
+            }
+        });
+        panel2.getBotonCrearListo().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarPerfilDesdeSeleccion();
+            }
+        });
+
+        view.getBotonContinuarCentral().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (modo == Modalidad.PvsM) {
+                    gui.setPerfilesPartido(perfil1, null);
+                    if (gui.isTorneoPendiente()) {
+                        gui.mostrarInscripcionTorneo();
+                    } else {
+                        gui.iniciarSeleccionPerfilIA();
+                    }
+                    return;
+                }
+                gui.setPerfilesPartido(perfil1, perfil2);
+                gui.mostrarConfiguracionPartido();
+            }
+        });
+        view.getBotonAtras().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarMenu();
+            }
+        });
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
     }
 
     /**
