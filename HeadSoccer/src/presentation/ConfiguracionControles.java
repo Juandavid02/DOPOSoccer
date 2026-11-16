@@ -19,10 +19,20 @@ public final class ConfiguracionControles {
 
         private final String etiqueta;
 
+        /**
+         * Crea la acción con su etiqueta.
+         *
+         * @param etiqueta nombre visible de la acción
+         */
         Accion(String etiqueta) {
             this.etiqueta = etiqueta;
         }
 
+        /**
+         * Devuelve el nombre visible de la acción.
+         *
+         * @return la etiqueta de la acción
+         */
         public String getEtiqueta() {
             return etiqueta;
         }
@@ -145,6 +155,11 @@ public final class ConfiguracionControles {
         }
     }
 
+    /**
+     * Comprueba que el número de jugador sea válido.
+     *
+     * @param jugador número del jugador: 1 o 2
+     */
     private static void validarJugador(int jugador) {
         if (jugador != 1 && jugador != 2) {
             throw new IllegalArgumentException("El jugador debe ser 1 o 2");

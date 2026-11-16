@@ -30,10 +30,12 @@ public class PartidoTest
 {
     private Partido partido;
 
+    /** Constructor de la clase de pruebas PartidoTest. */
     public PartidoTest()
     {
     }
 
+    /** Prepara el partido de prueba antes de cada test. */
     @BeforeEach
     public void setUp()
     {
@@ -309,6 +311,7 @@ public class PartidoTest
         return new Personaje("Polar", "Canadá", new PoderAuraAzul());
     }
 
+    /** Libera el escenario de pruebas después de cada test. */
     @AfterEach
     public void tearDown()
     {

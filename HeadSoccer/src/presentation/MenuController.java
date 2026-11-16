@@ -25,56 +25,105 @@ public class MenuController {
      * Asigna una acción a cada botón de la vista.
      */
     private void prepareController() {
-        view.getBotonContinuar().addActionListener(new ActionListener() {
+        view.getBotonGestionarProgreso().addActionListener(new ActionListener() {
             @Override
+            /**
+             * Ejecuta la acción del botón cuando se presiona.
+             *
+             * @param e evento de acción
+             */
             public void actionPerformed(ActionEvent e) {
-                continuarPartida();
+                JOptionPane.showMessageDialog(
+                        view,
+                        "Persistencia en construcción",
+                        "Gestionar progreso",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         });
-        view.getBotonPvsP().addActionListener(new ActionListener() {
+        view.getBotonArcade().addActionListener(new ActionListener() {
             @Override
+            /**
+             * Ejecuta la acción del botón cuando se presiona.
+             *
+             * @param e evento de acción
+             */
             public void actionPerformed(ActionEvent e) {
-                gui.iniciarSeleccionPerfil();
+                gui.mostrarSeleccionModo();
             }
         });
-        view.getBotonPractica().addActionListener(new ActionListener() {
+        view.getBotonTorneo().addActionListener(new ActionListener() {
             @Override
+            /**
+             * Ejecuta la acción del botón cuando se presiona.
+             *
+             * @param e evento de acción
+             */
             public void actionPerformed(ActionEvent e) {
-                gui.mostrarProximamente("Modo Práctica (PvsM)");
+                gui.iniciarTorneo();
             }
         });
         view.getBotonConfiguracion().addActionListener(new ActionListener() {
             @Override
+            /**
+             * Ejecuta la acción del botón cuando se presiona.
+             *
+             * @param e evento de acción
+             */
             public void actionPerformed(ActionEvent e) {
                 gui.mostrarConfiguracion();
             }
         });
-        view.getBotonMejoras().addActionListener(new ActionListener() {
+        view.getBotonTienda().addActionListener(new ActionListener() {
             @Override
+            /**
+             * Ejecuta la acción del botón cuando se presiona.
+             *
+             * @param e evento de acción
+             */
             public void actionPerformed(ActionEvent e) {
                 gui.mostrarMejoras();
             }
         });
         view.getBotonPerfil().addActionListener(new ActionListener() {
             @Override
+            /**
+             * Ejecuta la acción del botón cuando se presiona.
+             *
+             * @param e evento de acción
+             */
             public void actionPerformed(ActionEvent e) {
                 gui.mostrarPerfil();
             }
         });
         view.getBotonSalir().addActionListener(new ActionListener() {
             @Override
+            /**
+             * Ejecuta la acción del botón cuando se presiona.
+             *
+             * @param e evento de acción
+             */
             public void actionPerformed(ActionEvent e) {
                 confirmarSalida();
             }
         });
         view.getBotonAtras().addActionListener(new ActionListener() {
             @Override
+            /**
+             * Ejecuta la acción del botón cuando se presiona.
+             *
+             * @param e evento de acción
+             */
             public void actionPerformed(ActionEvent e) {
                 gui.mostrarInicio();
             }
         });
         view.getBotonSonido().addActionListener(new ActionListener() {
             @Override
+            /**
+             * Ejecuta la acción del botón cuando se presiona.
+             *
+             * @param e evento de acción
+             */
             public void actionPerformed(ActionEvent e) {
                 gui.alternarSonido();
             }
@@ -82,23 +131,15 @@ public class MenuController {
     }
 
     /**
-     * Intenta cargar la última partida guardada. La persistencia todavía
-     * no está implementada.
-     */
-    private void continuarPartida() {
-        // Cuando exista RepositorioPartidas, aquí se cargará la última partida.
-        JOptionPane.showMessageDialog(
-                view,
-                "No hay una partida guardada todavía.",
-                "Continuar partida",
-                JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    /**
      * Pregunta al usuario si desea salir del juego y cierra la ventana.
      */
     private void confirmarSalida() {
-        int opcion = JOptionPane.showConfirmDialog(view,"¿Seguro que quieres salir de DOPOSoccer?","Salir",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        int opcion = JOptionPane.showConfirmDialog(
+                view,
+                "¿Seguro que quieres salir de DOPOSoccer?",
+                "Salir",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
         if (opcion == JOptionPane.YES_OPTION) {
             System.exit(0);
         }

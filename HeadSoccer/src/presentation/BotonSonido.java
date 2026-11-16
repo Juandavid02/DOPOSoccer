@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
  */
 public class BotonSonido extends JButton {
 
-    private static final String RUTA_BOTONES = "resources/images/Botones.java/";
+    private static final String RUTA_BOTONES = "resources/images/Botones/";
 
     private final ImageIcon activoNormal;
     private final ImageIcon activoEncima;
@@ -21,22 +21,31 @@ public class BotonSonido extends JButton {
 
     private boolean silenciado;
 
+    /**
+     * Crea el botón de sonido con el ancho por defecto.
+     */
     public BotonSonido() {
         this(64);
     }
 
+    /**
+     * Crea el botón de sonido con el ancho indicado.
+     *
+     * @param ancho ancho base del icono del botón
+     */
     public BotonSonido(int ancho) {
-        activoNormal = crearIcono(RUTA_BOTONES + "VolActivo.png", ancho);
-        activoEncima = crearIcono(RUTA_BOTONES + "VolActivo.png",
-                ancho + Math.max(4, ancho * 7 / 100));
-        activoPresionado = crearIcono(RUTA_BOTONES + "VolActivo.png",
-                ancho + Math.max(2, ancho * 3 / 100));
+        BufferedImage activo = RecursosImagen.cargar(RUTA_BOTONES + "VolActivo.png");
+        BufferedImage pausado = RecursosImagen.cargar(RUTA_BOTONES + "VolPausado.png");
+        int anchoEncima = ancho + Math.max(4, ancho * 7 / 100);
+        int anchoPresionado = ancho + Math.max(2, ancho * 3 / 100);
 
-        pausadoNormal = crearIcono(RUTA_BOTONES + "VolPausado.png", ancho);
-        pausadoEncima = crearIcono(RUTA_BOTONES + "VolPausado.png",
-                ancho + Math.max(4, ancho * 7 / 100));
-        pausadoPresionado = crearIcono(RUTA_BOTONES + "VolPausado.png",
-                ancho + Math.max(2, ancho * 3 / 100));
+        activoNormal = BotonImagen.icono(activo, ancho);
+        activoEncima = BotonImagen.icono(activo, anchoEncima);
+        activoPresionado = BotonImagen.icono(activo, anchoPresionado);
+
+        pausadoNormal = BotonImagen.icono(pausado, ancho);
+        pausadoEncima = BotonImagen.icono(pausado, anchoEncima);
+        pausadoPresionado = BotonImagen.icono(pausado, anchoPresionado);
 
         setRolloverEnabled(true);
         setContentAreaFilled(false);
@@ -45,10 +54,6 @@ public class BotonSonido extends JButton {
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         setSilenciado(false);
-    }
-
-    public boolean isSilenciado() {
-        return silenciado;
     }
 
     /**
@@ -84,11 +89,5 @@ public class BotonSonido extends JButton {
 
         revalidate();
         repaint();
-    }
-
-    private static ImageIcon crearIcono(String ruta, int ancho) {
-        BufferedImage imagen = RecursosImagen.cargar(ruta);
-        int alto = ancho * imagen.getHeight() / imagen.getWidth();
-        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
     }
 }

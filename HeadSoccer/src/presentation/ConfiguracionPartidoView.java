@@ -1,16 +1,19 @@
 package presentation;
 
+import domain.Modalidad;
 import domain.Resolucion;
 import domain.TipoPartido;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class ConfiguracionPartidoView extends JPanel {
+public class ConfiguracionPartidoView extends VistaBase {
 
-    private static final String RUTA_BOTONES = "resources/images/Botones.java/";
+    private static final String RUTA_BOTONES = "resources/images/Botones/";
     private static final Color COLOR_TEXTO = new Color(22, 48, 68);
     private static final Color COLOR_ETIQUETA = new Color(30, 62, 86);
 
@@ -18,11 +21,14 @@ public class ConfiguracionPartidoView extends JPanel {
     private static final int GOLES_INICIALES = 5;
     private static final int MINIMO = 1;
     private static final int MAXIMO = 10;
+    private static final int ANCHO_READY_PVP = 280;
+    private static final int ANCHO_READY_SOLO = 250;
 
-    private BufferedImage fondo;
+    private final BufferedImage imagenReadyPvp =
+            RecursosImagen.cargar(RUTA_BOTONES + "ReadyPerfil.png");
+    private final BufferedImage imagenReadySolo =
+            RecursosImagen.cargar(RUTA_BOTONES + "ReadySolo.png");
 
-    private JButton botonAtras;
-    private BotonSonido botonSonido;
     private JButton botonReady;
 
     private BotonOpcion botonTipoTiempo;
@@ -36,47 +42,35 @@ public class ConfiguracionPartidoView extends JPanel {
     private BotonPaso botonGolesMas;
 
     private JComboBox<String> comboResolucion;
+    private JLabel etiquetaModalidad;
 
     private int tiempo = TIEMPO_INICIAL;
     private int goles = GOLES_INICIALES;
 
+    /**
+     * Crea la pantalla con el título por defecto.
+     */
     public ConfiguracionPartidoView() {
-        prepareView();
+        this("CONFIGURACIÓN DE PARTIDO");
     }
 
-    private void prepareView() {
-        setLayout(new BorderLayout());
-        setOpaque(true);
-        setBackground(Color.BLACK);
-        setPreferredSize(new Dimension(1920, 1080));
-
-        fondo = RecursosImagen.cargar("resources/images/Ventanas/FondoPerfil.png");
-
-        prepareViewSuperior();
+    /**
+     * Crea la pantalla con un título propio.
+     *
+     * @param titulo título de la barra superior
+     */
+    public ConfiguracionPartidoView(String titulo) {
+        super("resources/images/Ventanas/FondoPerfil.png");
+        setTitulo(titulo);
         prepareViewCentro();
         actualizarControles();
     }
 
-    private void prepareViewSuperior() {
-        botonAtras = crearBotonImagen(RUTA_BOTONES + "Retroceder.png", 90);
-        botonSonido = new BotonSonido(64);
-
-        JPanel panelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        panelTitulo.setOpaque(false);
-        panelTitulo.add(new TituloConfiguracion("CONFIGURACIÓN DE PARTIDO"));
-
-        JPanel barraSuperior = new JPanel(new BorderLayout());
-        barraSuperior.setOpaque(false);
-        barraSuperior.setBorder(new EmptyBorder(18, 20, 0, 20));
-        barraSuperior.add(botonAtras, BorderLayout.WEST);
-        barraSuperior.add(panelTitulo, BorderLayout.CENTER);
-        barraSuperior.add(botonSonido, BorderLayout.EAST);
-
-        add(barraSuperior, BorderLayout.NORTH);
-    }
-
+    /**
+     * Construye el contenido central de la pantalla.
+     */
     private void prepareViewCentro() {
-        PanelTarjeta tarjeta = new PanelTarjeta();
+        TarjetaPanel tarjeta = new TarjetaPanel();
         tarjeta.setLayout(new BorderLayout(0, 18));
         tarjeta.setBorder(new EmptyBorder(28, 40, 24, 40));
         tarjeta.setPreferredSize(new Dimension(860, 500));
@@ -84,14 +78,14 @@ public class ConfiguracionPartidoView extends JPanel {
         tarjeta.add(prepararFormulario(), BorderLayout.CENTER);
         tarjeta.add(prepararBotonReady(), BorderLayout.SOUTH);
 
-        JPanel contenedor = new JPanel(new GridBagLayout());
-        contenedor.setOpaque(false);
-        contenedor.setBorder(new EmptyBorder(10, 0, 30, 0));
-        contenedor.add(tarjeta);
-
-        add(contenedor, BorderLayout.CENTER);
+        setCentro(tarjeta, 10, 30);
     }
 
+    /**
+     * Prepara el formulario con las opciones del partido.
+     *
+     * @return panel con el formulario
+     */
     private JPanel prepararFormulario() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
@@ -109,6 +103,7 @@ public class ConfiguracionPartidoView extends JPanel {
         JLabel modalidad = new JLabel("PvsP");
         modalidad.setFont(new Font("SansSerif", Font.BOLD, 20));
         modalidad.setForeground(COLOR_TEXTO);
+        etiquetaModalidad = modalidad;
         c.gridx = 1;
         c.gridwidth = 3;
         panel.add(modalidad, c);
@@ -185,16 +180,54 @@ public class ConfiguracionPartidoView extends JPanel {
         relleno.setOpaque(false);
         panel.add(relleno, c);
 
-        botonTiempoMenos.addActionListener(e -> cambiarTiempo(-1));
-        botonTiempoMas.addActionListener(e -> cambiarTiempo(1));
-        botonGolesMenos.addActionListener(e -> cambiarGoles(-1));
-        botonGolesMas.addActionListener(e -> cambiarGoles(1));
-        botonTipoTiempo.addActionListener(e -> actualizarControles());
-        botonTipoGoles.addActionListener(e -> actualizarControles());
+        botonTiempoMenos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarTiempo(-1);
+            }
+        });
+        botonTiempoMas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarTiempo(1);
+            }
+        });
+        botonGolesMenos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarGoles(-1);
+            }
+        });
+        botonGolesMas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarGoles(1);
+            }
+        });
+        botonTipoTiempo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarControles();
+            }
+        });
+        botonTipoGoles.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actualizarControles();
+            }
+        });
 
         return panel;
     }
 
+    /**
+     * Crea una copia de las restricciones con la columna y el ancho dados.
+     *
+     * @param base restricciones de partida
+     * @param x columna de la cuadrícula
+     * @param gridwidth número de columnas que ocupa
+     * @return copia ajustada de las restricciones
+     */
     private GridBagConstraints constraint(GridBagConstraints base, int x, int gridwidth) {
         GridBagConstraints c = (GridBagConstraints) base.clone();
         c.gridx = x;
@@ -203,6 +236,14 @@ public class ConfiguracionPartidoView extends JPanel {
         return c;
     }
 
+    /**
+     * Agrupa los botones de menos y más con el valor en el centro.
+     *
+     * @param menos botón para disminuir
+     * @param valor etiqueta con el valor actual
+     * @param mas botón para aumentar
+     * @return panel con el control completo
+     */
     private JPanel prepararControl(JButton menos, JLabel valor, JButton mas) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
         panel.setOpaque(false);
@@ -212,8 +253,13 @@ public class ConfiguracionPartidoView extends JPanel {
         return panel;
     }
 
+    /**
+     * Prepara el botón READY en la parte inferior.
+     *
+     * @return panel con el botón READY
+     */
     private JPanel prepararBotonReady() {
-        botonReady = crearBotonImagen(RUTA_BOTONES + "ReadyPerfil.png", 280);
+        botonReady = BotonImagen.crear(imagenReadyPvp, ANCHO_READY_PVP);
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         panel.setOpaque(false);
@@ -221,6 +267,12 @@ public class ConfiguracionPartidoView extends JPanel {
         return panel;
     }
 
+    /**
+     * Crea una etiqueta con el estilo del formulario.
+     *
+     * @param texto texto de la etiqueta
+     * @return etiqueta creada
+     */
     private static JLabel crearEtiqueta(String texto) {
         JLabel etiqueta = new JLabel(texto);
         etiqueta.setFont(new Font("SansSerif", Font.BOLD, 17));
@@ -228,6 +280,11 @@ public class ConfiguracionPartidoView extends JPanel {
         return etiqueta;
     }
 
+    /**
+     * Crea una etiqueta vacía para mostrar un valor numérico.
+     *
+     * @return etiqueta de valor creada
+     */
     private static JLabel crearValor() {
         JLabel valor = new JLabel("", SwingConstants.CENTER);
         valor.setFont(new Font("SansSerif", Font.BOLD, 19));
@@ -236,16 +293,29 @@ public class ConfiguracionPartidoView extends JPanel {
         return valor;
     }
 
+    /**
+     * Ajusta el tiempo del partido dentro de los límites.
+     *
+     * @param delta cantidad de minutos que se suma
+     */
     private void cambiarTiempo(int delta) {
         tiempo = Math.max(MINIMO, Math.min(MAXIMO, tiempo + delta));
         actualizarControles();
     }
 
+    /**
+     * Ajusta los goles del partido dentro de los límites.
+     *
+     * @param delta cantidad de goles que se suma
+     */
     private void cambiarGoles(int delta) {
         goles = Math.max(MINIMO, Math.min(MAXIMO, goles + delta));
         actualizarControles();
     }
 
+    /**
+     * Actualiza los textos y el estado de los controles según el tipo elegido.
+     */
     private void actualizarControles() {
         boolean esTiempo = botonTipoTiempo.isSelected();
 
@@ -276,26 +346,11 @@ public class ConfiguracionPartidoView extends JPanel {
         repaint();
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-
-        double escala = Math.max(
-                (double) getWidth() / fondo.getWidth(),
-                (double) getHeight() / fondo.getHeight());
-        int ancho = (int) Math.ceil(fondo.getWidth() * escala);
-        int alto = (int) Math.ceil(fondo.getHeight() * escala);
-
-        g2.drawImage(fondo, (getWidth() - ancho) / 2, (getHeight() - alto) / 2, ancho, alto, null);
-        g2.dispose();
-    }
-
+    /**
+     * Devuelve el tipo de partido elegido.
+     *
+     * @return tipo de partido seleccionado
+     */
     public TipoPartido getTipoPartido() {
         if (botonTipoGoles.isSelected()) {
             return TipoPartido.GOLES;
@@ -303,52 +358,86 @@ public class ConfiguracionPartidoView extends JPanel {
         return TipoPartido.TIEMPO;
     }
 
+    /**
+     * Devuelve el tiempo configurado en minutos.
+     *
+     * @return minutos del partido
+     */
     public int getTiempo() {
         return tiempo;
     }
 
+    /**
+     * Devuelve los goles configurados.
+     *
+     * @return goles del partido
+     */
     public int getGoles() {
         return goles;
     }
 
+    /**
+     * Devuelve la resolución elegida.
+     *
+     * @return resolución seleccionada
+     */
     public Resolucion getResolucion() {
         return Resolucion.values()[comboResolucion.getSelectedIndex()];
     }
 
+    /**
+     * Devuelve el botón READY.
+     *
+     * @return botón READY
+     */
     public JButton getBotonReady() {
         return botonReady;
     }
 
-    public JButton getBotonAtras() {
-        return botonAtras;
+    /**
+     * Indica qué modalidad se está configurando. La pantalla es la misma
+     * para PvsP y PvsM; solo cambia esta etiqueta.
+     *
+     * @param modalidad modalidad del partido
+     */
+    public void setModalidad(Modalidad modalidad) {
+        if (modalidad != null) {
+            etiquetaModalidad.setText(modalidad.name());
+        }
+        setBotonReadySolo(modalidad == Modalidad.PvsM);
     }
 
-    public BotonSonido getBotonSonido() {
-        return botonSonido;
+    /**
+     * Indica si el botón READY debe mostrar la versión de un solo jugador.
+     *
+     * @param solo true para PvsM o torneo; false para PvsP
+     */
+    public void setBotonReadySolo(boolean solo) {
+        BotonImagen.cambiarImagen(botonReady,
+                solo ? imagenReadySolo : imagenReadyPvp,
+                solo ? ANCHO_READY_SOLO : ANCHO_READY_PVP);
     }
 
-    private JButton crearBotonImagen(String ruta, int ancho) {
-        BufferedImage imagen = RecursosImagen.cargar(ruta);
-
-        ImageIcon iconoNormal = crearIcono(imagen, ancho);
-        ImageIcon iconoEncima = crearIcono(imagen, ancho + Math.max(4, ancho * 7 / 100));
-        ImageIcon iconoPresionado = crearIcono(imagen, ancho + Math.max(2, ancho * 3 / 100));
-
-        JButton boton = new JButton(iconoNormal);
-        boton.setRolloverIcon(iconoEncima);
-        boton.setPressedIcon(iconoPresionado);
-        boton.setRolloverEnabled(true);
-        boton.setPreferredSize(new Dimension(iconoEncima.getIconWidth(), iconoEncima.getIconHeight()));
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return boton;
+    /**
+     * Permite mostrar un texto propio en la fila de modalidad, por ejemplo
+     * "TORNEO" cuando la pantalla se usa para configurar el torneo.
+     *
+     * @param texto texto a mostrar
+     */
+    public void setModalidadTexto(String texto) {
+        if (texto != null) {
+            etiquetaModalidad.setText(texto);
+        }
     }
 
-    private ImageIcon crearIcono(BufferedImage imagen, int ancho) {
-        int alto = ancho * imagen.getHeight() / imagen.getWidth();
-        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
+    /**
+     * Cambia el título de la barra superior para reutilizar esta pantalla en
+     * el torneo.
+     *
+     * @param texto nuevo título
+     */
+    public void setTituloPantalla(String texto) {
+        setTitulo(texto);
     }
 
     // ------------------------------------------------------------------
@@ -356,6 +445,11 @@ public class ConfiguracionPartidoView extends JPanel {
     // ------------------------------------------------------------------
     private static final class BotonOpcion extends JToggleButton {
 
+        /**
+         * Crea un botón de opción con el texto indicado.
+         *
+         * @param texto texto que muestra el botón
+         */
         private BotonOpcion(String texto) {
             super(texto);
             setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -367,6 +461,11 @@ public class ConfiguracionPartidoView extends JPanel {
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
 
+        /**
+         * Dibuja el botón de opción según su estado.
+         *
+         * @param g contexto gráfico donde se dibuja
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -404,139 +503,6 @@ public class ConfiguracionPartidoView extends JPanel {
             int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
             g2.setColor(colorTexto);
             g2.drawString(getText(), x, y);
-
-            g2.dispose();
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // Botón pequeño de + / -.
-    // ------------------------------------------------------------------
-    private static final class BotonPaso extends JButton {
-
-        private BotonPaso(String texto) {
-            super(texto);
-            setFont(new Font("SansSerif", Font.BOLD, 22));
-            setPreferredSize(new Dimension(40, 40));
-            setOpaque(false);
-            setContentAreaFilled(false);
-            setBorderPainted(false);
-            setFocusPainted(false);
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            Color base;
-            if (isEnabled()) {
-                base = new Color(48, 118, 196);
-            } else {
-                base = new Color(150, 170, 185);
-            }
-
-            g2.setColor(base);
-            g2.fillOval(0, 0, getWidth(), getHeight());
-
-            g2.setColor(base.darker());
-            g2.setStroke(new BasicStroke(2f));
-            g2.drawOval(1, 1, getWidth() - 2, getHeight() - 2);
-
-            g2.setFont(getFont());
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (getWidth() - fm.stringWidth(getText())) / 2;
-            int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-            g2.setColor(Color.WHITE);
-            g2.drawString(getText(), x, y);
-
-            g2.dispose();
-        }
-    }
-
-    private static final class PanelTarjeta extends JPanel {
-
-        private PanelTarjeta() {
-            setOpaque(false);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            int arco = 38;
-
-            g2.setPaint(new GradientPaint(
-                    0, 0, new Color(236, 246, 252, 130),
-                    0, alto, new Color(204, 228, 242, 100)));
-            g2.fillRoundRect(0, 0, ancho - 1, alto - 1, arco, arco);
-
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 255, 255, 120));
-            g2.drawRoundRect(1, 1, ancho - 3, alto - 3, arco, arco);
-
-            g2.dispose();
-        }
-    }
-
-    private static final class TituloConfiguracion extends JComponent {
-
-        private final String texto;
-        private final Font fuente = new Font("SansSerif", Font.BOLD, 28);
-
-        private TituloConfiguracion(String texto) {
-            this.texto = texto;
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            FontMetrics fm = getFontMetrics(fuente);
-            return new Dimension(fm.stringWidth(texto) + 80, 58);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            int arco = alto;
-
-            g2.setColor(new Color(0, 0, 0, 90));
-            g2.fillRoundRect(4, 6, ancho - 8, alto - 10, arco, arco);
-
-            g2.setPaint(new GradientPaint(
-                    0, 0, new Color(78, 160, 198, 235),
-                    0, alto, new Color(26, 82, 122, 235)));
-            g2.fillRoundRect(2, 2, ancho - 4, alto - 8, arco, arco);
-
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 255, 255, 170));
-            g2.drawRoundRect(4, 4, ancho - 9, alto - 13, arco, arco);
-
-            g2.setFont(fuente);
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (ancho - fm.stringWidth(texto)) / 2;
-            int y = (alto - 6 - fm.getHeight()) / 2 + fm.getAscent();
-
-            g2.setColor(new Color(16, 32, 46));
-            for (int dx = -2; dx <= 2; dx++) {
-                for (int dy = -2; dy <= 2; dy++) {
-                    if (dx != 0 || dy != 0) {
-                        g2.drawString(texto, x + dx, y + dy);
-                    }
-                }
-            }
-            g2.setColor(Color.WHITE);
-            g2.drawString(texto, x, y);
 
             g2.dispose();
         }

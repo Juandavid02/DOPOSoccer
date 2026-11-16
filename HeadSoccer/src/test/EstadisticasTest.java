@@ -15,10 +15,16 @@ public class EstadisticasTest
 {
     private Estadisticas estadisticas;
 
+    /**
+     * Constructor de la clase de pruebas EstadisticasTest.
+     */
     public EstadisticasTest()
     {
     }
 
+    /**
+     * Prepara el escenario de pruebas.
+     */
     @BeforeEach
     public void setUp()
     {
@@ -71,6 +77,18 @@ public class EstadisticasTest
         assertEquals(1.0, new Estadisticas(1, 1, 1, 1).getMultiplicadorKick(), 1e-9);
         assertEquals(1.4, new Estadisticas(1, 1, 5, 1).getMultiplicadorKick(), 1e-9);
         assertEquals(1.9, new Estadisticas(1, 1, 10, 1).getMultiplicadorKick(), 1e-9);
+    }
+
+    /** factorVelocidad = 1 + 0.10 * (speed - 1). */
+    @Test
+    public void shouldComputeSpeedFactor()
+    {
+        assertEquals(1.4,
+                new Estadisticas(5, 1, 1, 1).getFactorVelocidad(), 1e-9);
+        assertEquals(1.9,
+                new Estadisticas(10, 1, 1, 1).getFactorVelocidad(), 1e-9);
+        assertEquals(1.0,
+                new Estadisticas(1, 1, 1, 1).getFactorVelocidad(), 1e-9);
     }
 
     /** vidaMax = 100 * (1 + 0.10 * (survival - 1)). */
@@ -131,6 +149,9 @@ public class EstadisticasTest
                 () -> new Estadisticas(3, 3, 3, 11));
     }
 
+    /**
+     * Libera el escenario de pruebas.
+     */
     @AfterEach
     public void tearDown()
     {

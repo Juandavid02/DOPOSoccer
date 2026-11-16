@@ -6,6 +6,13 @@ public class Balon {
     private double velocidadY;
     private double radio;
 
+    /**
+     * Crea un balón en la posición indicada y sin velocidad.
+     *
+     * @param x coordenada horizontal inicial
+     * @param y coordenada vertical inicial
+     * @param radio radio del balón
+     */
     public Balon(double x, double y, double radio) {
         this.x = x;
         this.y = y;
@@ -14,26 +21,57 @@ public class Balon {
         this.velocidadY = 0;
     }
 
+    /**
+     * Obtiene la coordenada horizontal del balón.
+     *
+     * @return coordenada horizontal
+     */
     public double getX() {
         return x;
     }
 
+    /**
+     * Obtiene la coordenada vertical del balón.
+     *
+     * @return coordenada vertical
+     */
     public double getY() {
         return y;
     }
 
+    /**
+     * Obtiene el radio del balón.
+     *
+     * @return radio del balón
+     */
     public double getRadio() {
         return radio;
     }
 
+    /**
+     * Obtiene la velocidad horizontal del balón.
+     *
+     * @return velocidad horizontal
+     */
     public double getVelocidadX() {
         return velocidadX;
     }
 
+    /**
+     * Obtiene la velocidad vertical del balón.
+     *
+     * @return velocidad vertical
+     */
     public double getVelocidadY() {
         return velocidadY;
     }
-    
+
+    /**
+     * Suma un impulso a la velocidad del balón.
+     *
+     * @param impulsoX impulso horizontal
+     * @param impulsoY impulso vertical
+     */
     public void aplicarImpulso(double impulsoX, double impulsoY) {
         this.velocidadX += impulsoX;
         this.velocidadY += impulsoY;
@@ -51,6 +89,12 @@ public class Balon {
         this.velocidadY = velocidadY;
     }
 
+    /**
+     * Actualiza la posición del balón aplicando gravedad, fricción y rebotes.
+     *
+     * @param dt tiempo transcurrido
+     * @param cancha cancha donde se mueve el balón
+     */
     public void actualizar(double dt, Cancha cancha) {
         velocidadY += ParametrosJuego.GRAVEDAD * dt;
         velocidadX *= Math.pow(ParametrosJuego.FRICCION, dt*60);
@@ -88,6 +132,12 @@ public class Balon {
         }
     }
 
+    /**
+     * Reinicia la posición del balón y detiene su movimiento.
+     *
+     * @param x nueva coordenada horizontal
+     * @param y nueva coordenada vertical
+     */
     public void reiniciar(double x, double y) {
         this.x = x;
         this.y = y;

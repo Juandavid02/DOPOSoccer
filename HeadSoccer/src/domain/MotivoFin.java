@@ -1,7 +1,7 @@
 package domain;
 
 public enum MotivoFin {
-    TIEMPO, 
-    GOL_DE_ORO, 
+    TIEMPO,
+    GOL_DE_ORO,
     GOLES
 }

@@ -6,7 +6,8 @@ import java.awt.image.BufferedImage;
 
 public class InicioView extends JPanel {
 
-    private BufferedImage fondo; //IA generativa para poder cargar la imagen de fondo y luego poder escalarla al tamaño del panel
+    /** Imagen de fondo escalada al tamaño del panel. */
+    private BufferedImage fondo;
     private JButton botonPlay;
     private JButton botonSalir;
     private BotonSonido botonSonido;
@@ -33,7 +34,7 @@ public class InicioView extends JPanel {
      * Prepara el botón de sonido arriba a la derecha.
      */
     private void prepareViewSonido() {
-        botonSonido = new BotonSonido(64);
+        botonSonido = new BotonSonido(VistaBase.ANCHO_BOTON_SONIDO);
 
         JPanel panelSonido = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 16));
         panelSonido.setOpaque(false);
@@ -53,8 +54,8 @@ public class InicioView extends JPanel {
      * Prepara los botones Play y Salir en la parte de abajo de la pantalla.
      */
     private void prepareViewBotones() {
-        botonPlay = crearBoton("resources/images/Botones.java/Play.png");
-        botonSalir = crearBoton("resources/images/Botones.java/Salir.png");
+        botonPlay = crearBoton("resources/images/Botones/Play.png");
+        botonSalir = crearBoton("resources/images/Botones/Salir.png");
 
         JPanel panelBotones = new JPanel();
         panelBotones.setOpaque(false);
@@ -73,39 +74,13 @@ public class InicioView extends JPanel {
      * @return el botón con la imagen
      */
     private JButton crearBoton(String ruta) {
-        BufferedImage imagen = RecursosImagen.cargar(ruta);
-
-        ImageIcon iconoNormal = crearIcono(imagen, 280);
-        ImageIcon iconoEncima = crearIcono(imagen, 300);
-        ImageIcon iconoPresionado = crearIcono(imagen, 290);
-
-        JButton boton = new JButton(iconoNormal);
-        boton.setRolloverIcon(iconoEncima);
-        boton.setPressedIcon(iconoPresionado);
-        boton.setRolloverEnabled(true);
-        boton.setPreferredSize(new Dimension(iconoEncima.getIconWidth(), iconoEncima.getIconHeight()));
-
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return boton;
-    }
-
-    /**
-     * Crea un ícono con el ancho dado, manteniendo la proporción de la imagen.
-     *
-     * @param imagen la imagen original
-     * @param ancho el ancho que debe tener el ícono
-     * @return el ícono ya cambiado de tamaño
-     */
-    private ImageIcon crearIcono(BufferedImage imagen, int ancho) {
-        int alto = ancho * imagen.getHeight() / imagen.getWidth();
-        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
+        return BotonImagen.crear(ruta, 280);
     }
 
     /**
      * Dibuja el fondo ocupando todo el panel.
+     *
+     * @param g contexto gráfico del componente
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -113,14 +88,29 @@ public class InicioView extends JPanel {
         g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
     }
 
+    /**
+     * Devuelve el botón de jugar.
+     *
+     * @return el botón de jugar
+     */
     public JButton getBotonPlay() {
         return botonPlay;
     }
 
+    /**
+     * Devuelve el botón de salir.
+     *
+     * @return el botón de salir
+     */
     public JButton getBotonSalir() {
         return botonSalir;
     }
 
+    /**
+     * Devuelve el botón de sonido.
+     *
+     * @return el botón de sonido
+     */
     public BotonSonido getBotonSonido() {
         return botonSonido;
     }

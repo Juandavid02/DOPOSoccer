@@ -1,5 +1,10 @@
 package domain;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 public abstract class Jugador {
     private final String nombre;
 
@@ -19,7 +24,7 @@ public abstract class Jugador {
     private double tiempoAturdimiento;
 
     private boolean auraActiva;
-    private Efecto efectoActivo;
+    private final List<Efecto> efectosActivos = new ArrayList<>();
 
     private final Vida vida;
 
@@ -27,8 +32,17 @@ public abstract class Jugador {
      * Crea un jugador a partir de su configuración (nombre, estadísticas y
      * puntos) y del personaje elegido. Las estadísticas son del jugador, no
      * del personaje.
+     *
+     * @param configuracion configuración con nombre, estadísticas y puntos
+     * @param personaje personaje elegido para el jugador
+     * @param barraPoder barra de poder del jugador
+     * @param lado lado de la cancha en el que juega
+     * @param posicionX posición horizontal inicial
+     * @param posicionY posición vertical inicial
      */
-    public Jugador(ConfiguracionJugador configuracion, Personaje personaje, BarraPoder barraPoder, Lado lado, double posicionX, double posicionY) {
+    public Jugador(ConfiguracionJugador configuracion, Personaje personaje,
+                   BarraPoder barraPoder, Lado lado,
+                   double posicionX, double posicionY) {
         if (configuracion == null) {
             throw new IllegalArgumentException("La configuración del jugador no puede ser nula");
         }
@@ -57,77 +71,151 @@ public abstract class Jugador {
         this.velocidadX = 0;
         this.velocidadY = 0;
         this.enSuelo = true;
-        
     }
 
     /**
      * Ejecuta la lógica de control de este jugador.
      *
-     * <p>Las subclases deciden de dónde salen las acciones. En el jugador
+     * Las subclases deciden de dónde salen las acciones. En el jugador
      * humano la entrada se aplica desde la capa de presentación mediante
-     * Partido; en la IA será la propia IA la que decida qué hacer.</p>
+     * Partido; en la IA será la propia IA la que decida qué hacer.
      *
      * @param partido partido en el que se está jugando
      * @param dt tiempo transcurrido desde la última actualización
      */
     public abstract void actualizarControl(Partido partido, double dt);
 
+    /**
+     * Devuelve el nombre del jugador.
+     *
+     * @return nombre del jugador
+     */
     public String getNombre() {
         return nombre;
     }
 
+    /**
+     * Devuelve el personaje del jugador.
+     *
+     * @return personaje elegido
+     */
     public Personaje getPersonaje() {
         return personaje;
     }
 
+    /**
+     * Devuelve las estadísticas actuales del jugador.
+     *
+     * @return estadísticas del jugador
+     */
     public Estadisticas getEstadisticas() {
         return estadisticas;
     }
 
+    /**
+     * Devuelve los puntos del jugador.
+     *
+     * @return puntos acumulados
+     */
     public Puntos getPuntos() {
         return puntos;
     }
 
+    /**
+     * Devuelve la barra de poder del jugador.
+     *
+     * @return barra de poder
+     */
     public BarraPoder getBarraPoder() {
         return barraPoder;
     }
 
+    /**
+     * Devuelve el lado de la cancha del jugador.
+     *
+     * @return lado del jugador
+     */
     public Lado getLado() {
         return lado;
     }
 
+    /**
+     * Devuelve la vida del jugador.
+     *
+     * @return vida del jugador
+     */
     public Vida getVida() {
         return vida;
     }
 
+    /**
+     * Devuelve la posición horizontal del jugador.
+     *
+     * @return posición en X
+     */
     public double getPosicionX() {
         return posicionX;
     }
 
+    /**
+     * Devuelve la posición vertical del jugador.
+     *
+     * @return posición en Y
+     */
     public double getPosicionY() {
         return posicionY;
     }
 
+    /**
+     * Devuelve la velocidad horizontal del jugador.
+     *
+     * @return velocidad en X
+     */
     public double getVelocidadX() {
         return velocidadX;
     }
 
+    /**
+     * Devuelve la velocidad vertical del jugador.
+     *
+     * @return velocidad en Y
+     */
     public double getVelocidadY() {
         return velocidadY;
     }
 
+    /**
+     * Indica si el jugador está apoyado en el suelo.
+     *
+     * @return true si está en el suelo
+     */
     public boolean isEnSuelo() {
         return enSuelo;
     }
 
+    /**
+     * Indica si el jugador está aturdido.
+     *
+     * @return true si está aturdido
+     */
     public boolean isAturdido() {
         return aturdido;
     }
 
+    /**
+     * Devuelve el tiempo de aturdimiento que le queda al jugador.
+     *
+     * @return segundos restantes de aturdimiento
+     */
     public double getTiempoAturdimientoRestante() {
         return tiempoAturdimiento;
     }
 
+    /**
+     * Indica si el jugador tiene un aura activa.
+     *
+     * @return true si el aura está activa
+     */
     public boolean isAuraActiva() {
         return auraActiva;
     }
@@ -146,14 +234,45 @@ public abstract class Jugador {
         auraActiva = false;
     }
 
+    /**
+     * Devuelve el primer efecto activo. Se mantiene por compatibilidad; para
+     * conocer todos los efectos simultáneos usa getEfectosActivos().
+     *
+     * @return primer efecto activo o null si no hay ninguno
+     */
     public Efecto getEfectoActivo() {
-        return efectoActivo;
+        return efectosActivos.isEmpty() ? null : efectosActivos.get(0);
     }
 
+    /**
+     * Devuelve todos los efectos que sufre el jugador en este momento.
+     *
+     * @return lista de solo lectura con los efectos activos
+     */
+    public List<Efecto> getEfectosActivos() {
+        return Collections.unmodifiableList(efectosActivos);
+    }
+
+    /**
+     * Indica si el jugador tiene activo un efecto del tipo indicado.
+     *
+     * @param tipo tipo de efecto consultado
+     * @return true si el efecto está activo
+     */
     public boolean tieneEfecto(TipoEfecto tipo) {
-        return efectoActivo != null && efectoActivo.getTipo() == tipo;
+        for (Efecto efecto : efectosActivos) {
+            if (efecto.getTipo() == tipo) {
+                return true;
+            }
+        }
+        return false;
     }
 
+    /**
+     * Indica si el jugador tiene los controles invertidos.
+     *
+     * @return true si los controles están invertidos
+     */
     public boolean tieneControlesInvertidos() {
         return tieneEfecto(TipoEfecto.CONTROLES_INVERTIDOS);
     }
@@ -169,7 +288,10 @@ public abstract class Jugador {
     }
 
     /**
-     * Aplica un efecto de poder. Un efecto nuevo reemplaza al anterior.
+     * Aplica un efecto de poder. Los efectos se acumulan: si el jugador ya
+     * tenía otro efecto, ambos permanecen activos hasta que termine su
+     * tiempo. Si se vuelve a aplicar el mismo tipo, solo se renueva su
+     * duración.
      *
      * @param tipo efecto que se aplica
      * @param duracion tiempo que dura el efecto
@@ -179,11 +301,17 @@ public abstract class Jugador {
             return;
         }
 
-        if (tieneEfecto(TipoEfecto.BARRIL)) {
-            restaurarEstadisticas();
+        boolean yaActivo = false;
+        for (Efecto efecto : efectosActivos) {
+            if (efecto.getTipo() == tipo) {
+                efecto.renovar(duracion);
+                yaActivo = true;
+                break;
+            }
         }
-
-        efectoActivo = new Efecto(tipo, duracion);
+        if (!yaActivo) {
+            efectosActivos.add(new Efecto(tipo, duracion));
+        }
 
         if (tipo == TipoEfecto.BARRIL) {
             estadisticas.restablecer();
@@ -202,32 +330,85 @@ public abstract class Jugador {
     }
 
     /**
-     * Actualiza el temporizador del efecto y lo retira al terminar.
+     * Quita de inmediato todos los efectos activos y el aturdimiento del
+     * jugador. Se usa al marcarse un gol para que nadie quede afectado en el
+     * reinicio de la jugada.
      */
-    private void actualizarEfecto(double dt) {
-        if (efectoActivo == null) {
-            return;
+    public void limpiarEfectos() {
+        boolean teniaBarril = false;
+        boolean teniaEmpuje = false;
+        for (Efecto efecto : efectosActivos) {
+            if (efecto.getTipo() == TipoEfecto.BARRIL) {
+                teniaBarril = true;
+            }
+            if (efecto.getTipo() == TipoEfecto.EMPUJE || efecto.getTipo() == TipoEfecto.INCONSCIENTE) {
+                teniaEmpuje = true;
+            }
+        }
+        efectosActivos.clear();
+
+        if (teniaBarril) {
+            restaurarEstadisticas();
+        }
+        if (teniaEmpuje) {
+            velocidadX = 0;
         }
 
-        efectoActivo.actualizar(dt);
-        if (efectoActivo.terminado()) {
-            TipoEfecto tipo = efectoActivo.getTipo();
-            efectoActivo = null;
-
-            if (tipo == TipoEfecto.BARRIL) {
-                restaurarEstadisticas();
-            }
-            if (tipo == TipoEfecto.EMPUJE || tipo == TipoEfecto.INCONSCIENTE) {
-                velocidadX = 0;
-            }
+        if (aturdido) {
+            aturdido = false;
+            tiempoAturdimiento = 0;
+            vida.reiniciar();
         }
     }
 
+    /**
+     * Actualiza el temporizador de todos los efectos y retira los que
+     * terminan.
+     *
+     * @param dt tiempo transcurrido desde la última actualización
+     */
+    private void actualizarEfecto(double dt) {
+        if (efectosActivos.isEmpty()) {
+            return;
+        }
+
+        boolean terminoBarril = false;
+        boolean terminoEmpuje = false;
+        Iterator<Efecto> iterador = efectosActivos.iterator();
+        while (iterador.hasNext()) {
+            Efecto efecto = iterador.next();
+            efecto.actualizar(dt);
+            if (efecto.terminado()) {
+                iterador.remove();
+                if (efecto.getTipo() == TipoEfecto.BARRIL) {
+                    terminoBarril = true;
+                }
+                if (efecto.getTipo() == TipoEfecto.EMPUJE
+                        || efecto.getTipo() == TipoEfecto.INCONSCIENTE) {
+                    terminoEmpuje = true;
+                }
+            }
+        }
+
+        if (terminoBarril) {
+            restaurarEstadisticas();
+        }
+        if (terminoEmpuje) {
+            velocidadX = 0;
+        }
+    }
+
+    /**
+     * Restaura las estadísticas base del jugador.
+     */
     private void restaurarEstadisticas() {
         estadisticas.copiarDesde(estadisticasBase);
         actualizarVidaMaxima();
     }
 
+    /**
+     * Ajusta la vida máxima según las estadísticas actuales.
+     */
     private void actualizarVidaMaxima() {
         vida.ajustarMaximaManteniendoProporcion(estadisticas.getVidaMax());
     }
@@ -287,14 +468,30 @@ public abstract class Jugador {
         velocidadX = 0;
     }
 
+    /**
+     * Establece la velocidad horizontal del jugador.
+     *
+     * @param velocidadX nueva velocidad en X
+     */
     public void setVelocidadX(double velocidadX) {
         this.velocidadX = velocidadX;
     }
 
+    /**
+     * Establece la velocidad vertical del jugador.
+     *
+     * @param velocidadY nueva velocidad en Y
+     */
     public void setVelocidadY(double velocidadY) {
         this.velocidadY = velocidadY;
     }
 
+    /**
+     * Actualiza la física y los efectos del jugador durante un instante.
+     *
+     * @param dt tiempo transcurrido en segundos
+     * @param cancha cancha donde se mueve el jugador
+     */
     public void actualizar(double dt, Cancha cancha) {
         if (dt <= 0) {
             return;
@@ -341,6 +538,12 @@ public abstract class Jugador {
         }
     }
 
+    /**
+     * Mueve al jugador horizontalmente respetando los límites de la cancha.
+     *
+     * @param dx desplazamiento horizontal
+     * @param cancha cancha donde se mueve el jugador
+     */
     public void mover(double dx, Cancha cancha) {
         if (!puedeMoverse()) {
             return;
@@ -393,6 +596,9 @@ public abstract class Jugador {
         }
     }
 
+    /**
+     * Hace saltar al jugador si está en el suelo y puede saltar.
+     */
     public void saltar() {
         if (!puedeSaltar() || !enSuelo) {
             return;
@@ -402,13 +608,18 @@ public abstract class Jugador {
         enSuelo = false;
     }
 
+    /**
+     * Intenta patear el balón si está al alcance.
+     *
+     * @param balon balón que se intenta patear
+     * @return true si la patada tocó el balón
+     */
     public boolean patear(Balon balon) {
         if (balon == null || !puedePatear()) {
             return false;
         }
         double direccion = lado == Lado.IZQUIERDO ? 1 : -1;
-        double botaX = posicionX
-                + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR;
+        double botaX = posicionX + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR;
         double botaY = posicionY + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR;
 
         double distanciaX = balon.getX() - botaX;
@@ -425,6 +636,12 @@ public abstract class Jugador {
         return true;
     }
 
+    /**
+     * Reinicia la posición y la velocidad del jugador.
+     *
+     * @param posicionX nueva posición en X
+     * @param posicionY nueva posición en Y
+     */
     public void reiniciar(double posicionX, double posicionY) {
         velocidadX = 0;
         velocidadY = 0;

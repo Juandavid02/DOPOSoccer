@@ -3,9 +3,10 @@ package presentation;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.image.BufferedImage;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.IntConsumer;
@@ -15,9 +16,9 @@ import java.util.function.IntPredicate;
  * Pantalla de configuración general: volumen del juego y teclas de ambos
  * jugadores.
  */
-public class ConfiguracionView extends JPanel {
+public class ConfiguracionView extends VistaBase {
 
-    private static final String RUTA_BOTONES = "resources/images/Botones.java/";
+    private static final String RUTA_BOTONES = "resources/images/Botones/";
 
     private static final Color TEXTO_CLARO = new Color(232, 242, 250);
     private static final Color TEXTO_SUAVE = new Color(190, 210, 228);
@@ -31,54 +32,28 @@ public class ConfiguracionView extends JPanel {
     private final Map<ConfiguracionControles.Accion, BotonTecla> botonesJugador2 =
             new EnumMap<>(ConfiguracionControles.Accion.class);
 
-    private BufferedImage fondo;
-    private JButton botonAtras;
     private JButton botonGuardar;
     private JButton botonReiniciar;
-    private BotonSonido botonSonido;
     private JLabel valorVolumen;
     private JButton botonVolumenMenos;
     private JButton botonVolumenMas;
     private int volumen = 100;
     private IntConsumer alCambiarVolumen;
 
+    /**
+     * Crea la pantalla de configuración general.
+     */
     public ConfiguracionView() {
-        prepareView();
-    }
-
-    private void prepareView() {
-        setLayout(new BorderLayout());
-        setOpaque(true);
-        setBackground(Color.BLACK);
-        setPreferredSize(new Dimension(1920, 1080));
-
-        fondo = RecursosImagen.cargar(
-                "resources/images/Ventanas/FondoConfiguracion.png");
-
-        prepareViewSuperior();
+        super("resources/images/Ventanas/FondoConfiguracion.png");
+        setTitulo("CONFIGURACIÓN");
         prepareViewCentro();
     }
 
-    private void prepareViewSuperior() {
-        botonAtras = crearBotonImagen(RUTA_BOTONES + "Retroceder.png", 90);
-        botonSonido = new BotonSonido(64);
-
-        JPanel panelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        panelTitulo.setOpaque(false);
-        panelTitulo.add(new TituloConfiguracion("CONFIGURACIÓN"));
-
-        JPanel barraSuperior = new JPanel(new BorderLayout());
-        barraSuperior.setOpaque(false);
-        barraSuperior.setBorder(new EmptyBorder(18, 20, 0, 20));
-        barraSuperior.add(botonAtras, BorderLayout.WEST);
-        barraSuperior.add(panelTitulo, BorderLayout.CENTER);
-        barraSuperior.add(botonSonido, BorderLayout.EAST);
-
-        add(barraSuperior, BorderLayout.NORTH);
-    }
-
+    /**
+     * Construye el contenido central de la pantalla.
+     */
     private void prepareViewCentro() {
-        PanelTarjeta tarjeta = new PanelTarjeta();
+        TarjetaPanel tarjeta = new TarjetaPanel(TarjetaPanel.Estilo.OSCURA);
         tarjeta.setLayout(new GridBagLayout());
         tarjeta.setBorder(new EmptyBorder(18, 32, 16, 32));
         tarjeta.setPreferredSize(new Dimension(980, 540));
@@ -107,9 +82,14 @@ public class ConfiguracionView extends JPanel {
         contenedor.setBorder(new EmptyBorder(8, 0, 20, 0));
         contenedor.add(tarjeta);
 
-        add(contenedor, BorderLayout.CENTER);
+        setCentro(contenedor, 0, 0);
     }
 
+    /**
+     * Prepara la sección de audio con el control de volumen.
+     *
+     * @return panel con el control de volumen
+     */
     private JPanel prepararAudio() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
@@ -135,8 +115,18 @@ public class ConfiguracionView extends JPanel {
         control.add(valorVolumen);
         control.add(botonVolumenMas);
 
-        botonVolumenMenos.addActionListener(e -> cambiarVolumen(-5));
-        botonVolumenMas.addActionListener(e -> cambiarVolumen(5));
+        botonVolumenMenos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarVolumen(-5);
+            }
+        });
+        botonVolumenMas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cambiarVolumen(5);
+            }
+        });
         actualizarBotonesVolumen();
 
         GridBagConstraints c = new GridBagConstraints();
@@ -161,6 +151,11 @@ public class ConfiguracionView extends JPanel {
         return panel;
     }
 
+    /**
+     * Prepara la sección con los controles de ambos jugadores.
+     *
+     * @return panel con las columnas de controles
+     */
     private JPanel prepararControles() {
         JPanel panel = new JPanel(new BorderLayout(0, 6));
         panel.setOpaque(false);
@@ -179,7 +174,18 @@ public class ConfiguracionView extends JPanel {
         return panel;
     }
 
-    private JPanel crearPanelJugador(int jugador, String nombre, Color color, Map<ConfiguracionControles.Accion, BotonTecla> botones) {
+    /**
+     * Crea el panel de controles de un jugador.
+     *
+     * @param jugador número del jugador
+     * @param nombre nombre mostrado en la cabecera
+     * @param color color de la cabecera
+     * @param botones mapa donde se guardan los botones de tecla
+     * @return panel con los controles del jugador
+     */
+    private JPanel crearPanelJugador(
+            int jugador, String nombre, Color color,
+            Map<ConfiguracionControles.Accion, BotonTecla> botones) {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
 
@@ -217,10 +223,15 @@ public class ConfiguracionView extends JPanel {
         return panel;
     }
 
+    /**
+     * Prepara los botones de reiniciar y guardar.
+     *
+     * @return panel con los botones de acción
+     */
     private JPanel prepararAcciones() {
-        botonReiniciar = crearBotonImagen(
+        botonReiniciar = BotonImagen.crear(
                 RUTA_BOTONES + "ReiniciarConfiguracion.png", 280);
-        botonGuardar = crearBotonImagen(
+        botonGuardar = BotonImagen.crear(
                 RUTA_BOTONES + "GuardarConfiguracion.png", 280);
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 24, 0));
@@ -230,6 +241,12 @@ public class ConfiguracionView extends JPanel {
         return panel;
     }
 
+    /**
+     * Crea una etiqueta con el estilo de título de sección.
+     *
+     * @param texto texto de la etiqueta
+     * @return etiqueta creada
+     */
     private static JLabel crearTituloSeccion(String texto) {
         JLabel titulo = new JLabel(texto);
         titulo.setFont(new Font("SansSerif", Font.BOLD, 19));
@@ -237,31 +254,11 @@ public class ConfiguracionView extends JPanel {
         return titulo;
     }
 
-    private JButton crearBotonImagen(String ruta, int ancho) {
-        BufferedImage imagen = RecursosImagen.cargar(ruta);
-
-        ImageIcon normal = crearIcono(imagen, ancho);
-        ImageIcon encima = crearIcono(imagen, ancho + Math.max(4, ancho * 7 / 100));
-        ImageIcon presionado = crearIcono(imagen, ancho + Math.max(2, ancho * 3 / 100));
-
-        JButton boton = new JButton(normal);
-        boton.setRolloverIcon(encima);
-        boton.setPressedIcon(presionado);
-        boton.setRolloverEnabled(true);
-        boton.setPreferredSize(new Dimension(
-                encima.getIconWidth(), encima.getIconHeight()));
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return boton;
-    }
-
-    private static ImageIcon crearIcono(BufferedImage imagen, int ancho) {
-        int alto = ancho * imagen.getHeight() / imagen.getWidth();
-        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
-    }
-
+    /**
+     * Muestra las teclas actuales de ambos jugadores.
+     *
+     * @param controles configuración de controles con las teclas asignadas
+     */
     public void setTeclas(ConfiguracionControles controles) {
         for (ConfiguracionControles.Accion accion : ConfiguracionControles.Accion.values()) {
             botonesJugador1.get(accion).setTecla(controles.getTecla(1, accion));
@@ -269,6 +266,11 @@ public class ConfiguracionView extends JPanel {
         }
     }
 
+    /**
+     * Actualiza el volumen mostrado y notifica el cambio.
+     *
+     * @param volumen nuevo volumen entre 0 y 100
+     */
     public void setVolumen(int volumen) {
         int nuevo = Math.max(0, Math.min(100, volumen));
         if (nuevo == this.volumen) {
@@ -286,23 +288,44 @@ public class ConfiguracionView extends JPanel {
         }
     }
 
+    /**
+     * Devuelve el volumen actual.
+     *
+     * @return volumen entre 0 y 100
+     */
     public int getVolumen() {
         return volumen;
     }
 
+    /**
+     * Ajusta el volumen sumando o restando una cantidad.
+     *
+     * @param delta cantidad que se suma al volumen
+     */
     private void cambiarVolumen(int delta) {
         setVolumen(volumen + delta);
     }
 
+    /**
+     * Activa o desactiva los botones de volumen según el valor actual.
+     */
     private void actualizarBotonesVolumen() {
         botonVolumenMenos.setEnabled(volumen > 0);
         botonVolumenMas.setEnabled(volumen < 100);
     }
 
+    /**
+     * Registra la acción que se ejecuta al cambiar el volumen.
+     *
+     * @param alCambiarVolumen acción que recibe el nuevo volumen
+     */
     public void setAlCambiarVolumen(IntConsumer alCambiarVolumen) {
         this.alCambiarVolumen = alCambiarVolumen;
     }
 
+    /**
+     * Cancela la captura de tecla de todos los botones.
+     */
     public void cancelarCaptura() {
         for (BotonTecla boton : botonesJugador1.values()) {
             boton.cancelarCaptura();
@@ -312,56 +335,51 @@ public class ConfiguracionView extends JPanel {
         }
     }
 
+    /**
+     * Devuelve los botones de tecla del jugador 1.
+     *
+     * @return mapa de acciones y botones del jugador 1
+     */
     public Map<ConfiguracionControles.Accion, BotonTecla> getBotonesJugador1() {
         return botonesJugador1;
     }
 
+    /**
+     * Devuelve los botones de tecla del jugador 2.
+     *
+     * @return mapa de acciones y botones del jugador 2
+     */
     public Map<ConfiguracionControles.Accion, BotonTecla> getBotonesJugador2() {
         return botonesJugador2;
     }
 
+    /**
+     * Devuelve el botón de guardar.
+     *
+     * @return botón de guardar
+     */
     public JButton getBotonGuardar() {
         return botonGuardar;
     }
 
+    /**
+     * Devuelve el botón de reiniciar.
+     *
+     * @return botón de reiniciar
+     */
     public JButton getBotonReiniciar() {
         return botonReiniciar;
     }
 
-    public JButton getBotonAtras() {
-        return botonAtras;
-    }
-
-    public BotonSonido getBotonSonido() {
-        return botonSonido;
-    }
-
+    /**
+     * Oscurece el fondo de la pantalla.
+     *
+     * @param g2 contexto gráfico donde se dibuja
+     */
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        if (fondo == null) {
-            return;
-        }
-
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-
-        double escala = Math.max(
-                (double) getWidth() / fondo.getWidth(),
-                (double) getHeight() / fondo.getHeight());
-        int ancho = (int) Math.ceil(fondo.getWidth() * escala);
-        int alto = (int) Math.ceil(fondo.getHeight() * escala);
-
-        g2.drawImage(fondo, (getWidth() - ancho) / 2, (getHeight() - alto) / 2,
-                ancho, alto, null);
-
+    protected void pintarEncimaDeFondo(Graphics2D g2) {
         g2.setColor(new Color(6, 20, 38, 75));
         g2.fillRect(0, 0, getWidth(), getHeight());
-        g2.dispose();
     }
 
     /**
@@ -375,6 +393,9 @@ public class ConfiguracionView extends JPanel {
         private KeyEventDispatcher capturador;
         private boolean capturando;
 
+        /**
+         * Crea el botón de tecla con su estilo inicial.
+         */
         private BotonTecla() {
             setFont(new Font("SansSerif", Font.BOLD, 15));
             setPreferredSize(new Dimension(190, 32));
@@ -384,23 +405,46 @@ public class ConfiguracionView extends JPanel {
             setFocusPainted(false);
             setFocusable(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            addActionListener(e -> iniciarCaptura());
+            addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    iniciarCaptura();
+                }
+            });
             setText("—");
         }
 
+        /**
+         * Devuelve el código de la tecla asignada.
+         *
+         * @return código de tecla
+         */
         public int getTecla() {
             return tecla;
         }
 
+        /**
+         * Asigna una tecla al botón y actualiza su texto.
+         *
+         * @param tecla código de la nueva tecla
+         */
         public void setTecla(int tecla) {
             this.tecla = tecla;
             actualizarTexto();
         }
 
+        /**
+         * Registra la función que valida y asigna la tecla capturada.
+         *
+         * @param asignador validador que decide si la tecla es válida
+         */
         public void setAsignador(IntPredicate asignador) {
             this.asignador = asignador;
         }
 
+        /**
+         * Empieza a escuchar la siguiente pulsación de tecla.
+         */
         private void iniciarCaptura() {
             if (capturando) {
                 return;
@@ -435,6 +479,9 @@ public class ConfiguracionView extends JPanel {
                     .addKeyEventDispatcher(capturador);
         }
 
+        /**
+         * Deja de escuchar pulsaciones y restaura el texto del botón.
+         */
         private void cancelarCaptura() {
             if (!capturando) {
                 return;
@@ -450,16 +497,27 @@ public class ConfiguracionView extends JPanel {
             repaint();
         }
 
+        /**
+         * Muestra el nombre de la tecla asignada en el botón.
+         */
         private void actualizarTexto() {
             setText(ConfiguracionControles.nombreTecla(tecla));
         }
 
+        /**
+         * Cancela la captura cuando el botón sale de la pantalla.
+         */
         @Override
         public void removeNotify() {
             cancelarCaptura();
             super.removeNotify();
         }
 
+        /**
+         * Dibuja el botón con el estilo de la pantalla.
+         *
+         * @param g contexto gráfico donde se dibuja
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -499,6 +557,11 @@ public class ConfiguracionView extends JPanel {
      */
     private static final class BotonPaso extends JButton {
 
+        /**
+         * Crea un botón de paso con el texto indicado.
+         *
+         * @param texto texto que muestra el botón
+         */
         private BotonPaso(String texto) {
             super(texto);
             setFont(new Font("SansSerif", Font.BOLD, 24));
@@ -510,6 +573,11 @@ public class ConfiguracionView extends JPanel {
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
 
+        /**
+         * Dibuja el botón circular de paso.
+         *
+         * @param g contexto gráfico donde se dibuja
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -549,52 +617,28 @@ public class ConfiguracionView extends JPanel {
         }
     }
 
-    private static final class PanelTarjeta extends JPanel {
-
-        private PanelTarjeta() {
-            setOpaque(false);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    1, 1, ancho - 3, alto - 3, 32, 32);
-
-            g2.setPaint(new GradientPaint(
-                    0, 0, new Color(9, 30, 52, 225),
-                    0, alto, new Color(5, 20, 38, 225)));
-            g2.fill(forma);
-
-            g2.setStroke(new BasicStroke(3f));
-            g2.setColor(DORADO);
-            g2.draw(forma);
-
-            g2.setStroke(new BasicStroke(1f));
-            g2.setColor(new Color(255, 225, 140, 95));
-            g2.draw(new RoundRectangle2D.Float(
-                    6, 6, ancho - 13, alto - 13, 26, 26));
-
-            g2.dispose();
-        }
-    }
-
     private static final class PanelCabecera extends JComponent {
 
         private final String texto;
         private final Color color;
 
+        /**
+         * Crea la cabecera de un jugador.
+         *
+         * @param texto nombre del jugador
+         * @param color color de fondo de la cabecera
+         */
         private PanelCabecera(String texto, Color color) {
             this.texto = texto;
             this.color = color;
             setFont(new Font("SansSerif", Font.BOLD, 19));
         }
 
+        /**
+         * Dibuja la cabecera con el nombre del jugador.
+         *
+         * @param g contexto gráfico donde se dibuja
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -617,63 +661,6 @@ public class ConfiguracionView extends JPanel {
             FontMetrics fm = g2.getFontMetrics();
             int x = (ancho - fm.stringWidth(texto)) / 2;
             int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-            g2.setColor(Color.WHITE);
-            g2.drawString(texto, x, y);
-
-            g2.dispose();
-        }
-    }
-
-    private static final class TituloConfiguracion extends JComponent {
-
-        private final String texto;
-        private final Font fuente = new Font("SansSerif", Font.BOLD, 28);
-
-        private TituloConfiguracion(String texto) {
-            this.texto = texto;
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            FontMetrics fm = getFontMetrics(fuente);
-            return new Dimension(fm.stringWidth(texto) + 80, 58);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            int arco = alto;
-
-            g2.setColor(new Color(0, 0, 0, 90));
-            g2.fillRoundRect(4, 6, ancho - 8, alto - 10, arco, arco);
-
-            g2.setPaint(new GradientPaint(
-                    0, 0, new Color(78, 160, 198, 235),
-                    0, alto, new Color(26, 82, 122, 235)));
-            g2.fillRoundRect(2, 2, ancho - 4, alto - 8, arco, arco);
-
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 255, 255, 170));
-            g2.drawRoundRect(4, 4, ancho - 9, alto - 13, arco, arco);
-
-            g2.setFont(fuente);
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (ancho - fm.stringWidth(texto)) / 2;
-            int y = (alto - 6 - fm.getHeight()) / 2 + fm.getAscent();
-
-            g2.setColor(new Color(16, 32, 46));
-            for (int dx = -2; dx <= 2; dx++) {
-                for (int dy = -2; dy <= 2; dy++) {
-                    if (dx != 0 || dy != 0) {
-                        g2.drawString(texto, x + dx, y + dy);
-                    }
-                }
-            }
             g2.setColor(Color.WHITE);
             g2.drawString(texto, x, y);
 

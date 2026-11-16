@@ -11,10 +11,20 @@ public enum TipoEstadistica {
 
     private final String etiqueta;
 
+    /**
+     * Crea la estadística con su etiqueta.
+     *
+     * @param etiqueta nombre legible de la estadística
+     */
     TipoEstadistica(String etiqueta) {
         this.etiqueta = etiqueta;
     }
 
+    /**
+     * Obtiene la etiqueta de la estadística.
+     *
+     * @return nombre legible de la estadística
+     */
     public String getEtiqueta() {
         return etiqueta;
     }

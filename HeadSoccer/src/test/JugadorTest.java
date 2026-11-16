@@ -28,10 +28,12 @@ public class JugadorTest
     private Cancha cancha;
     private Jugador jugador;
 
+    /** Constructor de la clase de pruebas JugadorTest. */
     public JugadorTest()
     {
     }
 
+    /** Prepara el jugador de prueba antes de cada test. */
     @BeforeEach
     public void setUp()
     {
@@ -265,6 +267,7 @@ public class JugadorTest
         return new Personaje("Polar", "Canadá", new PoderAuraAzul());
     }
 
+    /** Libera el escenario de pruebas después de cada test. */
     @AfterEach
     public void tearDown()
     {

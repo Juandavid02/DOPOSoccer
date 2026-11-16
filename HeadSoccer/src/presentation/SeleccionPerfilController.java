@@ -1,5 +1,6 @@
 package presentation;
 
+import domain.Modalidad;
 import domain.PerfilJugador;
 
 import javax.swing.*;
@@ -14,12 +15,20 @@ public class SeleccionPerfilController {
     private final SeleccionPerfilView view;
     private final List<PerfilJugador> perfiles;
 
+    private Modalidad modo = Modalidad.PvsP;
     private PerfilJugador perfil1;
     private PerfilJugador perfil2;
     private boolean listo1;
     private boolean listo2;
     private boolean actualizando;
 
+    /**
+     * Crea el controlador de la selección de perfiles.
+     *
+     * @param gui ventana principal del juego
+     * @param view vista de selección de perfiles
+     * @param perfiles perfiles disponibles
+     */
     public SeleccionPerfilController(DOPOSoccerGUI gui, SeleccionPerfilView view,
                                      List<PerfilJugador> perfiles) {
         this.gui = gui;
@@ -28,6 +37,9 @@ public class SeleccionPerfilController {
         prepareController();
     }
 
+    /**
+     * Conecta los botones y listas de la vista con el controlador.
+     */
     private void prepareController() {
         SeleccionPerfilView.PanelJugador panel1 = view.getPanelJugador1();
         SeleccionPerfilView.PanelJugador panel2 = view.getPanelJugador2();
@@ -44,12 +56,22 @@ public class SeleccionPerfilController {
         });
 
         panel1.getBotonContinuar().addActionListener(new ActionListener() {
+            /**
+             * Marca como listo el perfil del jugador 1.
+             *
+             * @param e evento de acción
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 continuar(1);
             }
         });
         panel2.getBotonContinuar().addActionListener(new ActionListener() {
+            /**
+             * Marca como listo el perfil del jugador 2.
+             *
+             * @param e evento de acción
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 continuar(2);
@@ -57,29 +79,96 @@ public class SeleccionPerfilController {
         });
 
         panel1.getBotonCambiar().addActionListener(new ActionListener() {
+            /**
+             * Permite cambiar el perfil del jugador 1.
+             *
+             * @param e evento de acción
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 cambiar(1);
             }
         });
         panel2.getBotonCambiar().addActionListener(new ActionListener() {
+            /**
+             * Permite cambiar el perfil del jugador 2.
+             *
+             * @param e evento de acción
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 cambiar(2);
             }
         });
 
-        panel1.getBotonCrear().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
-        panel2.getBotonCrear().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
-        panel1.getBotonCrearListo().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
-        panel2.getBotonCrearListo().addActionListener(e -> gui.mostrarPerfilDesdeSeleccion());
-
-        view.getBotonContinuarCentral().addActionListener(e -> {
-            gui.setPerfilesPartido(perfil1, perfil2);
-            gui.mostrarConfiguracionPartido();
+        panel1.getBotonCrear().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarPerfilDesdeSeleccion();
+            }
         });
-        view.getBotonAtras().addActionListener(e -> gui.mostrarMenu());
-        view.getBotonSonido().addActionListener(e -> gui.alternarSonido());
+        panel2.getBotonCrear().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarPerfilDesdeSeleccion();
+            }
+        });
+        panel1.getBotonCrearListo().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarPerfilDesdeSeleccion();
+            }
+        });
+        panel2.getBotonCrearListo().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarPerfilDesdeSeleccion();
+            }
+        });
+
+        view.getBotonContinuarCentral().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (modo == Modalidad.PvsM) {
+                    gui.setPerfilesPartido(perfil1, null);
+                    if (gui.isTorneoPendiente()) {
+                        gui.mostrarInscripcionTorneo();
+                    } else {
+                        gui.iniciarSeleccionPerfilIA();
+                    }
+                    return;
+                }
+                gui.setPerfilesPartido(perfil1, perfil2);
+                gui.mostrarConfiguracionPartido();
+            }
+        });
+        view.getBotonAtras().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.mostrarMenu();
+            }
+        });
+        view.getBotonSonido().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gui.alternarSonido();
+            }
+        });
+    }
+
+    /**
+     * Cambia entre la selección de dos humanos (PvsP) y un solo humano
+     * (PvsM). En PvsM la máquina se configura en su propia pantalla.
+     *
+     * @param modo modalidad elegida
+     */
+    public void setModo(Modalidad modo) {
+        this.modo = modo == null ? Modalidad.PvsP : modo;
+        if (this.modo == Modalidad.PvsM) {
+            perfil2 = null;
+            listo2 = false;
+        }
+        view.setModo(this.modo);
     }
 
     /**
@@ -123,14 +212,11 @@ public class SeleccionPerfilController {
         actualizarBotonCentral();
     }
 
-    public PerfilJugador getPerfil1() {
-        return perfil1;
-    }
-
-    public PerfilJugador getPerfil2() {
-        return perfil2;
-    }
-
+    /**
+     * Actualiza el perfil elegido y el del otro lado al seleccionar uno.
+     *
+     * @param lado número del jugador: 1 o 2
+     */
     private void alSeleccionar(int lado) {
         if (actualizando || (lado == 1 && listo1) || (lado == 2 && listo2)) {
             return;
@@ -157,6 +243,11 @@ public class SeleccionPerfilController {
         actualizarBotonCentral();
     }
 
+    /**
+     * Confirma el perfil del jugador indicado.
+     *
+     * @param lado número del jugador: 1 o 2
+     */
     private void continuar(int lado) {
         PerfilJugador elegido;
         if (lado == 1) {
@@ -181,6 +272,11 @@ public class SeleccionPerfilController {
         actualizarBotonCentral();
     }
 
+    /**
+     * Vuelve al estado de selección del jugador indicado.
+     *
+     * @param lado número del jugador: 1 o 2
+     */
     private void cambiar(int lado) {
         actualizando = true;
         if (lado == 1) {
@@ -216,6 +312,9 @@ public class SeleccionPerfilController {
         actualizarBotonCentral();
     }
 
+    /**
+     * Quita los perfiles que ya no existen de la selección.
+     */
     private void validarPerfilesExistentes() {
         if (perfil1 != null && !existe(perfil1)) {
             perfil1 = null;
@@ -229,6 +328,12 @@ public class SeleccionPerfilController {
         }
     }
 
+    /**
+     * Indica si un perfil está en la lista de perfiles disponibles.
+     *
+     * @param perfil perfil que se busca
+     * @return true si el perfil existe
+     */
     private boolean existe(PerfilJugador perfil) {
         for (PerfilJugador actual : perfiles) {
             if (actual.getId().equals(perfil.getId())) {
@@ -238,6 +343,12 @@ public class SeleccionPerfilController {
         return false;
     }
 
+    /**
+     * Devuelve los perfiles que puede elegir un jugador.
+     *
+     * @param excluido perfil que se excluye de la lista
+     * @return los perfiles disponibles
+     */
     private List<PerfilJugador> perfilesPara(PerfilJugador excluido) {
         List<PerfilJugador> disponibles = new ArrayList<>();
         for (PerfilJugador perfil : perfiles) {
@@ -248,11 +359,24 @@ public class SeleccionPerfilController {
         return disponibles;
     }
 
+    /**
+     * Muestra el botón central solo si ambos perfiles están listos.
+     */
     private void actualizarBotonCentral() {
-        boolean ambosListos = listo1 && listo2 && perfil1 != null && perfil2 != null;
-        view.setContinuarCentralVisible(ambosListos);
+        boolean listo;
+        if (modo == Modalidad.PvsM) {
+            listo = listo1 && perfil1 != null;
+        } else {
+            listo = listo1 && listo2 && perfil1 != null && perfil2 != null;
+        }
+        view.setContinuarCentralVisible(listo);
     }
 
+    /**
+     * Muestra un mensaje de advertencia en la pantalla.
+     *
+     * @param mensaje texto del mensaje
+     */
     private void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(
                 view,

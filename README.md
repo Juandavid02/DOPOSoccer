@@ -129,7 +129,9 @@ Cada personaje representa un país y tiene un tiro de poder único. La barra de 
 4. Si el tiro **golpea al rival**, se aplican daño y efecto.
 5. Si el tiro **entra al arco sin tocar al rival**, el gol cuenta, pero no hay daño ni efecto.
 6. No se puede activar otro poder mientras el aura esté activa.
-7. Los efectos **no se acumulan**: el nuevo reemplaza al anterior.
+7. Los efectos **se acumulan**: un jugador puede sufrir varios a la vez
+   (por ejemplo, aturdimiento e ilusión) y cada uno dura su propio tiempo
+   hasta que se agota. Al marcarse un gol se quitan todos los efectos.
 
 ---
 
@@ -220,7 +222,7 @@ Todos los comandos se ejecutan desde la **carpeta del proyecto Java** (la carpet
 
 ```powershell
 $files = Get-ChildItem -Path src/domain, src/presentation -Recurse -Filter *.java | ForEach-Object { $_.FullName }
-javac -d bin $files
+javac -encoding UTF-8 -d bin $files
 ```
 
 Si la compilación termina sin errores, las clases quedan en `bin/`.
@@ -249,7 +251,7 @@ El proyecto usa **JUnit 5** mediante el `.jar` standalone de `lib/`. Las pruebas
 
 ```powershell
 $testFiles = Get-ChildItem -Recurse -Filter *.java src/test | ForEach-Object { $_.FullName }
-javac -cp "lib/junit-platform-console-standalone-1.10.2.jar;bin" -d bin $testFiles
+javac -encoding UTF-8 -cp "lib/junit-platform-console-standalone-1.10.2.jar;bin" -d bin $testFiles
 ```
 
 > En Windows el separador de classpath es `;`. En Linux/macOS es `:`.
@@ -264,10 +266,10 @@ java -jar "lib/junit-platform-console-standalone-1.10.2.jar" --class-path bin --
 
 ```powershell
 $files = Get-ChildItem -Path src/domain, src/presentation -Recurse -Filter *.java | ForEach-Object { $_.FullName }
-javac -d bin $files
+javac -encoding UTF-8 -d bin $files
 
 $testFiles = Get-ChildItem -Recurse -Filter *.java src/test | ForEach-Object { $_.FullName }
-javac -cp "lib/junit-platform-console-standalone-1.10.2.jar;bin" -d bin $testFiles
+javac -encoding UTF-8 -cp "lib/junit-platform-console-standalone-1.10.2.jar;bin" -d bin $testFiles
 
 java -jar "lib/junit-platform-console-standalone-1.10.2.jar" --class-path bin --scan-class-path --details=tree
 ```

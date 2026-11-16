@@ -33,30 +33,55 @@ public class PerfilController {
      */
     private void prepareController() {
         view.getBotonAtras().addActionListener(new ActionListener() {
+            /**
+             * Vuelve a la pantalla anterior.
+             *
+             * @param e evento de acción
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 gui.volverDePerfil();
             }
         });
         view.getBotonCrear().addActionListener(new ActionListener() {
+            /**
+             * Crea un perfil nuevo.
+             *
+             * @param e evento de acción
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 crearPerfil();
             }
         });
         view.getBotonGuardar().addActionListener(new ActionListener() {
+            /**
+             * Guarda los cambios del perfil seleccionado.
+             *
+             * @param e evento de acción
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 guardarPerfil();
             }
         });
         view.getBotonEliminar().addActionListener(new ActionListener() {
+            /**
+             * Elimina el perfil seleccionado.
+             *
+             * @param e evento de acción
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 eliminarPerfil();
             }
         });
         view.getBotonSonido().addActionListener(new ActionListener() {
+            /**
+             * Activa o desactiva el sonido.
+             *
+             * @param e evento de acción
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 gui.alternarSonido();
@@ -182,6 +207,8 @@ public class PerfilController {
 
     /**
      * Busca un nombre libre de la forma "Perfil N".
+     *
+     * @return nombre libre encontrado
      */
     private String siguienteNombre() {
         int numero = 1;
@@ -196,6 +223,7 @@ public class PerfilController {
      *
      * @param nombre el nombre a comprobar
      * @param excepto el perfil que se puede ignorar, o null
+     * @return true si el nombre ya está en uso
      */
     private boolean nombreEnUso(String nombre, PerfilJugador excepto) {
         for (PerfilJugador perfil : perfiles) {
@@ -206,6 +234,11 @@ public class PerfilController {
         return false;
     }
 
+    /**
+     * Muestra un mensaje de error al usuario.
+     *
+     * @param mensaje texto del error
+     */
     private void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(
                 view,

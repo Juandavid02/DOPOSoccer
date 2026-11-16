@@ -7,16 +7,13 @@ import domain.PerfilJugador;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
-public class PerfilView extends JPanel {
+public class PerfilView extends VistaBase {
 
-    private static final String RUTA_BOTONES = "resources/images/Botones.java/";
+    private static final String RUTA_BOTONES = "resources/images/Botones/";
     private static final Color COLOR_TEXTO = new Color(22, 48, 68);
     private static final Color COLOR_ETIQUETA = new Color(30, 62, 86);
-
-    private BufferedImage fondo;
 
     private DefaultListModel<String> modeloPerfiles;
     private JList<String> listaPerfiles;
@@ -30,56 +27,15 @@ public class PerfilView extends JPanel {
     private JButton botonCrear;
     private JButton botonGuardar;
     private JButton botonEliminar;
-    private JButton botonAtras;
-    private BotonSonido botonSonido;
 
     /**
      * Crea la pantalla de perfiles con el fondo, el título y la tarjeta
      * central donde se administran los perfiles.
      */
     public PerfilView() {
-        prepareView();
-    }
-
-    /**
-     * Prepara la vista: tamaño, fondo, barra superior y tarjeta central.
-     */
-    private void prepareView() {
-        setLayout(new BorderLayout());
-        setOpaque(true);
-        setBackground(Color.BLACK);
-        setPreferredSize(new Dimension(1920, 1080));
-        prepareViewFondo();
-        prepareViewSuperior();
+        super("resources/images/Ventanas/FondoPerfil.png");
+        setTitulo("TU PERFIL");
         prepareViewCentro();
-    }
-
-    /**
-     * Carga la imagen de fondo de la pantalla.
-     */
-    private void prepareViewFondo() {
-        fondo = RecursosImagen.cargar("resources/images/Ventanas/FondoPerfil.png");
-    }
-
-    /**
-     * Prepara el botón de atrás y el título de la pantalla.
-     */
-    private void prepareViewSuperior() {
-        botonAtras = crearBoton(RUTA_BOTONES + "Retroceder.png", 90);
-        botonSonido = new BotonSonido(64);
-
-        JPanel panelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        panelTitulo.setOpaque(false);
-        panelTitulo.add(new TituloPerfil("TU PERFIL"));
-
-        JPanel barraSuperior = new JPanel(new BorderLayout());
-        barraSuperior.setOpaque(false);
-        barraSuperior.setBorder(new EmptyBorder(18, 20, 0, 20));
-        barraSuperior.add(botonAtras, BorderLayout.WEST);
-        barraSuperior.add(panelTitulo, BorderLayout.CENTER);
-        barraSuperior.add(botonSonido, BorderLayout.EAST);
-
-        add(barraSuperior, BorderLayout.NORTH);
     }
 
     /**
@@ -87,7 +43,7 @@ public class PerfilView extends JPanel {
      * perfil seleccionado y los botones de acción.
      */
     private void prepareViewCentro() {
-        PanelTarjeta tarjeta = new PanelTarjeta();
+        TarjetaPanel tarjeta = new TarjetaPanel();
         tarjeta.setLayout(new BorderLayout(26, 18));
         tarjeta.setBorder(new EmptyBorder(28, 30, 22, 30));
         tarjeta.setPreferredSize(new Dimension(900, 500));
@@ -96,16 +52,13 @@ public class PerfilView extends JPanel {
         tarjeta.add(preparePanelDatos(), BorderLayout.CENTER);
         tarjeta.add(preparePanelBotones(), BorderLayout.SOUTH);
 
-        JPanel contenedor = new JPanel(new GridBagLayout());
-        contenedor.setOpaque(false);
-        contenedor.setBorder(new EmptyBorder(10, 0, 30, 0));
-        contenedor.add(tarjeta);
-
-        add(contenedor, BorderLayout.CENTER);
+        setCentro(tarjeta, 10, 30);
     }
 
     /**
      * Prepara la lista de perfiles creados.
+     *
+     * @return el panel con la lista de perfiles
      */
     private JPanel preparePanelLista() {
         JLabel titulo = crearEtiqueta("PERFILES");
@@ -136,6 +89,8 @@ public class PerfilView extends JPanel {
 
     /**
      * Prepara el panel con el nombre, los puntos y las estadísticas.
+     *
+     * @return el panel con los datos del perfil
      */
     private JPanel preparePanelDatos() {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -150,6 +105,10 @@ public class PerfilView extends JPanel {
         panel.add(crearEtiqueta("NOMBRE"), c);
 
         campoNombre = new JTextField();
+        // Fija el ancho preferido para que un nombre largo no ensanche el
+        // panel ni empuje las estadísticas fuera de la tarjeta.
+        campoNombre.setColumns(14);
+        campoNombre.setMinimumSize(new Dimension(120, 34));
         campoNombre.setFont(new Font("SansSerif", Font.BOLD, 20));
         campoNombre.setForeground(new Color(18, 42, 60));
         campoNombre.setOpaque(true);
@@ -197,6 +156,11 @@ public class PerfilView extends JPanel {
 
     /**
      * Agrega una fila de estadística al panel de datos.
+     *
+     * @param panel panel de datos
+     * @param nombre nombre de la estadística
+     * @param fila fila del grid donde se agrega
+     * @param barra barra que representa la estadística
      */
     private void agregarEstadistica(JPanel panel, String nombre, int fila, BarraEstadistica barra) {
         GridBagConstraints c = new GridBagConstraints();
@@ -214,11 +178,13 @@ public class PerfilView extends JPanel {
 
     /**
      * Prepara los botones de crear, guardar y eliminar.
+     *
+     * @return el panel con los botones
      */
     private JPanel preparePanelBotones() {
-        botonCrear = crearBoton(RUTA_BOTONES + "CrearPerfil.png", 215);
-        botonGuardar = crearBoton(RUTA_BOTONES + "GuardarPerfil.png", 215);
-        botonEliminar = crearBoton(RUTA_BOTONES + "EliminarPerfil.png", 215);
+        botonCrear = BotonImagen.crear(RUTA_BOTONES + "CrearPerfil.png", 215);
+        botonGuardar = BotonImagen.crear(RUTA_BOTONES + "GuardarPerfil.png", 215);
+        botonEliminar = BotonImagen.crear(RUTA_BOTONES + "EliminarPerfil.png", 215);
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 0));
         panel.setOpaque(false);
@@ -230,67 +196,15 @@ public class PerfilView extends JPanel {
 
     /**
      * Crea una etiqueta con el estilo de la pantalla.
+     *
+     * @param texto texto de la etiqueta
+     * @return la etiqueta creada
      */
     private static JLabel crearEtiqueta(String texto) {
         JLabel etiqueta = new JLabel(texto);
         etiqueta.setFont(new Font("SansSerif", Font.BOLD, 16));
         etiqueta.setForeground(COLOR_ETIQUETA);
         return etiqueta;
-    }
-
-    /**
-     * Crea un botón con imagen. La imagen se agranda un poco cuando el
-     * mouse está encima y se encoge un poco cuando se presiona.
-     */
-    private JButton crearBoton(String ruta, int ancho) {
-        BufferedImage imagen = RecursosImagen.cargar(ruta);
-
-        ImageIcon iconoNormal = crearIcono(imagen, ancho);
-        ImageIcon iconoEncima = crearIcono(imagen, ancho + Math.max(4, ancho * 7 / 100));
-        ImageIcon iconoPresionado = crearIcono(imagen, ancho + Math.max(2, ancho * 3 / 100));
-
-        JButton boton = new JButton(iconoNormal);
-        boton.setRolloverIcon(iconoEncima);
-        boton.setPressedIcon(iconoPresionado);
-        boton.setRolloverEnabled(true);
-        boton.setPreferredSize(new Dimension(iconoEncima.getIconWidth(), iconoEncima.getIconHeight()));
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return boton;
-    }
-
-    /**
-     * Crea un ícono con el ancho dado, manteniendo la proporción de la imagen.
-     */
-    private ImageIcon crearIcono(BufferedImage imagen, int ancho) {
-        int alto = ancho * imagen.getHeight() / imagen.getWidth();
-        return new ImageIcon(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH));
-    }
-
-    /**
-     * Dibuja el fondo ocupando todo el panel, recortando lo necesario para
-     * mantener la proporción de la imagen.
-     */
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-
-        double escala = Math.max(
-                (double) getWidth() / fondo.getWidth(),
-                (double) getHeight() / fondo.getHeight());
-        int ancho = (int) Math.ceil(fondo.getWidth() * escala);
-        int alto = (int) Math.ceil(fondo.getHeight() * escala);
-
-        g2.drawImage(fondo, (getWidth() - ancho) / 2, (getHeight() - alto) / 2, ancho, alto, null);
-        g2.dispose();
     }
 
     /**
@@ -352,124 +266,49 @@ public class PerfilView extends JPanel {
         barraSupervivencia.setValor(0);
     }
 
+    /**
+     * Devuelve el nombre escrito en el campo de texto.
+     *
+     * @return el nombre sin espacios sobrantes
+     */
     public String getNombre() {
         return campoNombre.getText().trim();
     }
 
+    /**
+     * Devuelve la lista de perfiles.
+     *
+     * @return la lista de perfiles
+     */
     public JList<String> getListaPerfiles() {
         return listaPerfiles;
     }
 
+    /**
+     * Devuelve el botón de crear perfil.
+     *
+     * @return el botón de crear
+     */
     public JButton getBotonCrear() {
         return botonCrear;
     }
 
+    /**
+     * Devuelve el botón de guardar perfil.
+     *
+     * @return el botón de guardar
+     */
     public JButton getBotonGuardar() {
         return botonGuardar;
     }
 
+    /**
+     * Devuelve el botón de eliminar perfil.
+     *
+     * @return el botón de eliminar
+     */
     public JButton getBotonEliminar() {
         return botonEliminar;
-    }
-
-    public JButton getBotonAtras() {
-        return botonAtras;
-    }
-
-    public BotonSonido getBotonSonido() {
-        return botonSonido;
-    }
-
-    // ------------------------------------------------------------------
-    // Título con fondo redondeado y texto con contorno.
-    // ------------------------------------------------------------------
-    private static final class TituloPerfil extends JComponent {
-
-        private final String texto;
-        private final Font fuente = new Font("SansSerif", Font.BOLD, 30);
-
-        private TituloPerfil(String texto) {
-            this.texto = texto;
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            FontMetrics fm = getFontMetrics(fuente);
-            return new Dimension(fm.stringWidth(texto) + 90, 58);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            int arco = alto;
-
-            g2.setColor(new Color(0, 0, 0, 90));
-            g2.fillRoundRect(4, 6, ancho - 8, alto - 10, arco, arco);
-
-            g2.setPaint(new GradientPaint(
-                    0, 0, new Color(78, 160, 198, 235),
-                    0, alto, new Color(26, 82, 122, 235)));
-            g2.fillRoundRect(2, 2, ancho - 4, alto - 8, arco, arco);
-
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 255, 255, 170));
-            g2.drawRoundRect(4, 4, ancho - 9, alto - 13, arco, arco);
-
-            g2.setFont(fuente);
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (ancho - fm.stringWidth(texto)) / 2;
-            int y = (alto - 6 - fm.getHeight()) / 2 + fm.getAscent();
-
-            g2.setColor(new Color(16, 32, 46));
-            for (int dx = -2; dx <= 2; dx++) {
-                for (int dy = -2; dy <= 2; dy++) {
-                    if (dx != 0 || dy != 0) {
-                        g2.drawString(texto, x + dx, y + dy);
-                    }
-                }
-            }
-            g2.setColor(Color.WHITE);
-            g2.drawString(texto, x, y);
-
-            g2.dispose();
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // Tarjeta translúcida que contiene toda la información del perfil.
-    // ------------------------------------------------------------------
-    private static final class PanelTarjeta extends JPanel {
-
-        private PanelTarjeta() {
-            setOpaque(false);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            int arco = 38;
-
-            g2.setPaint(new GradientPaint(
-                    0, 0, new Color(236, 246, 252, 130),
-                    0, alto, new Color(204, 228, 242, 100)));
-            g2.fillRoundRect(0, 0, ancho - 1, alto - 1, arco, arco);
-
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 255, 255, 120));
-            g2.drawRoundRect(1, 1, ancho - 3, alto - 3, arco, arco);
-
-            g2.dispose();
-        }
     }
 
     // ------------------------------------------------------------------
@@ -477,6 +316,16 @@ public class PerfilView extends JPanel {
     // ------------------------------------------------------------------
     private static final class PerfilRenderer extends DefaultListCellRenderer {
 
+        /**
+         * Prepara la etiqueta que representa un perfil en la lista.
+         *
+         * @param lista lista que dibuja la celda
+         * @param valor valor de la celda
+         * @param indice índice de la celda
+         * @param seleccionado indica si la celda está seleccionada
+         * @param tieneFoco indica si la lista tiene el foco
+         * @return el componente de la celda
+         */
         @Override
         public Component getListCellRendererComponent(JList<?> lista, Object valor,
                                                       int indice, boolean seleccionado,
@@ -511,15 +360,28 @@ public class PerfilView extends JPanel {
 
         private int valor;
 
+        /**
+         * Crea la barra de estadística.
+         */
         private BarraEstadistica() {
             setPreferredSize(new Dimension(240, 18));
         }
 
+        /**
+         * Asigna el valor que muestra la barra.
+         *
+         * @param valor valor entre 0 y el máximo permitido
+         */
         private void setValor(int valor) {
             this.valor = Math.max(0, Math.min(ParametrosJuego.MAX_ESTADISTICA, valor));
             repaint();
         }
 
+        /**
+         * Dibuja los segmentos y el valor de la estadística.
+         *
+         * @param g contexto gráfico
+         */
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();

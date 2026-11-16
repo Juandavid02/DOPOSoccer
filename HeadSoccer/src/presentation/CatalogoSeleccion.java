@@ -14,17 +14,31 @@ final class CatalogoSeleccion {
 
     private static final String RUTA_PERSONAJES = "resources/images/personajes/";
     private static final String RUTA_BANDERAS = "resources/images/Ventanas/";
-    private static final String RUTA_AUDIO = "resources/audio/";
+    private static final String RUTA_AUDIO = "resources/audio/SonidosPersonajes/";
 
     private static final List<Opcion> OPCIONES = crear();
 
+    /**
+     * Constructor privado de la clase de utilidades.
+     */
     private CatalogoSeleccion() {
     }
 
+    /**
+     * Devuelve las opciones de personajes disponibles.
+     *
+     * @return la lista de opciones
+     */
     static List<Opcion> getOpciones() {
         return OPCIONES;
     }
 
+    /**
+     * Busca la opción de un personaje.
+     *
+     * @param personaje personaje que se busca
+     * @return la opción encontrada o null si no existe
+     */
     static Opcion buscar(Personaje personaje) {
         if (personaje == null) {
             return null;
@@ -37,6 +51,11 @@ final class CatalogoSeleccion {
         return null;
     }
 
+    /**
+     * Crea la lista de opciones con las rutas de cada personaje.
+     *
+     * @return la lista de opciones creada
+     */
     private static List<Opcion> crear() {
         List<Opcion> opciones = new ArrayList<>();
 
@@ -109,6 +128,12 @@ final class CatalogoSeleccion {
         return opciones;
     }
 
+    /**
+     * Busca un personaje por su nombre.
+     *
+     * @param nombre nombre del personaje
+     * @return el personaje encontrado
+     */
     private static Personaje buscarPersonaje(String nombre) {
         for (Personaje personaje : CatalogoPersonajes.getPersonajes()) {
             if (personaje.getNombre().equalsIgnoreCase(nombre)) {
@@ -130,6 +155,19 @@ final class CatalogoSeleccion {
         private final String audio;
         private final String bandera;
 
+        /**
+         * Crea una opción con las rutas de un personaje.
+         *
+         * @param personaje personaje de la opción
+         * @param caja imagen de la caja de selección
+         * @param derecha imagen quieto mirando a la derecha
+         * @param izquierda imagen quieto mirando a la izquierda
+         * @param patadaDerecha imagen de patada a la derecha
+         * @param patadaIzquierda imagen de patada a la izquierda
+         * @param titulo imagen del título
+         * @param audio ruta del audio de selección
+         * @param bandera ruta de la bandera
+         */
         private Opcion(Personaje personaje, String caja, String derecha,
                        String izquierda, String patadaDerecha,
                        String patadaIzquierda, String titulo,
@@ -145,42 +183,93 @@ final class CatalogoSeleccion {
             this.bandera = bandera;
         }
 
+        /**
+         * Devuelve el personaje de la opción.
+         *
+         * @return el personaje
+         */
         Personaje getPersonaje() {
             return personaje;
         }
 
+        /**
+         * Devuelve la imagen de la caja de selección.
+         *
+         * @return la ruta de la caja
+         */
         String getCaja() {
             return caja;
         }
 
+        /**
+         * Devuelve la imagen quieto mirando a la derecha.
+         *
+         * @return la ruta de la imagen
+         */
         String getDerecha() {
             return derecha;
         }
 
+        /**
+         * Devuelve la imagen quieto mirando a la izquierda.
+         *
+         * @return la ruta de la imagen
+         */
         String getIzquierda() {
             return izquierda;
         }
 
+        /**
+         * Devuelve la imagen de patada a la derecha.
+         *
+         * @return la ruta de la imagen
+         */
         String getPatadaDerecha() {
             return patadaDerecha;
         }
 
+        /**
+         * Devuelve la imagen de patada a la izquierda.
+         *
+         * @return la ruta de la imagen
+         */
         String getPatadaIzquierda() {
             return patadaIzquierda;
         }
 
+        /**
+         * Devuelve la imagen del título del personaje.
+         *
+         * @return la ruta del título
+         */
         String getTitulo() {
             return titulo;
         }
 
+        /**
+         * Devuelve la ruta del audio de selección.
+         *
+         * @return la ruta del audio
+         */
         String getAudio() {
             return audio;
         }
 
+        /**
+         * Devuelve la ruta de la bandera.
+         *
+         * @return la ruta de la bandera
+         */
         String getBandera() {
             return bandera;
         }
 
+        /**
+         * Indica si la opción corresponde a otro personaje.
+         *
+         * @param otro personaje que se compara
+         * @return true si es el mismo personaje
+         */
         boolean es(Personaje otro) {
             return personaje.getNombre().equalsIgnoreCase(otro.getNombre());
         }

@@ -4,31 +4,37 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import domain.PoderFlechazoDeAmor;
+import domain.PoderBesoDeLaFea;
 
 /**
- * Clase de pruebas PoderFlechazoDeAmorTest.
+ * Clase de pruebas PoderBesoDeLaFeaTest.
  * Verifica los datos del poder de Betty la fea (Colombia).
  */
-public class PoderFlechazoDeAmorTest
+public class PoderBesoDeLaFeaTest
 {
-    private PoderFlechazoDeAmor poder;
+    private PoderBesoDeLaFea poder;
 
-    public PoderFlechazoDeAmorTest()
+    /**
+     * Constructor de la clase de pruebas PoderBesoDeLaFeaTest.
+     */
+    public PoderBesoDeLaFeaTest()
     {
     }
 
+    /**
+     * Prepara el escenario de pruebas.
+     */
     @BeforeEach
     public void setUp()
     {
-        poder = new PoderFlechazoDeAmor();
+        poder = new PoderBesoDeLaFea();
     }
 
-    /** El nombre visible del poder es "Flechazo de Amor". */
+    /** El nombre visible del poder es "Beso de la Fea". */
     @Test
     public void shouldHaveExpectedName()
     {
-        assertEquals("Flechazo de Amor", poder.getNombre());
+        assertEquals("Beso de la Fea", poder.getNombre());
     }
 
     /** La duración del efecto es de 2.5 segundos. */
@@ -46,6 +52,9 @@ public class PoderFlechazoDeAmorTest
         assertEquals(30.0, poder.getDanoTiro(null), 0.0001);
     }
 
+    /**
+     * Libera el escenario de pruebas.
+     */
     @AfterEach
     public void tearDown()
     {

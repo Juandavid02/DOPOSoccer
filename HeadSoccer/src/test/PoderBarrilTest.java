@@ -14,10 +14,16 @@ public class PoderBarrilTest
 {
     private PoderBarril poder;
 
+    /**
+     * Constructor de la clase de pruebas PoderBarrilTest.
+     */
     public PoderBarrilTest()
     {
     }
 
+    /**
+     * Prepara el escenario de pruebas.
+     */
     @BeforeEach
     public void setUp()
     {
@@ -46,6 +52,9 @@ public class PoderBarrilTest
         assertEquals(35.0, poder.getDanoTiro(null), 0.0001);
     }
 
+    /**
+     * Libera el escenario de pruebas.
+     */
     @AfterEach
     public void tearDown()
     {

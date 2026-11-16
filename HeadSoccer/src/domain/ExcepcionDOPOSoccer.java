@@ -18,11 +18,23 @@ public class ExcepcionDOPOSoccer extends Exception {
     public static final String CONFIGURACION_NULA = "La configuración no puede ser nula";
     public static final String ESTADISTICAS_NULAS = "Las estadísticas no pueden ser nulas";
     public static final String PUNTOS_NULOS = "Los puntos no pueden ser nulos";
+    public static final String PUNTOS_INSUFICIENTES = "No hay puntos suficientes para inscribirse en el torneo";
 
+    /**
+     * Crea la excepción con el mensaje indicado.
+     *
+     * @param mensaje mensaje de la excepción
+     */
     public ExcepcionDOPOSoccer(String mensaje) {
         super(mensaje);
     }
 
+    /**
+     * Crea la excepción con el mensaje y la causa indicados.
+     *
+     * @param mensaje mensaje de la excepción
+     * @param causa causa original del error
+     */
     public ExcepcionDOPOSoccer(String mensaje, Throwable causa) {
         super(mensaje, causa);
     }

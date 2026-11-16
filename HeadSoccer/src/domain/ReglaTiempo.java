@@ -2,8 +2,8 @@ package domain;
 
 /**
  * Regla de victoria por tiempo.
- * El partido dura 60 segundos. Si al terminar hay empate, se activa
- * el gol de oro: el primero que anote gana.
+ * El partido dura los minutos configurados. Si al terminar hay empate, se
+ * activa el gol de oro: el primero que anote gana.
  */
 public class ReglaTiempo implements ReglaPartido {
     private boolean enGolDeOro;
@@ -11,6 +11,9 @@ public class ReglaTiempo implements ReglaPartido {
     private int golesJugador2AlIniciarGolDeOro;
     private MotivoFin motivo;
 
+    /**
+     * Crea la regla de tiempo sin gol de oro activo.
+     */
     public ReglaTiempo() {
         this.enGolDeOro = false;
         this.golesJugador1AlIniciarGolDeOro = 0;
@@ -32,7 +35,10 @@ public class ReglaTiempo implements ReglaPartido {
         Marcador marcador = partido.getMarcador();
 
         if (enGolDeOro) {
-            boolean huboGol = marcador.getGoles(1) != golesJugador1AlIniciarGolDeOro || marcador.getGoles(2) != golesJugador2AlIniciarGolDeOro;
+            boolean huboGol = marcador.getGoles(1)
+                    != golesJugador1AlIniciarGolDeOro
+                    || marcador.getGoles(2)
+                    != golesJugador2AlIniciarGolDeOro;
             if (huboGol) {
                 motivo = MotivoFin.GOL_DE_ORO;
                 return true;

@@ -14,10 +14,16 @@ public class VidaTest
 {
     private Vida vida;
 
+    /**
+     * Constructor de la clase de pruebas VidaTest.
+     */
     public VidaTest()
     {
     }
 
+    /**
+     * Prepara el escenario de pruebas.
+     */
     @BeforeEach
     public void setUp()
     {
@@ -81,6 +87,9 @@ public class VidaTest
         assertFalse(vida.estaEnCero());
     }
 
+    /**
+     * Libera el escenario de pruebas.
+     */
     @AfterEach
     public void tearDown()
     {
