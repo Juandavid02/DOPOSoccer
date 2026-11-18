@@ -244,7 +244,10 @@ public class TorneoView extends VistaBase {
                 + ParametrosJuego.PREMIO_SUBCAMPEON_TORNEO + " pts", COLOR_ORO));
         columna.add(Box.createVerticalStrut(18));
 
-        int puntos = perfil == null ? 0 : perfil.getPuntos().getTotal();
+        int puntos = 0;
+        if (perfil != null) {
+            puntos = perfil.getPuntos().getTotal();
+        }
         JLabel saldo = new JLabel("TUS PUNTOS: " + puntos);
         saldo.setFont(new Font("SansSerif", Font.BOLD, 22));
         saldo.setForeground(COLOR_TEXTO);
@@ -548,9 +551,12 @@ public class TorneoView extends VistaBase {
             }
 
             BufferedImage imagen = bandera(participante.getPersonaje());
-            String etiqueta = campeon ? "CAMPEÓN"
-                    : participante.isHumano() ? null
-                    : participante.getPerfilIA().name();
+            String etiqueta = null;
+            if (campeon) {
+                etiqueta = "CAMPEÓN";
+            } else if (!participante.isHumano()) {
+                etiqueta = participante.getPerfilIA().name();
+            }
 
             int pad = Math.max(6, cajaPantalla.height / 10);
             int anchoInterior = Math.max(1, cajaPantalla.width - pad * 2);
@@ -571,13 +577,17 @@ public class TorneoView extends VistaBase {
             Font fuente = new Font("SansSerif", Font.BOLD,
                     Math.max(10, cajaPantalla.height / 8));
             FontMetrics fm = g2.getFontMetrics(fuente);
-            int anchoTexto = etiqueta == null ? 0 : fm.stringWidth(etiqueta);
+            int anchoTexto = 0;
+            if (etiqueta != null) {
+                anchoTexto = fm.stringWidth(etiqueta);
+            }
 
             boolean conTexto = etiqueta != null
                     && anchoBandera + separacion + anchoTexto <= anchoInterior;
-            int anchoTotal = conTexto
-                    ? anchoBandera + separacion + anchoTexto
-                    : anchoBandera;
+            int anchoTotal = anchoBandera;
+            if (conTexto) {
+                anchoTotal = anchoBandera + separacion + anchoTexto;
+            }
             int x = cajaPantalla.x + (cajaPantalla.width - anchoTotal) / 2;
             int yBandera = cajaPantalla.y
                     + (cajaPantalla.height - altoBandera) / 2;
@@ -620,8 +630,10 @@ public class TorneoView extends VistaBase {
             if (!campeon) {
                 return COLOR_TEXTO;
             }
-            return participante.isHumano()
-                    ? new Color(255, 238, 180) : COLOR_ORO;
+            if (participante.isHumano()) {
+                return new Color(255, 238, 180);
+            }
+            return COLOR_ORO;
         }
 
         /**

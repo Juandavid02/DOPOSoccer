@@ -133,7 +133,10 @@ public class ControladorIA {
                 return balon.getX();
             case DEFENSIVA: {
                 // Se queda entre el balón y su propio arco.
-                double desplazamiento = ladoDerecho ? 150 : -150;
+                double desplazamiento = -150;
+                if (ladoDerecho) {
+                    desplazamiento = 150;
+                }
                 double objetivo = balon.getX() + desplazamiento;
                 if (ladoDerecho) {
                     return Math.max(ancho * 0.55,
@@ -144,13 +147,19 @@ public class ControladorIA {
             }
             case EXPERTA: {
                 double medio = ancho / 2;
-                boolean balonEnMiCampo = ladoDerecho
-                        ? balon.getX() > medio
-                        : balon.getX() < medio;
+                boolean balonEnMiCampo;
+                if (ladoDerecho) {
+                    balonEnMiCampo = balon.getX() > medio;
+                } else {
+                    balonEnMiCampo = balon.getX() < medio;
+                }
                 if (balonEnMiCampo) {
                     return balon.getX();
                 }
-                return ladoDerecho ? ancho * 0.68 : ancho * 0.32;
+                if (ladoDerecho) {
+                    return ancho * 0.68;
+                }
+                return ancho * 0.32;
             }
             default:
                 return balon.getX();

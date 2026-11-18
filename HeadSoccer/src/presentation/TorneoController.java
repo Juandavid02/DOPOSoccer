@@ -153,10 +153,16 @@ public class TorneoController {
             return;
         }
 
-        this.tipoPartido = tipoPartido == null
-                ? TipoPartido.TIEMPO : tipoPartido;
-        this.resolucion = resolucion == null
-                ? Resolucion.R1280x720 : resolucion;
+        if (tipoPartido == null) {
+            this.tipoPartido = TipoPartido.TIEMPO;
+        } else {
+            this.tipoPartido = tipoPartido;
+        }
+        if (resolucion == null) {
+            this.resolucion = Resolucion.R1280x720;
+        } else {
+            this.resolucion = resolucion;
+        }
         this.tiempo = Math.max(1, tiempo);
         this.goles = Math.max(1, goles);
 
@@ -199,9 +205,12 @@ public class TorneoController {
             return;
         }
 
-        ParticipanteTorneo rival = siguiente.getPrimero()
-                == torneo.getHumano()
-                ? siguiente.getSegundo() : siguiente.getPrimero();
+        ParticipanteTorneo rival;
+        if (siguiente.getPrimero() == torneo.getHumano()) {
+            rival = siguiente.getSegundo();
+        } else {
+            rival = siguiente.getPrimero();
+        }
 
         ConfiguracionIA configuracionIA = rival.crearConfiguracionIA();
         ConfiguracionPartido configuracion = null;
@@ -327,8 +336,10 @@ public class TorneoController {
      */
     private String rutaBalon() {
         String ruta = gui.getRutaBalonSeleccionado();
-        return ruta != null ? ruta
-                : CatalogoVisual.getBalones().get(0).getRuta();
+        if (ruta != null) {
+            return ruta;
+        }
+        return CatalogoVisual.getBalones().get(0).getRuta();
     }
 
     /**
@@ -338,8 +349,10 @@ public class TorneoController {
      */
     private String rutaEscenario() {
         String ruta = gui.getRutaEscenarioSeleccionado();
-        return ruta != null ? ruta
-                : CatalogoVisual.getEscenarios().get(0).getRuta();
+        if (ruta != null) {
+            return ruta;
+        }
+        return CatalogoVisual.getEscenarios().get(0).getRuta();
     }
 
     /**

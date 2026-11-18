@@ -212,11 +212,15 @@ public class SeleccionPersonajeController {
      */
     private void continuar() {
         if (personaje1 == null || (!soloHumano && personaje2 == null)) {
+            String mensaje;
+            if (soloHumano) {
+                mensaje = "Selecciona un personaje para continuar.";
+            } else {
+                mensaje = "Cada jugador debe elegir un personaje.";
+            }
             JOptionPane.showMessageDialog(
                     view,
-                    soloHumano
-                            ? "Selecciona un personaje para continuar."
-                            : "Cada jugador debe elegir un personaje.",
+                    mensaje,
                     "Selección de personaje",
                     JOptionPane.WARNING_MESSAGE);
             return;
@@ -246,7 +250,11 @@ public class SeleccionPersonajeController {
      */
     private void actualizarTurno() {
         if (soloHumano) {
-            turno = personaje1 == null ? 1 : 0;
+            if (personaje1 == null) {
+                turno = 1;
+            } else {
+                turno = 0;
+            }
             return;
         }
         if (personaje1 == null) {
@@ -282,10 +290,15 @@ public class SeleccionPersonajeController {
      */
     private PerfilJugador perfilDeTurno() {
         if (gui.esPvsM()) {
-            return soloHumano || turno != 2
-                    ? gui.getPerfilPartido1() : null;
+            if (soloHumano || turno != 2) {
+                return gui.getPerfilPartido1();
+            }
+            return null;
         }
-        return turno == 2 ? gui.getPerfilPartido2() : gui.getPerfilPartido1();
+        if (turno == 2) {
+            return gui.getPerfilPartido2();
+        }
+        return gui.getPerfilPartido1();
     }
 
     /**

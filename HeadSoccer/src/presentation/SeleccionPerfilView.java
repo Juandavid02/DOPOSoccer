@@ -94,9 +94,13 @@ public class SeleccionPerfilView extends VistaBase {
     public void setModo(Modalidad modalidad) {
         panelJugador2.setVisible(modalidad != Modalidad.PvsM);
         boolean solo = modalidad == Modalidad.PvsM;
-        BotonImagen.cambiarImagen(botonContinuarCentral,
-                solo ? imagenReadySolo : imagenReadyPvp,
-                solo ? ANCHO_READY_SOLO : ANCHO_READY_PVP);
+        BufferedImage imagen = imagenReadyPvp;
+        int ancho = ANCHO_READY_PVP;
+        if (solo) {
+            imagen = imagenReadySolo;
+            ancho = ANCHO_READY_SOLO;
+        }
+        BotonImagen.cambiarImagen(botonContinuarCentral, imagen, ancho);
         revalidate();
         repaint();
     }

@@ -184,6 +184,9 @@ public class ParticipanteTorneo {
      * @return configuración de máquina
      */
     public ConfiguracionIA crearConfiguracionIA() {
-        return isHumano() ? null : new ConfiguracionIA(perfilIA, estadisticas);
+        if (isHumano()) {
+            return null;
+        }
+        return new ConfiguracionIA(perfilIA, estadisticas);
     }
 }

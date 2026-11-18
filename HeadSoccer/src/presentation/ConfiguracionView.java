@@ -531,13 +531,25 @@ public class ConfiguracionView extends VistaBase {
             RoundRectangle2D forma = new RoundRectangle2D.Float(
                     1, 1, ancho - 3, alto - 3, 16, 16);
 
-            g2.setColor(capturando
-                    ? new Color(40, 70, 96, 245)
-                    : new Color(10, 30, 50, 230));
+            Color fondo;
+            if (capturando) {
+                fondo = new Color(40, 70, 96, 245);
+            } else {
+                fondo = new Color(10, 30, 50, 230);
+            }
+            g2.setColor(fondo);
             g2.fill(forma);
 
-            g2.setStroke(new BasicStroke(capturando || encima ? 2.5f : 1.8f));
-            g2.setColor(capturando || encima ? DORADO_CLARO : new Color(180, 150, 75));
+            float grosor = 1.8f;
+            if (capturando || encima) {
+                grosor = 2.5f;
+            }
+            g2.setStroke(new BasicStroke(grosor));
+            if (capturando || encima) {
+                g2.setColor(DORADO_CLARO);
+            } else {
+                g2.setColor(new Color(180, 150, 75));
+            }
             g2.draw(forma);
 
             g2.setFont(getFont());
@@ -545,7 +557,11 @@ public class ConfiguracionView extends VistaBase {
             String texto = getText();
             int x = (ancho - fm.stringWidth(texto)) / 2;
             int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-            g2.setColor(capturando ? DORADO_CLARO : Color.WHITE);
+            if (capturando) {
+                g2.setColor(DORADO_CLARO);
+            } else {
+                g2.setColor(Color.WHITE);
+            }
             g2.drawString(texto, x, y);
 
             g2.dispose();
@@ -587,12 +603,20 @@ public class ConfiguracionView extends VistaBase {
             boolean activo = isEnabled();
             boolean encima = getModel().isRollover() && activo;
 
-            Color relleno = activo
-                    ? new Color(10, 32, 54, 240)
-                    : new Color(28, 42, 56, 200);
-            Color borde = activo
-                    ? (encima ? DORADO_CLARO : DORADO)
-                    : new Color(100, 110, 118);
+            Color relleno;
+            if (activo) {
+                relleno = new Color(10, 32, 54, 240);
+            } else {
+                relleno = new Color(28, 42, 56, 200);
+            }
+            Color borde;
+            if (!activo) {
+                borde = new Color(100, 110, 118);
+            } else if (encima) {
+                borde = DORADO_CLARO;
+            } else {
+                borde = DORADO;
+            }
 
             int tamano = Math.min(getWidth(), getHeight());
             int x = (getWidth() - tamano) / 2;
@@ -601,7 +625,11 @@ public class ConfiguracionView extends VistaBase {
             g2.setColor(relleno);
             g2.fillOval(x + 1, y + 1, tamano - 3, tamano - 3);
 
-            g2.setStroke(new BasicStroke(encima ? 3f : 2.2f));
+            float grosor = 2.2f;
+            if (encima) {
+                grosor = 3f;
+            }
+            g2.setStroke(new BasicStroke(grosor));
             g2.setColor(borde);
             g2.drawOval(x + 1, y + 1, tamano - 3, tamano - 3);
 
@@ -610,7 +638,11 @@ public class ConfiguracionView extends VistaBase {
             String texto = getText();
             int tx = (getWidth() - fm.stringWidth(texto)) / 2;
             int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-            g2.setColor(activo ? Color.WHITE : new Color(160, 170, 178));
+            if (activo) {
+                g2.setColor(Color.WHITE);
+            } else {
+                g2.setColor(new Color(160, 170, 178));
+            }
             g2.drawString(texto, tx, ty);
 
             g2.dispose();

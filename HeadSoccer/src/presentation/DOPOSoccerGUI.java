@@ -319,7 +319,11 @@ public class DOPOSoccerGUI extends JFrame {
      * @param modalidad modalidad del partido
      */
     public void iniciarSeleccionPerfil(Modalidad modalidad) {
-        modalidadSeleccionada = modalidad == null ? Modalidad.PvsP : modalidad;
+        if (modalidad == null) {
+            modalidadSeleccionada = Modalidad.PvsP;
+        } else {
+            modalidadSeleccionada = modalidad;
+        }
         configuracionIA = null;
         configuracionTorneo = false;
         seleccionPersonajeController.setSoloHumano(false);
@@ -465,8 +469,11 @@ public class DOPOSoccerGUI extends JFrame {
      * @param modalidad modalidad elegida
      */
     public void setModalidadSeleccionada(Modalidad modalidad) {
-        this.modalidadSeleccionada = modalidad == null
-                ? Modalidad.PvsP : modalidad;
+        if (modalidad == null) {
+            this.modalidadSeleccionada = Modalidad.PvsP;
+        } else {
+            this.modalidadSeleccionada = modalidad;
+        }
     }
 
     /**

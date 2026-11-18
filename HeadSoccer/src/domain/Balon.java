@@ -97,6 +97,7 @@ public class Balon {
      */
     public void actualizar(double dt, Cancha cancha) {
         velocidadY += ParametrosJuego.GRAVEDAD * dt;
+        // IA Generativa para que el juego no dependa de la velocidad de fotogramas y se comporte igual en cualquier máquina.
         velocidadX *= Math.pow(ParametrosJuego.FRICCION, dt*60);
         x += velocidadX * dt;
         y += velocidadY * dt;

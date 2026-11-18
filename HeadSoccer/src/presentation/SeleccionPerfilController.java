@@ -163,7 +163,11 @@ public class SeleccionPerfilController {
      * @param modo modalidad elegida
      */
     public void setModo(Modalidad modo) {
-        this.modo = modo == null ? Modalidad.PvsP : modo;
+        if (modo == null) {
+            this.modo = Modalidad.PvsP;
+        } else {
+            this.modo = modo;
+        }
         if (this.modo == Modalidad.PvsM) {
             perfil2 = null;
             listo2 = false;

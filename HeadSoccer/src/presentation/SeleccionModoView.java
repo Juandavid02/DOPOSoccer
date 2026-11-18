@@ -150,8 +150,12 @@ public class SeleccionModoView extends VistaBase {
             StringBuilder linea = new StringBuilder();
 
             for (String palabra : palabras) {
-                String prueba = linea.length() == 0
-                        ? palabra : linea + " " + palabra;
+                String prueba;
+                if (linea.length() == 0) {
+                    prueba = palabra;
+                } else {
+                    prueba = linea + " " + palabra;
+                }
                 if (fm.stringWidth(prueba) <= anchoMaximo
                         || linea.length() == 0) {
                     linea.setLength(0);

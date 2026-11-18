@@ -206,10 +206,15 @@ public class Torneo {
         if (partido == null) {
             return false;
         }
-        int golesPrimero = partido.getPrimero().isHumano()
-                ? golesHumano : golesRival;
-        int golesSegundo = partido.getPrimero().isHumano()
-                ? golesRival : golesHumano;
+        int golesPrimero;
+        int golesSegundo;
+        if (partido.getPrimero().isHumano()) {
+            golesPrimero = golesHumano;
+            golesSegundo = golesRival;
+        } else {
+            golesPrimero = golesRival;
+            golesSegundo = golesHumano;
+        }
         partido.registrar(golesPrimero, golesSegundo);
         simularPendientes(random);
         return true;
@@ -284,10 +289,14 @@ public class Torneo {
         double probabilidadPrimero = (double) fuerzaPrimero
                 / (fuerzaPrimero + fuerzaSegundo);
 
-        int golesPrimero = random.nextInt(4)
-                + (random.nextDouble() < probabilidadPrimero ? 1 : 0);
-        int golesSegundo = random.nextInt(4)
-                + (random.nextDouble() < 1 - probabilidadPrimero ? 1 : 0);
+        int golesPrimero = random.nextInt(4);
+        if (random.nextDouble() < probabilidadPrimero) {
+            golesPrimero++;
+        }
+        int golesSegundo = random.nextInt(4);
+        if (random.nextDouble() < 1 - probabilidadPrimero) {
+            golesSegundo++;
+        }
 
         while (golesPrimero == golesSegundo) {
             if (random.nextDouble() < probabilidadPrimero) {

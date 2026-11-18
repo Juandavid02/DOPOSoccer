@@ -418,7 +418,10 @@ public class JuegoView extends JPanel {
      */
     private static BufferedImage recortarOpcional(String ruta) {
         BufferedImage imagen = cargarOpcional(ruta);
-        return imagen == null ? null : RecursosImagen.recortarTransparente(imagen);
+        if (imagen == null) {
+            return null;
+        }
+        return RecursosImagen.recortarTransparente(imagen);
     }
 
     /**
@@ -599,8 +602,12 @@ public class JuegoView extends JPanel {
             return;
         }
 
-        BufferedImage imagen = tiro.getDueno() == partido.getJugadores().get(0)
-                ? tiroJugador1 : tiroJugador2;
+        BufferedImage imagen;
+        if (tiro.getDueno() == partido.getJugadores().get(0)) {
+            imagen = tiroJugador1;
+        } else {
+            imagen = tiroJugador2;
+        }
         if (imagen == null) {
             return;
         }
@@ -754,13 +761,20 @@ public class JuegoView extends JPanel {
         double pulso = 1.0 + 0.07 * Math.sin(tiempo / 140.0 + indice);
         boolean barril = efecto.getTipo() == TipoEfecto.BARRIL;
 
-        double anchoEfecto = anchoJugador * (barril ? 1.45 : 1.05) * pulso;
+        double factorAncho = 1.05;
+        if (barril) {
+            factorAncho = 1.45;
+        }
+        double anchoEfecto = anchoJugador * factorAncho * pulso;
         double altoEfecto = anchoEfecto * imagen.getHeight() / imagen.getWidth();
 
         // Los efectos se abren en abanico para que varios sean visibles a la vez.
         double separacion = anchoJugador * 0.30;
         double desplazamiento = (indice - (total - 1) / 2.0) * separacion;
-        double centroEfectoX = centroX + (barril ? 0 : desplazamiento);
+        double centroEfectoX = centroX + desplazamiento;
+        if (barril) {
+            centroEfectoX = centroX;
+        }
 
         int x = (int) (centroEfectoX - anchoEfecto / 2);
         int yEfecto;
@@ -886,9 +900,10 @@ public class JuegoView extends JPanel {
         double aparicion = Math.min(1.0, progreso / 0.16);
         double escala = 0.55 + 0.45 * (1 - Math.pow(1 - aparicion, 3));
         double pulso = 1.0 + 0.035 * Math.sin((ahora - inicioGol) / 85.0);
-        double alpha = progreso > 0.82
-                ? Math.max(0, (1 - progreso) / 0.18)
-                : 1;
+        double alpha = 1;
+        if (progreso > 0.82) {
+            alpha = Math.max(0, (1 - progreso) / 0.18);
+        }
 
         double anchoMaximo = getWidth() * 0.42;
         double escalaImagen = anchoMaximo / imagenGol.getWidth()
@@ -1009,8 +1024,13 @@ public class JuegoView extends JPanel {
      */
     private void dibujarNombre(Graphics2D g2, Jugador jugador, int hudX, int hudY,
                                double escala, boolean izquierda) {
-        int centroX = xMarco(izquierda ? NOMBRE_IZQUIERDA_CENTRO_X
-                : NOMBRE_DERECHA_CENTRO_X, hudX, escala);
+        int nombreX;
+        if (izquierda) {
+            nombreX = NOMBRE_IZQUIERDA_CENTRO_X;
+        } else {
+            nombreX = NOMBRE_DERECHA_CENTRO_X;
+        }
+        int centroX = xMarco(nombreX, hudX, escala);
         int anchoMaximo = Math.max(30, (int) Math.round(NOMBRE_ANCHO * escala));
         int tamano = Math.max(12, (int) Math.round(46 * escala));
 
@@ -1057,9 +1077,12 @@ public class JuegoView extends JPanel {
             colorEstado = CatalogoPoderes.colorEfecto(efectos.get(0).getTipo());
         }
 
-        int centroBarra = izquierda
-                ? VIDA_IZQUIERDA_X + VIDA_IZQUIERDA_ANCHO / 2
-                : VIDA_DERECHA_X + VIDA_DERECHA_ANCHO / 2;
+        int centroBarra;
+        if (izquierda) {
+            centroBarra = VIDA_IZQUIERDA_X + VIDA_IZQUIERDA_ANCHO / 2;
+        } else {
+            centroBarra = VIDA_DERECHA_X + VIDA_DERECHA_ANCHO / 2;
+        }
         int centroX = xMarco(centroBarra, hudX, escala);
         int y = yMarco(PODER_Y + PODER_ALTO + 34, hudY, escala);
         int tamano = Math.max(11, (int) Math.round(30 * escala));
@@ -1107,14 +1130,25 @@ public class JuegoView extends JPanel {
     private void dibujarBarrasJugador(Graphics2D g2, Jugador jugador,
                                       int hudX, int hudY, double escala,
                                       boolean izquierda) {
-        int xVida = xMarco(izquierda ? VIDA_IZQUIERDA_X : VIDA_DERECHA_X,
-                hudX, escala);
-        int xPoder = xMarco(izquierda ? PODER_IZQUIERDA_X : PODER_DERECHA_X,
-                hudX, escala);
-        int anchoVida = (int) Math.round(
-                (izquierda ? VIDA_IZQUIERDA_ANCHO : VIDA_DERECHA_ANCHO) * escala);
-        int anchoPoder = (int) Math.round(
-                (izquierda ? PODER_IZQUIERDA_ANCHO : PODER_DERECHA_ANCHO) * escala);
+        int vidaX;
+        int poderX;
+        int vidaAncho;
+        int poderAncho;
+        if (izquierda) {
+            vidaX = VIDA_IZQUIERDA_X;
+            poderX = PODER_IZQUIERDA_X;
+            vidaAncho = VIDA_IZQUIERDA_ANCHO;
+            poderAncho = PODER_IZQUIERDA_ANCHO;
+        } else {
+            vidaX = VIDA_DERECHA_X;
+            poderX = PODER_DERECHA_X;
+            vidaAncho = VIDA_DERECHA_ANCHO;
+            poderAncho = PODER_DERECHA_ANCHO;
+        }
+        int xVida = xMarco(vidaX, hudX, escala);
+        int xPoder = xMarco(poderX, hudX, escala);
+        int anchoVida = (int) Math.round(vidaAncho * escala);
+        int anchoPoder = (int) Math.round(poderAncho * escala);
         int altoVida = (int) Math.round(VIDA_ALTO * escala);
         int altoPoder = (int) Math.round(PODER_ALTO * escala);
 
@@ -1145,10 +1179,17 @@ public class JuegoView extends JPanel {
             gGlow.dispose();
         }
 
-        BufferedImage emoji = izquierda ? emojiJugador1 : emojiJugador2;
+        BufferedImage emoji;
+        int circuloX;
+        if (izquierda) {
+            emoji = emojiJugador1;
+            circuloX = CIRCULO_IZQUIERDA_X;
+        } else {
+            emoji = emojiJugador2;
+            circuloX = CIRCULO_DERECHA_X;
+        }
         dibujarEmoji(g2, emoji,
-                xMarco(izquierda ? CIRCULO_IZQUIERDA_X : CIRCULO_DERECHA_X,
-                        hudX, escala),
+                xMarco(circuloX, hudX, escala),
                 yMarco(CIRCULO_Y, hudY, escala),
                 (int) Math.round(CIRCULO_ANCHO * escala),
                 (int) Math.round(CIRCULO_ALTO * escala),
@@ -1192,7 +1233,10 @@ public class JuegoView extends JPanel {
                     .append(" s");
         }
 
-        return estado.length() == 0 ? null : estado.toString();
+        if (estado.length() == 0) {
+            return null;
+        }
+        return estado.toString();
     }
 
     /**
@@ -1245,9 +1289,11 @@ public class JuegoView extends JPanel {
             return;
         }
 
-        double pulso = lleno
-                ? 1.0 + 0.08 * Math.sin(System.currentTimeMillis() / 160.0)
-                : 1.0;
+        double pulso = 1.0;
+        if (lleno) {
+            pulso = 1.0 + 0.08 * Math.sin(
+                    System.currentTimeMillis() / 160.0);
+        }
         double escala = Math.min(
                 anchoCirculo * 0.68 / emoji.getWidth(),
                 altoCirculo * 0.80 / emoji.getHeight()) * pulso;
