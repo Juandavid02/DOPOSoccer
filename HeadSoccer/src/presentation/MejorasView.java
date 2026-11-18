@@ -81,7 +81,11 @@ public class MejorasView extends VistaBase {
      * @param accionCompra acción de compra o null para no hacer nada
      */
     public void setAccionCompra(Consumer<TarjetaDesbloqueo> accionCompra) {
-        this.accionCompra = accionCompra == null ? tarjeta -> { } : accionCompra;
+        if (accionCompra == null) {
+            this.accionCompra = tarjeta -> { };
+        } else {
+            this.accionCompra = accionCompra;
+        }
     }
 
     /**
@@ -519,9 +523,11 @@ public class MejorasView extends VistaBase {
             return;
         }
 
-        int nuevoIndice = seleccion >= 0
-                ? Math.max(0, Math.min(seleccion, modeloPerfiles.size() - 1))
-                : 0;
+        int nuevoIndice = 0;
+        if (seleccion >= 0) {
+            nuevoIndice = Math.max(0,
+                    Math.min(seleccion, modeloPerfiles.size() - 1));
+        }
         listaPerfiles.setSelectedIndex(nuevoIndice);
         mostrarPerfil(modeloPerfiles.get(nuevoIndice));
     }
@@ -713,7 +719,11 @@ public class MejorasView extends VistaBase {
          * @param accionCompra acción de compra o null para no hacer nada
          */
         private void setAccionCompra(Consumer<TarjetaDesbloqueo> accionCompra) {
-            this.accionCompra = accionCompra == null ? t -> { } : accionCompra;
+            if (accionCompra == null) {
+                this.accionCompra = t -> { };
+            } else {
+                this.accionCompra = accionCompra;
+            }
         }
 
         /**
@@ -737,8 +747,12 @@ public class MejorasView extends VistaBase {
                 return;
             }
 
-            BufferedImage previa = tarjeta.getImagenPrevia() != null
-                    ? tarjeta.getImagenPrevia() : tarjeta.getImagen();
+            BufferedImage previa;
+            if (tarjeta.getImagenPrevia() != null) {
+                previa = tarjeta.getImagenPrevia();
+            } else {
+                previa = tarjeta.getImagen();
+            }
             imagen.setContenido(previa, tarjeta.isDesbloqueado());
             nombre.setText(tarjeta.getNombre());
 
@@ -759,13 +773,29 @@ public class MejorasView extends VistaBase {
                 }
             }
 
-            estado.setText(tarjeta.isDesbloqueado()
-                    ? "Desbloqueado" : "Bloqueado");
-            estado.setForeground(tarjeta.isDesbloqueado()
-                    ? new Color(42, 130, 70)
-                    : new Color(190, 60, 60));
-            precio.setText(tarjeta.isDesbloqueado()
-                    ? " " : tarjeta.getPrecio() + " puntos");
+            String textoEstado;
+            if (tarjeta.isDesbloqueado()) {
+                textoEstado = "Desbloqueado";
+            } else {
+                textoEstado = "Bloqueado";
+            }
+            estado.setText(textoEstado);
+
+            Color colorEstado;
+            if (tarjeta.isDesbloqueado()) {
+                colorEstado = new Color(42, 130, 70);
+            } else {
+                colorEstado = new Color(190, 60, 60);
+            }
+            estado.setForeground(colorEstado);
+
+            String textoPrecio;
+            if (tarjeta.isDesbloqueado()) {
+                textoPrecio = " ";
+            } else {
+                textoPrecio = tarjeta.getPrecio() + " puntos";
+            }
+            precio.setText(textoPrecio);
             boton.setVisible(!tarjeta.isDesbloqueado());
             boton.setEnabled(!tarjeta.isDesbloqueado());
             revalidate();
@@ -857,7 +887,11 @@ public class MejorasView extends VistaBase {
             FontMetrics fm = g2.getFontMetrics();
             int x = (ancho - fm.stringWidth(getText())) / 2;
             int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-            g2.setColor(seleccionado ? Color.WHITE : TEXTO_SUAVE);
+            if (seleccionado) {
+                g2.setColor(Color.WHITE);
+            } else {
+                g2.setColor(TEXTO_SUAVE);
+            }
             g2.drawString(getText(), x, y);
             g2.dispose();
         }
@@ -903,9 +937,11 @@ public class MejorasView extends VistaBase {
             setBorder(new EmptyBorder(6, 6, 6, 6));
             // Solo los personajes se seleccionan con clic; los balones y
             // escenarios solo muestran la mano sobre su botón de compra.
-            setCursor(Cursor.getPredefinedCursor(
-                    tipo == TipoTienda.PERSONAJE
-                            ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
+            int tipoCursor = Cursor.DEFAULT_CURSOR;
+            if (tipo == TipoTienda.PERSONAJE) {
+                tipoCursor = Cursor.HAND_CURSOR;
+            }
+            setCursor(Cursor.getPredefinedCursor(tipoCursor));
 
             add(new PanelImagenTienda(imagen, desbloqueado,
                     tipo == TipoTienda.PERSONAJE), BorderLayout.CENTER);
@@ -921,17 +957,31 @@ public class MejorasView extends VistaBase {
             if (tipo == TipoTienda.PERSONAJE) {
                 botonComprar = null;
             } else {
+                String textoPrecio;
+                if (desbloqueado) {
+                    textoPrecio = "Desbloqueado";
+                } else {
+                    textoPrecio = precio + " puntos";
+                }
                 JLabel etiquetaPrecio = new JLabel(
-                        desbloqueado ? "Desbloqueado" : precio + " puntos",
-                        SwingConstants.CENTER);
+                        textoPrecio, SwingConstants.CENTER);
                 etiquetaPrecio.setFont(new Font("SansSerif", Font.BOLD, 12));
-                etiquetaPrecio.setForeground(desbloqueado
-                        ? new Color(42, 130, 70)
-                        : NARANJA_PUNTOS);
+                Color colorPrecio;
+                if (desbloqueado) {
+                    colorPrecio = new Color(42, 130, 70);
+                } else {
+                    colorPrecio = NARANJA_PUNTOS;
+                }
+                etiquetaPrecio.setForeground(colorPrecio);
                 pie.add(etiquetaPrecio, BorderLayout.CENTER);
 
-                botonComprar = new BotonMejora(
-                        desbloqueado ? "DESBLOQUEADO" : "COMPRAR");
+                String textoBoton;
+                if (desbloqueado) {
+                    textoBoton = "DESBLOQUEADO";
+                } else {
+                    textoBoton = "COMPRAR";
+                }
+                botonComprar = new BotonMejora(textoBoton);
                 botonComprar.setEnabled(!desbloqueado);
                 pie.add(botonComprar, BorderLayout.SOUTH);
             }
@@ -1042,9 +1092,11 @@ public class MejorasView extends VistaBase {
                 g2.setColor(new Color(255, 205, 70));
             } else {
                 g2.setStroke(new BasicStroke(1.5f));
-                g2.setColor(desbloqueado
-                        ? new Color(120, 190, 145)
-                        : new Color(120, 160, 185));
+                if (desbloqueado) {
+                    g2.setColor(new Color(120, 190, 145));
+                } else {
+                    g2.setColor(new Color(120, 160, 185));
+                }
             }
             g2.draw(forma);
             g2.dispose();
@@ -1091,7 +1143,11 @@ public class MejorasView extends VistaBase {
          * @param desbloqueado true si el objeto está desbloqueado
          */
         private void setContenido(BufferedImage imagen, boolean desbloqueado) {
-            this.imagen = imagen == null ? null : RecursosImagen.recortarTransparente(imagen);
+            if (imagen == null) {
+                this.imagen = null;
+            } else {
+                this.imagen = RecursosImagen.recortarTransparente(imagen);
+            }
             this.desbloqueado = desbloqueado;
             repaint();
         }
@@ -1118,13 +1174,16 @@ public class MejorasView extends VistaBase {
             g2.clip(forma);
 
             if (imagen != null) {
-                double escala = cubrir
-                        ? Math.max(
-                                (double) (ancho - 14) / imagen.getWidth(),
-                                (double) (alto - 14) / imagen.getHeight())
-                        : Math.min(
-                                (double) (ancho - 14) / imagen.getWidth(),
-                                (double) (alto - 14) / imagen.getHeight());
+                double escala;
+                if (cubrir) {
+                    escala = Math.max(
+                            (double) (ancho - 14) / imagen.getWidth(),
+                            (double) (alto - 14) / imagen.getHeight());
+                } else {
+                    escala = Math.min(
+                            (double) (ancho - 14) / imagen.getWidth(),
+                            (double) (alto - 14) / imagen.getHeight());
+                }
                 int anchoImagen = (int) (imagen.getWidth() * escala);
                 int altoImagen = (int) (imagen.getHeight() * escala);
                 g2.drawImage(imagen,
@@ -1238,15 +1297,25 @@ public class MejorasView extends VistaBase {
             RoundRectangle2D forma = new RoundRectangle2D.Float(
                     1, 1, ancho - 3, alto - 3, 16, 16);
 
-            g2.setColor(activo
-                    ? AZUL
-                    : new Color(205, 216, 222));
+            if (activo) {
+                g2.setColor(AZUL);
+            } else {
+                g2.setColor(new Color(205, 216, 222));
+            }
             g2.fill(forma);
 
-            g2.setStroke(new BasicStroke(encima ? 2.5f : 1.8f));
-            g2.setColor(activo
-                    ? (encima ? AZUL_CLARO : new Color(24, 78, 110))
-                    : new Color(150, 168, 180));
+            float grosor = 1.8f;
+            if (encima) {
+                grosor = 2.5f;
+            }
+            g2.setStroke(new BasicStroke(grosor));
+            if (!activo) {
+                g2.setColor(new Color(150, 168, 180));
+            } else if (encima) {
+                g2.setColor(AZUL_CLARO);
+            } else {
+                g2.setColor(new Color(24, 78, 110));
+            }
             g2.draw(forma);
 
             g2.setFont(getFont());
@@ -1254,7 +1323,11 @@ public class MejorasView extends VistaBase {
             String texto = getText();
             int x = (ancho - fm.stringWidth(texto)) / 2;
             int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-            g2.setColor(activo ? Color.WHITE : new Color(110, 125, 135));
+            if (activo) {
+                g2.setColor(Color.WHITE);
+            } else {
+                g2.setColor(new Color(110, 125, 135));
+            }
             g2.drawString(texto, x, y);
 
             g2.dispose();

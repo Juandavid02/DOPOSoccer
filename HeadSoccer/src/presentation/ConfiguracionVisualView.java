@@ -243,9 +243,13 @@ public class ConfiguracionVisualView extends VistaBase {
      * @param solo true para PvsM
      */
     public void setBotonReadySolo(boolean solo) {
-        BotonImagen.cambiarImagen(botonReady,
-                solo ? imagenReadySolo : imagenReadyPvp,
-                solo ? ANCHO_READY_SOLO : ANCHO_READY_PVP);
+        BufferedImage imagen = imagenReadyPvp;
+        int ancho = ANCHO_READY_PVP;
+        if (solo) {
+            imagen = imagenReadySolo;
+            ancho = ANCHO_READY_SOLO;
+        }
+        BotonImagen.cambiarImagen(botonReady, imagen, ancho);
     }
 
     /**

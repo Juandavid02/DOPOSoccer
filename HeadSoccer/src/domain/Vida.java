@@ -46,7 +46,10 @@ public class Vida {
         if (maxima <= 0) {
             throw new IllegalArgumentException("La vida máxima debe ser mayor que cero");
         }
-        double proporcion = this.maxima > 0 ? this.actual / this.maxima : 1;
+        double proporcion = 1;
+        if (this.maxima > 0) {
+            proporcion = this.actual / this.maxima;
+        }
         this.maxima = maxima;
         this.actual = Math.max(0, Math.min(maxima, maxima * proporcion));
     }

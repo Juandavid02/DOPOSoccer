@@ -79,9 +79,10 @@ public class ConfiguracionPartidoController {
         try {
             Modalidad modalidad = gui.getModalidadSeleccionada();
             ConfiguracionIA configuracionIA = gui.getConfiguracionIA();
-            PerfilIA perfilIA = modalidad == Modalidad.PvsM
-                    && configuracionIA != null
-                    ? configuracionIA.getPerfil() : null;
+            PerfilIA perfilIA = null;
+            if (modalidad == Modalidad.PvsM && configuracionIA != null) {
+                perfilIA = configuracionIA.getPerfil();
+            }
 
             ConfiguracionPartido configuracion = new ConfiguracionPartido(
                     modalidad,

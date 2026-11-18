@@ -42,7 +42,11 @@ public class TarjetaOpcion<T> extends JToggleButton {
         setFocusPainted(false);
         setRolloverEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        setPreferredSize(new Dimension(260, imagen == null ? 150 : 200));
+        int altoTarjeta = 200;
+        if (imagen == null) {
+            altoTarjeta = 150;
+        }
+        setPreferredSize(new Dimension(260, altoTarjeta));
     }
 
     /**
@@ -86,7 +90,11 @@ public class TarjetaOpcion<T> extends JToggleButton {
         g2.setColor(fondo);
         g2.fillRoundRect(1, 1, ancho - 4, alto - 8, 26, 26);
 
-        g2.setStroke(new BasicStroke(seleccionada ? 3f : 2f));
+        float grosor = 2f;
+        if (seleccionada) {
+            grosor = 3f;
+        }
+        g2.setStroke(new BasicStroke(grosor));
         if (seleccionada) {
             g2.setColor(new Color(255, 255, 255, 230));
         } else if (encima) {
@@ -97,7 +105,11 @@ public class TarjetaOpcion<T> extends JToggleButton {
         g2.drawRoundRect(2, 2, ancho - 6, alto - 10, 26, 26);
 
         g2.setFont(new Font("SansSerif", Font.BOLD, 21));
-        g2.setColor(isSelected() ? Color.WHITE : new Color(22, 48, 68));
+        if (isSelected()) {
+            g2.setColor(Color.WHITE);
+        } else {
+            g2.setColor(new Color(22, 48, 68));
+        }
 
         int yTitulo = 40;
         if (imagen != null) {
@@ -124,7 +136,11 @@ public class TarjetaOpcion<T> extends JToggleButton {
             g2.setStroke(new BasicStroke(1.5f));
             g2.draw(recorte);
 
-            g2.setColor(isSelected() ? Color.WHITE : new Color(22, 48, 68));
+            if (isSelected()) {
+            g2.setColor(Color.WHITE);
+        } else {
+            g2.setColor(new Color(22, 48, 68));
+        }
             yTitulo = margen + altoImagen + 26;
         }
 
@@ -156,8 +172,12 @@ public class TarjetaOpcion<T> extends JToggleButton {
         StringBuilder linea = new StringBuilder();
 
         for (String palabra : palabras) {
-            String prueba = linea.length() == 0
-                    ? palabra : linea + " " + palabra;
+            String prueba;
+            if (linea.length() == 0) {
+                prueba = palabra;
+            } else {
+                prueba = linea + " " + palabra;
+            }
             if (fm.stringWidth(prueba) <= anchoMaximo || linea.length() == 0) {
                 linea.setLength(0);
                 linea.append(prueba);

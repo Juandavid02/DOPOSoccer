@@ -93,8 +93,11 @@ public class Partido {
         this.resolucion = configuracion.getResolucion();
         // Si el perfil de la IA viene en la configuración, se usa como
         // respaldo para que el constructor corto también funcione en PvsM.
-        this.perfilIA = perfilIA != null
-                ? perfilIA : configuracion.getPerfilIA();
+        if (perfilIA != null) {
+            this.perfilIA = perfilIA;
+        } else {
+            this.perfilIA = configuracion.getPerfilIA();
+        }
         if (modalidad == Modalidad.PvsM && this.perfilIA == null) {
             throw new IllegalArgumentException(
                     "En PvsM se necesita el perfil de la IA");
@@ -346,7 +349,10 @@ public class Partido {
                     - separacionY * separacionY;
             if (cuadradoHorizontal > 0) {
                 double separacionX = Math.sqrt(cuadradoHorizontal);
-                double direccion = dx >= 0 ? 1 : -1;
+                double direccion = -1;
+                if (dx >= 0) {
+                    direccion = 1;
+                }
                 nuevaX = centroX + direccion * separacionX;
             }
         }
@@ -404,7 +410,10 @@ public class Partido {
         Poder poder = jugador.getPersonaje().getPoder();
         jugador.consumirAura();
 
-        double direccion = jugador.getLado() == Lado.IZQUIERDO ? 1 : -1;
+        double direccion = -1;
+        if (jugador.getLado() == Lado.IZQUIERDO) {
+            direccion = 1;
+        }
         balon.establecerVelocidad(direccion * poder.getImpulsoX(), poder.getImpulsoY());
 
         tiroPoder = new TiroPoder(jugador, poder);
@@ -492,7 +501,10 @@ public class Partido {
      * @param ilusion balón falso que produce el empuje
      */
     private void empujarPorIlusion(Jugador jugador, BalonIlusion ilusion) {
-        double direccion = jugador.getPosicionX() >= ilusion.getX() ? 1 : -1;
+        double direccion = -1;
+        if (jugador.getPosicionX() >= ilusion.getX()) {
+            direccion = 1;
+        }
         jugador.desplazar(
                 direccion * ParametrosJuego.DESPLAZAMIENTO_BALON_ILUSION,
                 -ParametrosJuego.ALTURA_EMPUJE_BALON_ILUSION,
@@ -574,7 +586,10 @@ public class Partido {
      * @return coordenadas X e Y del centro de la bota
      */
     private double[] centroBota(Jugador jugador) {
-        double direccion = jugador.getLado() == Lado.IZQUIERDO ? 1 : -1;
+        double direccion = -1;
+        if (jugador.getLado() == Lado.IZQUIERDO) {
+            direccion = 1;
+        }
         return new double[]{
                 jugador.getPosicionX()
                         + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR,
@@ -683,7 +698,12 @@ public class Partido {
             return;
         }
 
-        Jugador rival = jugador(jugador == 1 ? 2 : 1);
+        Jugador rival;
+        if (jugador == 1) {
+            rival = jugador(2);
+        } else {
+            rival = jugador(1);
+        }
         if (rivalEstaAlAlcanceDePatada(pateador, rival)) {
             rival.recibirDanio(pateador.getEstadisticas().getDanoPatada());
         }

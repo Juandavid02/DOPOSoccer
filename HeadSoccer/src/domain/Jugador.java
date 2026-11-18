@@ -241,7 +241,10 @@ public abstract class Jugador {
      * @return primer efecto activo o null si no hay ninguno
      */
     public Efecto getEfectoActivo() {
-        return efectosActivos.isEmpty() ? null : efectosActivos.get(0);
+        if (efectosActivos.isEmpty()) {
+            return null;
+        }
+        return efectosActivos.get(0);
     }
 
     /**
@@ -284,7 +287,11 @@ public abstract class Jugador {
      * @return factor que multiplica la velocidad normal
      */
     public double getMultiplicadorVelocidad() {
-        return tieneEfecto(TipoEfecto.ELECTROCUTADO) ? 0.5 : 1.0;
+        double multiplicador = 1.0;
+        if (tieneEfecto(TipoEfecto.ELECTROCUTADO)) {
+            multiplicador = 0.5;
+        }
+        return multiplicador;
     }
 
     /**
@@ -322,7 +329,10 @@ public abstract class Jugador {
             velocidadY = -ParametrosJuego.IMPULSO_INCONSCIENTE;
             enSuelo = false;
         } else if (tipo == TipoEfecto.EMPUJE) {
-            double direccion = lado == Lado.IZQUIERDO ? -1 : 1;
+            double direccion = 1;
+            if (lado != Lado.IZQUIERDO) {
+                direccion = -1;
+            }
             velocidadX = direccion * ParametrosJuego.IMPULSO_EMPUJE;
             velocidadY = -ParametrosJuego.IMPULSO_EMPUJE_VERTICAL;
             enSuelo = false;
@@ -618,7 +628,10 @@ public abstract class Jugador {
         if (balon == null || !puedePatear()) {
             return false;
         }
-        double direccion = lado == Lado.IZQUIERDO ? 1 : -1;
+        double direccion = -1;
+        if (lado == Lado.IZQUIERDO) {
+            direccion = 1;
+        }
         double botaX = posicionX + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR;
         double botaY = posicionY + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR;
 

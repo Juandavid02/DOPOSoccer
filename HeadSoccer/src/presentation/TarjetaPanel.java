@@ -30,7 +30,11 @@ public class TarjetaPanel extends JPanel {
      * @param estilo estilo visual de la tarjeta
      */
     public TarjetaPanel(Estilo estilo) {
-        this.estilo = estilo == null ? Estilo.CLARA : estilo;
+        if (estilo == null) {
+            this.estilo = Estilo.CLARA;
+        } else {
+            this.estilo = estilo;
+        }
         setOpaque(false);
     }
 

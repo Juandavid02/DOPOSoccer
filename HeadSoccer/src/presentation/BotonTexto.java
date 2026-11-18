@@ -28,7 +28,11 @@ public class BotonTexto extends JButton {
      */
     public BotonTexto(String texto, Color color) {
         super(texto);
-        this.color = color == null ? new Color(112, 82, 190) : color;
+        if (color == null) {
+            this.color = new Color(112, 82, 190);
+        } else {
+            this.color = color;
+        }
         setFont(new Font("SansSerif", Font.BOLD, 21));
         setPreferredSize(new Dimension(340, 62));
         setMaximumSize(new Dimension(340, 62));
@@ -58,9 +62,18 @@ public class BotonTexto extends JButton {
         g2.setColor(new Color(0, 0, 0, 80));
         g2.fillRoundRect(3, 5, ancho - 6, alto - 6, arco, arco);
 
-        Color base = isEnabled() ? color : new Color(140, 140, 150);
+        Color base;
+        if (isEnabled()) {
+            base = color;
+        } else {
+            base = new Color(140, 140, 150);
+        }
+        Color superior = base;
+        if (encima) {
+            superior = base.brighter();
+        }
         g2.setPaint(new GradientPaint(
-                0, 0, encima ? base.brighter() : base,
+                0, 0, superior,
                 0, alto, base.darker()));
         g2.fillRoundRect(1, 1, ancho - 3, alto - 6, arco, arco);
 

@@ -171,9 +171,12 @@ public class JuegoController {
                            Consumer<Partido> alVolverTorneo) {
         boolean pvsM = configuracion != null
                 && configuracion.getModalidad() == Modalidad.PvsM;
-        boolean faltanPerfiles = pvsM
-                ? configuracionIA == null
-                : perfil2 == null;
+        boolean faltanPerfiles;
+        if (pvsM) {
+            faltanPerfiles = configuracionIA == null;
+        } else {
+            faltanPerfiles = perfil2 == null;
+        }
 
         if (configuracion == null || personaje1 == null || personaje2 == null
                 || perfil1 == null || faltanPerfiles
@@ -255,7 +258,10 @@ public class JuegoController {
      * @return el perfil de la máquina, o null
      */
     private PerfilIA perfilIA() {
-        return esPvsM() ? configuracionIA.getPerfil() : null;
+        if (esPvsM()) {
+            return configuracionIA.getPerfil();
+        }
+        return null;
     }
 
     /**
@@ -649,11 +655,14 @@ public class JuegoController {
      * Pide confirmación y sale al menú principal.
      */
     private void salirAlMenu() {
-        String mensaje = modoTorneo
-                ? "Si sales al menú perderás el progreso del torneo, "
-                        + "quedarás descalificado y perderás los puntos "
-                        + "de inscripción.\n¿Salir al menú?"
-                : "¿Salir al menú principal?";
+        String mensaje;
+        if (modoTorneo) {
+            mensaje = "Si sales al menú perderás el progreso del torneo, "
+                    + "quedarás descalificado y perderás los puntos "
+                    + "de inscripción.\n¿Salir al menú?";
+        } else {
+            mensaje = "¿Salir al menú principal?";
+        }
         if (!confirmar(mensaje)) {
             return;
         }

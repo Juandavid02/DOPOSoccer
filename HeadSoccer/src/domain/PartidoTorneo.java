@@ -92,7 +92,10 @@ public class PartidoTorneo {
         if (!jugado) {
             return null;
         }
-        return golesPrimero > golesSegundo ? primero : segundo;
+        if (golesPrimero > golesSegundo) {
+            return primero;
+        }
+        return segundo;
     }
 
     /**
@@ -104,7 +107,10 @@ public class PartidoTorneo {
         if (!jugado) {
             return null;
         }
-        return golesPrimero > golesSegundo ? segundo : primero;
+        if (golesPrimero > golesSegundo) {
+            return segundo;
+        }
+        return primero;
     }
 
 }

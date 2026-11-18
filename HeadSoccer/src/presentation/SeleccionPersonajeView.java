@@ -90,11 +90,19 @@ public class SeleccionPersonajeView extends JPanel {
         c.weighty = 1;
 
         c.gridx = 0;
-        c.weightx = soloHumano ? 0.42 : 0.26;
+        double pesoJugador1 = 0.26;
+        if (soloHumano) {
+            pesoJugador1 = 0.42;
+        }
+        c.weightx = pesoJugador1;
         add(panelJugador1, c);
 
         c.gridx = 1;
-        c.weightx = soloHumano ? 0.58 : 0.48;
+        double pesoCentro = 0.48;
+        if (soloHumano) {
+            pesoCentro = 0.58;
+        }
+        c.weightx = pesoCentro;
         add(panelCentro, c);
 
         if (!soloHumano) {
@@ -147,7 +155,10 @@ public class SeleccionPersonajeView extends JPanel {
      */
     public void actualizar(Personaje personaje1, Personaje personaje2, int turno,
                            PerfilJugador perfilActivo) {
-        Personaje segundoVisible = soloHumano ? null : personaje2;
+        Personaje segundoVisible = personaje2;
+        if (soloHumano) {
+            segundoVisible = null;
+        }
 
         panelJugador1.mostrar(CatalogoSeleccion.buscar(personaje1));
         panelJugador2.mostrar(CatalogoSeleccion.buscar(segundoVisible));
@@ -234,7 +245,11 @@ public class SeleccionPersonajeView extends JPanel {
     public void setSoloHumano(boolean soloHumano) {
         this.soloHumano = soloHumano;
         panelCentro.setBotonReadySolo(soloHumano);
-        panelJugador1.setFactorPersonaje(soloHumano ? 1.32 : 1.0);
+        double factorPersonaje = 1.0;
+        if (soloHumano) {
+            factorPersonaje = 1.32;
+        }
+        panelJugador1.setFactorPersonaje(factorPersonaje);
         aplicarLayout();
     }
 
@@ -291,7 +306,15 @@ public class SeleccionPersonajeView extends JPanel {
                 && !estaDesbloqueado(opcion.getPersonaje(), perfilQueElige);
 
         boton.setBloqueado(bloqueado);
-        boton.setJugadorSeleccionado(esJugador1 ? 1 : esJugador2 ? 2 : 0);
+        int numeroJugador;
+        if (esJugador1) {
+            numeroJugador = 1;
+        } else if (esJugador2) {
+            numeroJugador = 2;
+        } else {
+            numeroJugador = 0;
+        }
+        boton.setJugadorSeleccionado(numeroJugador);
         boton.setEnabled(!elegido && !bloqueado);
         boton.repaint();
     }
@@ -412,8 +435,13 @@ public class SeleccionPersonajeView extends JPanel {
         private PanelLateral(boolean jugador1, String rutaBase) {
             this.jugador1 = jugador1;
             this.base = RecursosImagen.cargar(rutaBase);
-            this.colorJugador = jugador1 ? COLOR_JUGADOR1 : COLOR_JUGADOR2;
-            this.etiquetaJugador = jugador1 ? "J1" : "J2";
+            if (jugador1) {
+                this.colorJugador = COLOR_JUGADOR1;
+                this.etiquetaJugador = "J1";
+            } else {
+                this.colorJugador = COLOR_JUGADOR2;
+                this.etiquetaJugador = "J2";
+            }
 
             setOpaque(false);
             setBackground(new Color(18, 30, 40));
@@ -732,7 +760,10 @@ public class SeleccionPersonajeView extends JPanel {
 
             int anchoEtiqueta = 82;
             int altoEtiqueta = 46;
-            int x = jugador1 ? getWidth() - anchoEtiqueta - 20 : 20;
+            int x = 20;
+            if (jugador1) {
+                x = getWidth() - anchoEtiqueta - 20;
+            }
             int y = 18;
 
             g2.setColor(new Color(0, 0, 0, 120));
@@ -852,7 +883,12 @@ public class SeleccionPersonajeView extends JPanel {
             g2.setColor(new Color(190, 215, 235));
             g2.drawString("PODER", xTexto, 19);
 
-            String nombre = poder == null ? "Sin poder" : poder.getNombre();
+            String nombre;
+            if (poder == null) {
+                nombre = "Sin poder";
+            } else {
+                nombre = poder.getNombre();
+            }
             g2.setFont(FUENTE_NOMBRE);
             FontMetrics fm = g2.getFontMetrics();
             int anchoMaximo = ancho - xTexto - 16;
@@ -860,7 +896,11 @@ public class SeleccionPersonajeView extends JPanel {
 
             g2.setColor(new Color(0, 0, 0, 160));
             g2.drawString(nombre, xTexto + 1, 40);
-            g2.setColor(poder == null ? Color.WHITE : colorPoder);
+            if (poder == null) {
+                g2.setColor(Color.WHITE);
+            } else {
+                g2.setColor(colorPoder);
+            }
             g2.drawString(nombre, xTexto, 39);
 
             g2.dispose();
@@ -988,10 +1028,20 @@ public class SeleccionPersonajeView extends JPanel {
 
             g2.setFont(FUENTE_TITULO);
             FontMetrics fm = g2.getFontMetrics();
-            String nombreMostrado = nombre == null ? "Sin perfil" : nombre;
-            String textoPuntos = puntos < 0 ? "" : "Puntos: " + puntos;
-            int anchoPuntos = textoPuntos.isEmpty()
-                    ? 0 : fm.stringWidth(textoPuntos);
+            String nombreMostrado = nombre;
+            if (nombreMostrado == null) {
+                nombreMostrado = "Sin perfil";
+            }
+            String textoPuntos;
+            if (puntos < 0) {
+                textoPuntos = "";
+            } else {
+                textoPuntos = "Puntos: " + puntos;
+            }
+            int anchoPuntos = 0;
+            if (!textoPuntos.isEmpty()) {
+                anchoPuntos = fm.stringWidth(textoPuntos);
+            }
             nombreMostrado = recortarTexto(nombreMostrado, fm,
                     ancho - 30 - anchoPuntos - 12);
 
@@ -1329,9 +1379,13 @@ public class SeleccionPersonajeView extends JPanel {
          * @param solo true para usar la imagen del modo de un solo jugador
          */
         private void setBotonReadySolo(boolean solo) {
-            BotonImagen.cambiarImagen(botonReady,
-                    solo ? readySolo : readyPvp,
-                    solo ? ANCHO_READY_SOLO : ANCHO_READY_PVP, 5, 2);
+            BufferedImage imagen = readyPvp;
+            int ancho = ANCHO_READY_PVP;
+            if (solo) {
+                imagen = readySolo;
+                ancho = ANCHO_READY_SOLO;
+            }
+            BotonImagen.cambiarImagen(botonReady, imagen, ancho, 5, 2);
             revalidate();
             repaint();
         }
@@ -1437,7 +1491,11 @@ public class SeleccionPersonajeView extends JPanel {
          * @param jugador 1, 2 o 0 si nadie lo eligió
          */
         private void setJugadorSeleccionado(int jugador) {
-            this.jugadorSeleccionado = jugador == 1 || jugador == 2 ? jugador : 0;
+            if (jugador == 1 || jugador == 2) {
+                this.jugadorSeleccionado = jugador;
+            } else {
+                this.jugadorSeleccionado = 0;
+            }
             repaint();
         }
 
@@ -1481,7 +1539,10 @@ public class SeleccionPersonajeView extends JPanel {
             int ancho = getWidth();
             int alto = getHeight();
             boolean encima = getModel().isRollover() && isEnabled();
-            int margen = encima ? 1 : 4;
+            int margen = 4;
+            if (encima) {
+                margen = 1;
+            }
             int arco = 18;
             RoundRectangle2D forma = new RoundRectangle2D.Float(
                     margen, margen, ancho - 1 - margen * 2,
@@ -1552,7 +1613,12 @@ public class SeleccionPersonajeView extends JPanel {
             }
 
             if (jugadorSeleccionado != 0) {
-                Color color = jugadorSeleccionado == 1 ? COLOR_J1 : COLOR_J2;
+                Color color;
+                if (jugadorSeleccionado == 1) {
+                    color = COLOR_J1;
+                } else {
+                    color = COLOR_J2;
+                }
 
                 // Solo se marca el borde; no se tiñe la imagen del personaje.
                 g2.setStroke(new BasicStroke(4.5f));
@@ -1561,10 +1627,18 @@ public class SeleccionPersonajeView extends JPanel {
 
                 dibujarEtiquetaJugador(g2, color, ancho);
             } else {
-                g2.setStroke(new BasicStroke(encima ? 3f : 2.2f));
-                g2.setColor(encima
-                        ? new Color(255, 222, 110)
-                        : new Color(210, 176, 78));
+                float grosor = 2.2f;
+                if (encima) {
+                    grosor = 3f;
+                }
+                g2.setStroke(new BasicStroke(grosor));
+                Color colorBorde;
+                if (encima) {
+                    colorBorde = new Color(255, 222, 110);
+                } else {
+                    colorBorde = new Color(210, 176, 78);
+                }
+                g2.setColor(colorBorde);
                 g2.draw(forma);
             }
 
@@ -1595,7 +1669,12 @@ public class SeleccionPersonajeView extends JPanel {
             g2.setColor(new Color(255, 255, 255, 220));
             g2.drawRoundRect(x, y, tamano, tamano, arco, arco);
 
-            String texto = jugadorSeleccionado == 1 ? "J1" : "J2";
+            String texto;
+            if (jugadorSeleccionado == 1) {
+                texto = "J1";
+            } else {
+                texto = "J2";
+            }
             g2.setFont(new Font("SansSerif", Font.BOLD,
                     Math.max(14, tamano / 3)));
             FontMetrics fm = g2.getFontMetrics();
@@ -1718,7 +1797,11 @@ public class SeleccionPersonajeView extends JPanel {
                 colorSuperior = new Color(232, 196, 92, 245);
                 colorInferior = new Color(156, 112, 20, 245);
             } else if (turnoActual == 2) {
-                texto = modoIA ? "ELIGE EL PERSONAJE DE LA IA" : "ELIGE JUGADOR 2";
+                if (modoIA) {
+                    texto = "ELIGE EL PERSONAJE DE LA IA";
+                } else {
+                    texto = "ELIGE JUGADOR 2";
+                }
                 colorSuperior = new Color(210, 92, 92, 240);
                 colorInferior = new Color(128, 28, 38, 240);
             } else {
