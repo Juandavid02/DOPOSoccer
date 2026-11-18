@@ -2,8 +2,10 @@ package domain;
 
 /**
  * Efecto temporal que sufre un jugador después de recibir un tiro de poder.
+ * Cada efecto concreto (Empuje, Barril, etc.) sabe qué le hace al jugador
+ * cuando empieza, mientras dura y cuando termina.
  */
-public class Efecto {
+public abstract class Efecto {
 
     private final TipoEfecto tipo;
     private double tiempoRestante;
@@ -14,7 +16,7 @@ public class Efecto {
      * @param tipo tipo de efecto
      * @param duracion duración del efecto en segundos
      */
-    public Efecto(TipoEfecto tipo, double duracion) {
+    protected Efecto(TipoEfecto tipo, double duracion) {
         if (tipo == null) {
             throw new IllegalArgumentException("El tipo de efecto no puede ser nulo");
         }
@@ -74,5 +76,68 @@ public class Efecto {
      */
     public boolean terminado() {
         return tiempoRestante <= 0;
+    }
+
+    /**
+     * Se llama cuando el efecto le llega al jugador. Por defecto no hace
+     * nada; los efectos que cambian algo al empezar lo sobrescriben.
+     *
+     * @param jugador jugador que recibe el efecto
+     */
+    public void alAplicar(Jugador jugador) {
+    }
+
+    /**
+     * Se llama cuando el efecto se acaba (o se borra por un gol). Por
+     * defecto no hace nada; sirve para devolver al jugador a la normalidad.
+     *
+     * @param jugador jugador que tenía el efecto
+     */
+    public void alTerminar(Jugador jugador) {
+    }
+
+    /**
+     * Indica si este efecto le impide moverse al jugador.
+     *
+     * @return true si bloquea el movimiento
+     */
+    public boolean bloqueaMovimiento() {
+        return false;
+    }
+
+    /**
+     * Indica si este efecto le impide saltar al jugador.
+     *
+     * @return true si bloquea el salto
+     */
+    public boolean bloqueaSalto() {
+        return false;
+    }
+
+    /**
+     * Indica si este efecto le impide patear al jugador.
+     *
+     * @return true si bloquea la patada
+     */
+    public boolean bloqueaPatada() {
+        return false;
+    }
+
+    /**
+     * Indica si este efecto invierte los controles del jugador.
+     *
+     * @return true si los controles quedan invertidos
+     */
+    public boolean invierteControles() {
+        return false;
+    }
+
+    /**
+     * Devuelve cuánto frena este efecto al jugador. 1 es velocidad normal.
+     *
+     * @return factor que multiplica la velocidad normal
+     */
+    public double getMultiplicadorVelocidad() {
+        return 1.0;
     }
 }

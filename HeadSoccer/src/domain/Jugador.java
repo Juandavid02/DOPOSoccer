@@ -277,28 +277,32 @@ public abstract class Jugador {
      * @return true si los controles están invertidos
      */
     public boolean tieneControlesInvertidos() {
-        return tieneEfecto(TipoEfecto.CONTROLES_INVERTIDOS);
+        for (Efecto efecto : efectosActivos) {
+            if (efecto.invierteControles()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
-     * Indica el multiplicador de velocidad actual del jugador. El Rayo deja
-     * al rival moviéndose a la mitad de su velocidad.
+     * Indica el multiplicador de velocidad actual del jugador. Cada efecto
+     * activo puede frenarlo (por ejemplo, el Rayo lo deja a la mitad) y los
+     * factores se multiplican entre sí.
      *
      * @return factor que multiplica la velocidad normal
      */
     public double getMultiplicadorVelocidad() {
         double multiplicador = 1.0;
-        if (tieneEfecto(TipoEfecto.ELECTROCUTADO)) {
-            multiplicador = 0.5;
+        for (Efecto efecto : efectosActivos) {
+            multiplicador *= efecto.getMultiplicadorVelocidad();
         }
         return multiplicador;
     }
 
     /**
-     * Aplica un efecto de poder. Los efectos se acumulan: si el jugador ya
-     * tenía otro efecto, ambos permanecen activos hasta que termine su
-     * tiempo. Si se vuelve a aplicar el mismo tipo, solo se renueva su
-     * duración.
+     * Aplica un efecto de poder a partir de su tipo y su duración. Crea el
+     * efecto correspondiente y lo aplica.
      *
      * @param tipo efecto que se aplica
      * @param duracion tiempo que dura el efecto
@@ -307,35 +311,36 @@ public abstract class Jugador {
         if (tipo == null || duracion <= 0) {
             return;
         }
+        aplicarEfecto(tipo.crear(duracion));
+    }
 
-        boolean yaActivo = false;
+    /**
+     * Aplica un efecto de poder. Los efectos se acumulan: si el jugador ya
+     * tenía otro efecto, ambos permanecen activos hasta que termine su
+     * tiempo. Si se vuelve a aplicar el mismo tipo, solo se renueva su
+     * duración.
+     *
+     * @param nuevo efecto que se aplica
+     */
+    public void aplicarEfecto(Efecto nuevo) {
+        if (nuevo == null) {
+            return;
+        }
+
+        Efecto activo = null;
         for (Efecto efecto : efectosActivos) {
-            if (efecto.getTipo() == tipo) {
-                efecto.renovar(duracion);
-                yaActivo = true;
+            if (efecto.getTipo() == nuevo.getTipo()) {
+                activo = efecto;
                 break;
             }
         }
-        if (!yaActivo) {
-            efectosActivos.add(new Efecto(tipo, duracion));
-        }
 
-        if (tipo == TipoEfecto.BARRIL) {
-            estadisticas.restablecer();
-            barraPoder.reiniciar();
-            actualizarVidaMaxima();
-        } else if (tipo == TipoEfecto.INCONSCIENTE) {
-            velocidadX = 0;
-            velocidadY = -ParametrosJuego.IMPULSO_INCONSCIENTE;
-            enSuelo = false;
-        } else if (tipo == TipoEfecto.EMPUJE) {
-            double direccion = 1;
-            if (lado != Lado.IZQUIERDO) {
-                direccion = -1;
-            }
-            velocidadX = direccion * ParametrosJuego.IMPULSO_EMPUJE;
-            velocidadY = -ParametrosJuego.IMPULSO_EMPUJE_VERTICAL;
-            enSuelo = false;
+        if (activo != null) {
+            activo.renovar(nuevo.getTiempoRestante());
+            activo.alAplicar(this);
+        } else {
+            efectosActivos.add(nuevo);
+            nuevo.alAplicar(this);
         }
     }
 
@@ -345,24 +350,10 @@ public abstract class Jugador {
      * reinicio de la jugada.
      */
     public void limpiarEfectos() {
-        boolean teniaBarril = false;
-        boolean teniaEmpuje = false;
         for (Efecto efecto : efectosActivos) {
-            if (efecto.getTipo() == TipoEfecto.BARRIL) {
-                teniaBarril = true;
-            }
-            if (efecto.getTipo() == TipoEfecto.EMPUJE || efecto.getTipo() == TipoEfecto.INCONSCIENTE) {
-                teniaEmpuje = true;
-            }
+            efecto.alTerminar(this);
         }
         efectosActivos.clear();
-
-        if (teniaBarril) {
-            restaurarEstadisticas();
-        }
-        if (teniaEmpuje) {
-            velocidadX = 0;
-        }
 
         if (aturdido) {
             aturdido = false;
@@ -378,40 +369,51 @@ public abstract class Jugador {
      * @param dt tiempo transcurrido desde la última actualización
      */
     private void actualizarEfecto(double dt) {
-        if (efectosActivos.isEmpty()) {
-            return;
-        }
-
-        boolean terminoBarril = false;
-        boolean terminoEmpuje = false;
         Iterator<Efecto> iterador = efectosActivos.iterator();
         while (iterador.hasNext()) {
             Efecto efecto = iterador.next();
             efecto.actualizar(dt);
             if (efecto.terminado()) {
                 iterador.remove();
-                if (efecto.getTipo() == TipoEfecto.BARRIL) {
-                    terminoBarril = true;
-                }
-                if (efecto.getTipo() == TipoEfecto.EMPUJE
-                        || efecto.getTipo() == TipoEfecto.INCONSCIENTE) {
-                    terminoEmpuje = true;
-                }
+                efecto.alTerminar(this);
             }
         }
+    }
 
-        if (terminoBarril) {
-            restaurarEstadisticas();
-        }
-        if (terminoEmpuje) {
-            velocidadX = 0;
-        }
+    /**
+     * Le da una velocidad al jugador y lo deja en el aire. Lo usan los
+     * efectos que lo lanzan (Empuje, Inconsciente).
+     *
+     * @param velocidadHorizontal velocidad horizontal nueva
+     * @param velocidadVertical velocidad vertical nueva
+     */
+    void impulsar(double velocidadHorizontal, double velocidadVertical) {
+        velocidadX = velocidadHorizontal;
+        velocidadY = velocidadVertical;
+        enSuelo = false;
+    }
+
+    /**
+     * Frena el movimiento horizontal del jugador.
+     */
+    void detenerHorizontal() {
+        velocidadX = 0;
+    }
+
+    /**
+     * Deja al jugador como lo pide el efecto Barril: estadísticas en cero,
+     * barra de poder reiniciada y vida máxima ajustada.
+     */
+    void reiniciarPorBarril() {
+        estadisticas.restablecer();
+        barraPoder.reiniciar();
+        actualizarVidaMaxima();
     }
 
     /**
      * Restaura las estadísticas base del jugador.
      */
-    private void restaurarEstadisticas() {
+    void restaurarEstadisticas() {
         estadisticas.copiarDesde(estadisticasBase);
         actualizarVidaMaxima();
     }
@@ -426,30 +428,52 @@ public abstract class Jugador {
     /**
      * Indica si el jugador puede desplazarse.
      *
-     * @return false si está aturdido o inconsciente
+     * @return false si está aturdido o algún efecto se lo impide
      */
     public boolean puedeMoverse() {
-        return !aturdido && !tieneEfecto(TipoEfecto.INCONSCIENTE);
+        if (aturdido) {
+            return false;
+        }
+        for (Efecto efecto : efectosActivos) {
+            if (efecto.bloqueaMovimiento()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
      * Indica si el jugador puede saltar.
      *
-     * @return false si está aturdido, inconsciente o electrocutado
+     * @return false si está aturdido o algún efecto se lo impide
      */
     public boolean puedeSaltar() {
-        return !aturdido
-                && !tieneEfecto(TipoEfecto.INCONSCIENTE)
-                && !tieneEfecto(TipoEfecto.ELECTROCUTADO);
+        if (aturdido) {
+            return false;
+        }
+        for (Efecto efecto : efectosActivos) {
+            if (efecto.bloqueaSalto()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
      * Indica si el jugador puede patear.
      *
-     * @return false si está aturdido o inconsciente
+     * @return false si está aturdido o algún efecto se lo impide
      */
     public boolean puedePatear() {
-        return !aturdido && !tieneEfecto(TipoEfecto.INCONSCIENTE);
+        if (aturdido) {
+            return false;
+        }
+        for (Efecto efecto : efectosActivos) {
+            if (efecto.bloqueaPatada()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

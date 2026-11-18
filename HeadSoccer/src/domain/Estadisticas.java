@@ -32,11 +32,8 @@ public class Estadisticas {
      * @return el valor validado
      */
     private static int validar(String nombre, int valor) {
-        if (valor < ParametrosJuego.MIN_ESTADISTICA
-                || valor > ParametrosJuego.MAX_ESTADISTICA) {
-            throw new IllegalArgumentException(nombre + " debe estar entre "
-                    + ParametrosJuego.MIN_ESTADISTICA + " y "
-                    + ParametrosJuego.MAX_ESTADISTICA);
+        if (valor < ParametrosJuego.MIN_ESTADISTICA || valor > ParametrosJuego.MAX_ESTADISTICA) {
+            throw new IllegalArgumentException(nombre + " debe estar entre " + ParametrosJuego.MIN_ESTADISTICA + " y " + ParametrosJuego.MAX_ESTADISTICA);
         }
         return valor;
     }
@@ -112,7 +109,6 @@ public class Estadisticas {
         this.survival = inicial;
     }
 
-
     /**
      * Obtiene el multiplicador de patada según la estadística.
      *
@@ -128,9 +124,7 @@ public class Estadisticas {
      * @return multiplicador de velocidad
      */
     public double getFactorVelocidad() {
-        double factor = 1 + ParametrosJuego.INCREMENTO_POR_PUNTO
-                * (speed - ParametrosJuego.ESTADISTICA_INICIAL);
-        return Math.max(0.2, factor);
+        return 1 + ParametrosJuego.INCREMENTO_POR_PUNTO * (speed - 1);
     }
 
     /**
@@ -139,9 +133,7 @@ public class Estadisticas {
      * @return vida máxima
      */
     public double getVidaMax() {
-        return ParametrosJuego.VIDA_BASE
-                * (1 + ParametrosJuego.INCREMENTO_POR_PUNTO
-                * (survival - 1));
+        return ParametrosJuego.VIDA_BASE * (1 + ParametrosJuego.INCREMENTO_POR_PUNTO * (survival - 1));
     }
 
     /**
