@@ -10,13 +10,13 @@ public class PoderAuraAzul extends PoderBase {
     }
 
     /**
-     * Obtiene el tipo de efecto que aplica el poder.
+     * Crea el empujón que aplica el poder al rival.
      *
-     * @return tipo de efecto
+     * @return efecto de empuje con la duración del poder
      */
     @Override
-    public TipoEfecto getTipoEfecto() {
-        return TipoEfecto.EMPUJE;
+    public Efecto crearEfecto() {
+        return new EfectoEmpuje(getDuracion());
     }
 
     /**

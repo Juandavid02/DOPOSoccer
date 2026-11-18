@@ -10,13 +10,13 @@ public class PoderBesoDeLaFea extends PoderBase {
     }
 
     /**
-     * Obtiene el tipo de efecto que aplica este poder.
+     * Crea el efecto de controles invertidos que aplica este poder.
      *
-     * @return efecto de controles invertidos
+     * @return efecto con la duración del poder
      */
     @Override
-    public TipoEfecto getTipoEfecto() {
-        return TipoEfecto.CONTROLES_INVERTIDOS;
+    public Efecto crearEfecto() {
+        return new EfectoControlesInvertidos(getDuracion());
     }
 
     /**

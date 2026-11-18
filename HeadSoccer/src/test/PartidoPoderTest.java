@@ -4,6 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import domain.ConfiguracionJugador;
 import domain.ConfiguracionPartido;
+import domain.Efecto;
+import domain.EfectoBarril;
+import domain.EfectoConfundido;
+import domain.EfectoControlesInvertidos;
+import domain.EfectoElectrocutado;
+import domain.EfectoEmpuje;
 import domain.Estadisticas;
 import domain.ExcepcionDOPOSoccer;
 import domain.Jugador;
@@ -107,7 +113,7 @@ public class PartidoPoderTest {
         partido.actualizar(0.0001);
 
         assertTrue(rival.getVida().getActual() < vidaAntes);
-        assertTrue(rival.tieneEfecto(TipoEfecto.ELECTROCUTADO));
+        assertTrue(tieneEfecto(rival, TipoEfecto.ELECTROCUTADO));
         assertFalse(rival.puedeSaltar());
     }
 
@@ -128,11 +134,11 @@ public class PartidoPoderTest {
     public void shouldKeepMultipleEffectsAtTheSameTime() {
         Jugador jugador = partido.getJugadores().get(0);
 
-        jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 3);
-        jugador.aplicarEfecto(TipoEfecto.CONFUNDIDO, 2.5);
+        jugador.aplicarEfecto(new EfectoElectrocutado(3));
+        jugador.aplicarEfecto(new EfectoConfundido(2.5));
 
-        assertTrue(jugador.tieneEfecto(TipoEfecto.ELECTROCUTADO));
-        assertTrue(jugador.tieneEfecto(TipoEfecto.CONFUNDIDO));
+        assertTrue(tieneEfecto(jugador, TipoEfecto.ELECTROCUTADO));
+        assertTrue(tieneEfecto(jugador, TipoEfecto.CONFUNDIDO));
         assertEquals(2, jugador.getEfectosActivos().size());
     }
 
@@ -141,13 +147,13 @@ public class PartidoPoderTest {
     public void shouldExpireEachEffectIndependently() {
         Jugador jugador = partido.getJugadores().get(0);
 
-        jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 1);
-        jugador.aplicarEfecto(TipoEfecto.CONFUNDIDO, 5);
+        jugador.aplicarEfecto(new EfectoElectrocutado(1));
+        jugador.aplicarEfecto(new EfectoConfundido(5));
 
         jugador.actualizar(1.1, partido.getCancha());
 
-        assertFalse(jugador.tieneEfecto(TipoEfecto.ELECTROCUTADO));
-        assertTrue(jugador.tieneEfecto(TipoEfecto.CONFUNDIDO));
+        assertFalse(tieneEfecto(jugador, TipoEfecto.ELECTROCUTADO));
+        assertTrue(tieneEfecto(jugador, TipoEfecto.CONFUNDIDO));
         assertEquals(1, jugador.getEfectosActivos().size());
     }
 
@@ -156,13 +162,13 @@ public class PartidoPoderTest {
     public void shouldClearEveryEffectWhenGoalIsScored() {
         Jugador jugador = partido.getJugadores().get(0);
 
-        jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 3);
-        jugador.aplicarEfecto(TipoEfecto.CONFUNDIDO, 2.5);
+        jugador.aplicarEfecto(new EfectoElectrocutado(3));
+        jugador.aplicarEfecto(new EfectoConfundido(2.5));
 
         partido.reiniciarDespuesDeGol();
 
-        assertFalse(jugador.tieneEfecto(TipoEfecto.ELECTROCUTADO));
-        assertFalse(jugador.tieneEfecto(TipoEfecto.CONFUNDIDO));
+        assertFalse(tieneEfecto(jugador, TipoEfecto.ELECTROCUTADO));
+        assertFalse(tieneEfecto(jugador, TipoEfecto.CONFUNDIDO));
         assertTrue(jugador.getEfectosActivos().isEmpty());
     }
 
@@ -171,13 +177,46 @@ public class PartidoPoderTest {
     public void shouldRenewDurationWhenTheSameEffectIsAppliedAgain() {
         Jugador jugador = partido.getJugadores().get(0);
 
-        jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 1);
+        jugador.aplicarEfecto(new EfectoElectrocutado(1));
         jugador.actualizar(0.6, partido.getCancha());
-        jugador.aplicarEfecto(TipoEfecto.ELECTROCUTADO, 3);
+        jugador.aplicarEfecto(new EfectoElectrocutado(3));
 
         assertEquals(1, jugador.getEfectosActivos().size());
         assertEquals(3, jugador.getEfectosActivos().get(0).getTiempoRestante(),
                 0.0001);
+    }
+
+    /**
+     * Verifica que al reaplicar un efecto del mismo tipo se ejecuta otra vez
+     * su comportamiento inicial, no solo se renueva el tiempo.
+     */
+    @Test
+    public void shouldReapplyEffectBehaviorWhenTheSameTypeIsRenewed() {
+        Jugador jugador = partido.getJugadores().get(0);
+
+        jugador.aplicarEfecto(new EfectoEmpuje(1));
+        jugador.setVelocidadX(0);
+        jugador.aplicarEfecto(new EfectoEmpuje(1));
+
+        assertEquals(ParametrosJuego.IMPULSO_EMPUJE,
+                Math.abs(jugador.getVelocidadX()), 0.0001);
+    }
+
+    /** Verifica que no se puede aplicar un efecto nulo. */
+    @Test
+    public void shouldRejectNullEffect() {
+        Jugador jugador = partido.getJugadores().get(0);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> jugador.aplicarEfecto(null));
+    }
+
+    /** Verifica que renovar un efecto con duración no positiva falla. */
+    @Test
+    public void shouldRejectNonPositiveRenewal() {
+        Efecto efecto = new EfectoElectrocutado(3);
+
+        assertThrows(IllegalArgumentException.class, () -> efecto.renovar(0));
     }
 
     /** Verifica que el efecto del beso de la fea invierte los controles. */
@@ -185,7 +224,7 @@ public class PartidoPoderTest {
     public void shouldInvertControlsWithBesoDeLaFeaEffect() {
         Jugador jugador = partido.getJugadores().get(0);
 
-        jugador.aplicarEfecto(TipoEfecto.CONTROLES_INVERTIDOS, 2.5);
+        jugador.aplicarEfecto(new EfectoControlesInvertidos(2.5));
 
         assertTrue(partido.tieneControlesInvertidos(1));
         assertFalse(partido.tieneControlesInvertidos(2));
@@ -204,7 +243,7 @@ public class PartidoPoderTest {
         Jugador jugador = partidoBarril.getJugadores().get(0);
         jugador.getBarraPoder().sumarCarga(100);
 
-        jugador.aplicarEfecto(TipoEfecto.BARRIL, 5);
+        jugador.aplicarEfecto(new EfectoBarril(5));
 
         assertEquals(ParametrosJuego.ESTADISTICA_INICIAL,
                 jugador.getEstadisticas().getSpeed());
@@ -259,7 +298,7 @@ public class PartidoPoderTest {
                     rival.getPosicionY());
             partidoPoder.actualizar(0.0001);
 
-            assertTrue(rival.tieneEfecto(efectos[i]),
+            assertTrue(tieneEfecto(rival, efectos[i]),
                     "El poder " + poderes[i].getNombre()
                             + " debía aplicar " + efectos[i]);
         }
@@ -277,10 +316,28 @@ public class PartidoPoderTest {
                 new Estadisticas(5, 5, 5, 5));
 
         partidoBarril.getJugadores().get(0)
-                .aplicarEfecto(TipoEfecto.BARRIL, 5);
+                .aplicarEfecto(new EfectoBarril(5));
 
         assertEquals(8, estadisticasPerfil.getSpeed());
         assertEquals(9, estadisticasPerfil.getSurvival());
+    }
+
+    /**
+     * Indica si el jugador tiene activo un efecto del tipo indicado. Las
+     * pruebas lo consultan directamente porque el dominio ya no decide
+     * comportamiento a partir de {@link TipoEfecto}.
+     *
+     * @param jugador jugador consultado
+     * @param tipo tipo de efecto buscado
+     * @return true si el efecto está activo
+     */
+    private static boolean tieneEfecto(Jugador jugador, TipoEfecto tipo) {
+        for (Efecto efecto : jugador.getEfectosActivos()) {
+            if (efecto.getTipo() == tipo) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -15,4 +15,14 @@ public class EfectoConfundido extends Efecto {
     public EfectoConfundido(double duracion) {
         super(TipoEfecto.CONFUNDIDO, duracion);
     }
+
+    /**
+     * Indica que este efecto confunde al jugador y le hace ver balones falsos.
+     *
+     * @return siempre true
+     */
+    @Override
+    public boolean confunde() {
+        return true;
+    }
 }

@@ -40,9 +40,7 @@ public abstract class Jugador {
      * @param posicionX posición horizontal inicial
      * @param posicionY posición vertical inicial
      */
-    public Jugador(ConfiguracionJugador configuracion, Personaje personaje,
-                   BarraPoder barraPoder, Lado lado,
-                   double posicionX, double posicionY) {
+    public Jugador(ConfiguracionJugador configuracion, Personaje personaje, BarraPoder barraPoder, Lado lado, double posicionX, double posicionY) {
         if (configuracion == null) {
             throw new IllegalArgumentException("La configuración del jugador no puede ser nula");
         }
@@ -235,19 +233,6 @@ public abstract class Jugador {
     }
 
     /**
-     * Devuelve el primer efecto activo. Se mantiene por compatibilidad; para
-     * conocer todos los efectos simultáneos usa getEfectosActivos().
-     *
-     * @return primer efecto activo o null si no hay ninguno
-     */
-    public Efecto getEfectoActivo() {
-        if (efectosActivos.isEmpty()) {
-            return null;
-        }
-        return efectosActivos.get(0);
-    }
-
-    /**
      * Devuelve todos los efectos que sufre el jugador en este momento.
      *
      * @return lista de solo lectura con los efectos activos
@@ -257,14 +242,13 @@ public abstract class Jugador {
     }
 
     /**
-     * Indica si el jugador tiene activo un efecto del tipo indicado.
+     * Indica si el jugador está confundido y, por tanto, ve balones falsos.
      *
-     * @param tipo tipo de efecto consultado
-     * @return true si el efecto está activo
+     * @return true si algún efecto lo confunde
      */
-    public boolean tieneEfecto(TipoEfecto tipo) {
+    public boolean estaConfundido() {
         for (Efecto efecto : efectosActivos) {
-            if (efecto.getTipo() == tipo) {
+            if (efecto.confunde()) {
                 return true;
             }
         }
@@ -301,30 +285,17 @@ public abstract class Jugador {
     }
 
     /**
-     * Aplica un efecto de poder a partir de su tipo y su duración. Crea el
-     * efecto correspondiente y lo aplica.
-     *
-     * @param tipo efecto que se aplica
-     * @param duracion tiempo que dura el efecto
-     */
-    public void aplicarEfecto(TipoEfecto tipo, double duracion) {
-        if (tipo == null || duracion <= 0) {
-            return;
-        }
-        aplicarEfecto(tipo.crear(duracion));
-    }
-
-    /**
      * Aplica un efecto de poder. Los efectos se acumulan: si el jugador ya
      * tenía otro efecto, ambos permanecen activos hasta que termine su
-     * tiempo. Si se vuelve a aplicar el mismo tipo, solo se renueva su
+     * tiempo. Si se vuelve a aplicar el mismo tipo, se reinicia la
      * duración.
      *
      * @param nuevo efecto que se aplica
+     * @throws IllegalArgumentException si el efecto es nulo
      */
     public void aplicarEfecto(Efecto nuevo) {
         if (nuevo == null) {
-            return;
+            throw new IllegalArgumentException("El efecto no puede ser nulo");
         }
 
         Efecto activo = null;
@@ -336,12 +307,12 @@ public abstract class Jugador {
         }
 
         if (activo != null) {
-            activo.renovar(nuevo.getTiempoRestante());
-            activo.alAplicar(this);
+            int indice = efectosActivos.indexOf(activo);
+            efectosActivos.set(indice, nuevo);
         } else {
             efectosActivos.add(nuevo);
-            nuevo.alAplicar(this);
         }
+        nuevo.alAplicar(this);
     }
 
     /**
@@ -350,7 +321,8 @@ public abstract class Jugador {
      * reinicio de la jugada.
      */
     public void limpiarEfectos() {
-        for (Efecto efecto : efectosActivos) {
+        List<Efecto> efectosTerminados = new ArrayList<>(efectosActivos);
+        for (Efecto efecto : efectosTerminados) {
             efecto.alTerminar(this);
         }
         efectosActivos.clear();
@@ -369,14 +341,21 @@ public abstract class Jugador {
      * @param dt tiempo transcurrido desde la última actualización
      */
     private void actualizarEfecto(double dt) {
+        List<Efecto> terminados = new ArrayList<>();
         Iterator<Efecto> iterador = efectosActivos.iterator();
         while (iterador.hasNext()) {
             Efecto efecto = iterador.next();
             efecto.actualizar(dt);
             if (efecto.terminado()) {
                 iterador.remove();
-                efecto.alTerminar(this);
+                terminados.add(efecto);
             }
+        }
+
+        // Se notifica después de retirarlos para que alTerminar pueda
+        // modificar la lista sin romper la iteración.
+        for (Efecto efecto : terminados) {
+            efecto.alTerminar(this);
         }
     }
 
@@ -401,12 +380,11 @@ public abstract class Jugador {
     }
 
     /**
-     * Deja al jugador como lo pide el efecto Barril: estadísticas en cero,
-     * barra de poder reiniciada y vida máxima ajustada.
+     * Vuelve a los valores iniciales de las estadísticas y ajusta la vida
+     * máxima al nuevo valor.
      */
-    void reiniciarPorBarril() {
+    void restablecerEstadisticas() {
         estadisticas.restablecer();
-        barraPoder.reiniciar();
         actualizarVidaMaxima();
     }
 

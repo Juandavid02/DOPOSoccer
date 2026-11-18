@@ -58,12 +58,12 @@ public abstract class PoderBase implements Poder {
     }
 
     /**
-     * Obtiene el tipo de efecto que aplica el poder.
+     * Crea el efecto que aplica el poder al rival.
      *
-     * @return tipo de efecto
+     * @return efecto nuevo con la duración del poder
      */
     @Override
-    public abstract TipoEfecto getTipoEfecto();
+    public abstract Efecto crearEfecto();
 
     /**
      * Obtiene el impulso horizontal del balón.

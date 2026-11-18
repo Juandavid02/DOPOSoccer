@@ -52,7 +52,7 @@ public abstract class Efecto {
      */
     public void renovar(double duracion) {
         if (duracion <= 0) {
-            return;
+            throw new IllegalArgumentException("La duración debe ser mayor que cero");
         }
         tiempoRestante = duracion;
     }
@@ -63,6 +63,7 @@ public abstract class Efecto {
      * @param dt tiempo transcurrido
      */
     public void actualizar(double dt) {
+        // Un dt no positivo no representa tiempo transcurrido.
         if (dt <= 0) {
             return;
         }
@@ -129,6 +130,15 @@ public abstract class Efecto {
      * @return true si los controles quedan invertidos
      */
     public boolean invierteControles() {
+        return false;
+    }
+
+    /**
+     * Indica si este efecto hace que el jugador vea balones falsos.
+     *
+     * @return true si el efecto confunde al jugador
+     */
+    public boolean confunde() {
         return false;
     }
 

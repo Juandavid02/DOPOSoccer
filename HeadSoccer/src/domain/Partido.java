@@ -431,7 +431,7 @@ public class Partido {
         double dano = poder.getDanoTiro(dueno)
                 * dueno.getEstadisticas().getMultiplicadorKick();
         rival.recibirDanio(dano);
-        rival.aplicarEfecto(poder.getTipoEfecto(), poder.getDuracion());
+        rival.aplicarEfecto(poder.crearEfecto());
 
         tiroPoder.desactivar();
     }
@@ -445,7 +445,7 @@ public class Partido {
     private void actualizarBalonesIlusion(double dt) {
         boolean hayConfundido = false;
         for (Jugador jugador : jugadores) {
-            if (jugador.tieneEfecto(TipoEfecto.CONFUNDIDO)) {
+            if (jugador.estaConfundido()) {
                 hayConfundido = true;
                 break;
             }
@@ -467,7 +467,7 @@ public class Partido {
             }
 
             for (Jugador jugador : jugadores) {
-                if (jugador.tieneEfecto(TipoEfecto.CONFUNDIDO) && ilusion.tocaA(jugador)) {
+                if (jugador.estaConfundido() && ilusion.tocaA(jugador)) {
                     empujarPorIlusion(jugador, ilusion);
                     ilusion.reiniciarEmpuje();
                     break;

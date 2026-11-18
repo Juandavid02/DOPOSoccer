@@ -1,8 +1,9 @@
 package domain;
 
 /**
- * Efecto Barril: el jugador queda con las estadísticas y la barra de poder
- * en cero mientras dure; al terminar recupera sus estadísticas normales.
+ * Efecto Barril: mientras dure, el jugador queda con las estadísticas en su
+ * valor inicial y la barra de poder en cero; al terminar recupera sus
+ * estadísticas normales.
  */
 public class EfectoBarril extends Efecto {
 
@@ -22,7 +23,8 @@ public class EfectoBarril extends Efecto {
      */
     @Override
     public void alAplicar(Jugador jugador) {
-        jugador.reiniciarPorBarril();
+        jugador.restablecerEstadisticas();
+        jugador.getBarraPoder().reiniciar();
     }
 
     /**

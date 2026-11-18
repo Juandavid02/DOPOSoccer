@@ -25,11 +25,11 @@ public interface Poder {
     double getDanoTiro(Jugador jugador);
 
     /**
-     * Efecto que se aplica al rival cuando el tiro lo golpea.
+     * Crea el efecto que se aplica al rival cuando el tiro lo golpea.
      *
-     * @return tipo de efecto
+     * @return efecto nuevo con la duración de este poder
      */
-    TipoEfecto getTipoEfecto();
+    Efecto crearEfecto();
 
     /**
      * Impulso horizontal del balón al ejecutar el tiro.

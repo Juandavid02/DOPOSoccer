@@ -1,7 +1,8 @@
 package domain;
 
 /**
- * Efecto Empuje: lanza al jugador hacia atrás y lo deja en el aire.
+ * Efecto Empuje: lanza al jugador en la dirección en la que mira y lo deja
+ * en el aire.
  */
 public class EfectoEmpuje extends Efecto {
 
@@ -15,18 +16,17 @@ public class EfectoEmpuje extends Efecto {
     }
 
     /**
-     * Empuja al jugador hacia el lado contrario al que mira.
+     * Empuja al jugador hacia atrás, hacia su propio arco.
      *
      * @param jugador jugador que recibe el empujón
      */
     @Override
     public void alAplicar(Jugador jugador) {
-        double direccion = 1;
+        double direccion = -1;
         if (jugador.getLado() != Lado.IZQUIERDO) {
-            direccion = -1;
+            direccion = 1;
         }
-        jugador.impulsar(direccion * ParametrosJuego.IMPULSO_EMPUJE,
-                -ParametrosJuego.IMPULSO_EMPUJE_VERTICAL);
+        jugador.impulsar(direccion * ParametrosJuego.IMPULSO_EMPUJE,-ParametrosJuego.IMPULSO_EMPUJE_VERTICAL);
     }
 
     /**

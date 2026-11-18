@@ -20,12 +20,7 @@ public class JugadorHumano extends Jugador {
      * @param posicionX posición inicial en el eje X
      * @param posicionY posición inicial en el eje Y
      */
-    public JugadorHumano(ConfiguracionJugador configuracion,
-                         Personaje personaje,
-                         BarraPoder barraPoder,
-                         Lado lado,
-                         double posicionX,
-                         double posicionY) {
+    public JugadorHumano(ConfiguracionJugador configuracion, Personaje personaje, BarraPoder barraPoder, Lado lado, double posicionX, double posicionY) {
         super(configuracion, personaje, barraPoder, lado, posicionX, posicionY);
     }
 

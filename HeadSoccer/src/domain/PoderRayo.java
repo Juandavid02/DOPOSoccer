@@ -10,13 +10,13 @@ public class PoderRayo extends PoderBase {
     }
 
     /**
-     * Obtiene el tipo de efecto que aplica este poder.
+     * Crea el efecto de electrocución que aplica el poder.
      *
-     * @return efecto de electrocución
+     * @return efecto con la duración del poder
      */
     @Override
-    public TipoEfecto getTipoEfecto() {
-        return TipoEfecto.ELECTROCUTADO;
+    public Efecto crearEfecto() {
+        return new EfectoElectrocutado(getDuracion());
     }
 
     /**

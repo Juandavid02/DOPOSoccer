@@ -10,13 +10,13 @@ public class PoderIlusion extends PoderBase {
     }
 
     /**
-     * Obtiene el tipo de efecto que aplica este poder.
+     * Crea el efecto de confusión que aplica este poder.
      *
-     * @return efecto de confusión
+     * @return efecto con la duración del poder
      */
     @Override
-    public TipoEfecto getTipoEfecto() {
-        return TipoEfecto.CONFUNDIDO;
+    public Efecto crearEfecto() {
+        return new EfectoConfundido(getDuracion());
     }
 
     /**

@@ -10,13 +10,13 @@ public class PoderBarril extends PoderBase {
     }
 
     /**
-     * Obtiene el tipo de efecto que aplica el poder.
+     * Crea el efecto Barril que aplica el poder al rival.
      *
-     * @return tipo de efecto
+     * @return efecto Barril con la duración del poder
      */
     @Override
-    public TipoEfecto getTipoEfecto() {
-        return TipoEfecto.BARRIL;
+    public Efecto crearEfecto() {
+        return new EfectoBarril(getDuracion());
     }
 
     /**

@@ -1,52 +1,18 @@
 package domain;
 
 /**
- * Efectos que puede aplicar un tiro de poder al rival. Cada tipo sabe
- * crear su efecto concreto.
+ * Clasificación de los efectos que puede aplicar un tiro de poder.
+ *
+ * La lógica de cada efecto vive en sus subclases de {@link Efecto}. Este
+ * enum se conserva únicamente como clave para elegir los recursos gráficos
+ * y para identificar el efecto en las pruebas; el dominio no decide
+ * comportamiento a partir de él.
  */
 public enum TipoEfecto {
-    EMPUJE {
-        @Override
-        public Efecto crear(double duracion) {
-            return new EfectoEmpuje(duracion);
-        }
-    },
-    ELECTROCUTADO {
-        @Override
-        public Efecto crear(double duracion) {
-            return new EfectoElectrocutado(duracion);
-        }
-    },
-    INCONSCIENTE {
-        @Override
-        public Efecto crear(double duracion) {
-            return new EfectoInconsciente(duracion);
-        }
-    },
-    CONFUNDIDO {
-        @Override
-        public Efecto crear(double duracion) {
-            return new EfectoConfundido(duracion);
-        }
-    },
-    CONTROLES_INVERTIDOS {
-        @Override
-        public Efecto crear(double duracion) {
-            return new EfectoControlesInvertidos(duracion);
-        }
-    },
-    BARRIL {
-        @Override
-        public Efecto crear(double duracion) {
-            return new EfectoBarril(duracion);
-        }
-    };
-
-    /**
-     * Crea el efecto que corresponde a este tipo.
-     *
-     * @param duracion duración del efecto en segundos
-     * @return efecto nuevo de este tipo
-     */
-    public abstract Efecto crear(double duracion);
+    EMPUJE,
+    ELECTROCUTADO,
+    INCONSCIENTE,
+    CONFUNDIDO,
+    CONTROLES_INVERTIDOS,
+    BARRIL
 }
