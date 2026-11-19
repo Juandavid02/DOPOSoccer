@@ -28,16 +28,12 @@ public class MenuController {
         view.getBotonGestionarProgreso().addActionListener(new ActionListener() {
             @Override
             /**
-             * Ejecuta la acción del botón cuando se presiona.
+             * Abre la pantalla de guardar, abrir, exportar e importar.
              *
              * @param e evento de acción
              */
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(
-                        view,
-                        "Persistencia en construcción",
-                        "Gestionar progreso",
-                        JOptionPane.INFORMATION_MESSAGE);
+                gui.mostrarGestionProgreso();
             }
         });
         view.getBotonArcade().addActionListener(new ActionListener() {
@@ -95,6 +91,17 @@ public class MenuController {
                 gui.mostrarPerfil();
             }
         });
+        view.getBotonContinuarPartido().addActionListener(new ActionListener() {
+            @Override
+            /**
+             * Abre una partida guardada.
+             *
+             * @param e evento de acción
+             */
+            public void actionPerformed(ActionEvent e) {
+                gui.continuarPartida();
+            }
+        });
         view.getBotonSalir().addActionListener(new ActionListener() {
             @Override
             /**
@@ -134,13 +141,9 @@ public class MenuController {
      * Pregunta al usuario si desea salir del juego y cierra la ventana.
      */
     private void confirmarSalida() {
-        int opcion = JOptionPane.showConfirmDialog(
-                view,
+        if (Dialogos.confirmar(view, "Salir",
                 "¿Seguro que quieres salir de DOPOSoccer?",
-                "Salir",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
-        if (opcion == JOptionPane.YES_OPTION) {
+                JOptionPane.QUESTION_MESSAGE)) {
             System.exit(0);
         }
     }

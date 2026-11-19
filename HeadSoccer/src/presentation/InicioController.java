@@ -64,13 +64,9 @@ public class InicioController {
      * Pregunta al usuario si desea salir del juego y cierra la aplicación.
      */
     private void confirmarSalida() {
-        int opcion = JOptionPane.showConfirmDialog(
-                view,
+        if (Dialogos.confirmar(view, "Salir",
                 "¿Seguro que quieres salir de DOPOSoccer?",
-                "Salir",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
-        if (opcion == JOptionPane.YES_OPTION) {
+                JOptionPane.QUESTION_MESSAGE)) {
             System.exit(0);
         }
     }

@@ -292,15 +292,11 @@ public class TorneoController {
      * @return true si el jugador confirma, false en caso contrario
      */
     private boolean confirmarVolverAInscripcion() {
-        int opcion = JOptionPane.showConfirmDialog(
-                view,
+        return Dialogos.confirmar(view, "Volver a la inscripción",
                 "Si vuelves ahora perderás el dinero de la inscripción "
                         + "y quedarás descalificado del torneo.\n"
                         + "¿Quieres volver a pagar la inscripción?",
-                "Volver a la inscripción",
-                JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
-        return opcion == JOptionPane.YES_OPTION;
     }
 
     /**

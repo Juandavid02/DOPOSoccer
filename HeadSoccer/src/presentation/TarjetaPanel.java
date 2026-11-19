@@ -39,6 +39,32 @@ public class TarjetaPanel extends JPanel {
     }
 
     /**
+     * Crea una tarjeta oscura vacía con un signo de interrogación centrado.
+     *
+     * @return tarjeta vacía lista para usar
+     */
+    public static TarjetaPanel vacia() {
+        return vacia(40);
+    }
+
+    /**
+     * Crea una tarjeta oscura vacía con un signo de interrogación centrado.
+     *
+     * @param tamanoFuente tamaño del signo de interrogación
+     * @return tarjeta vacía lista para usar
+     */
+    public static TarjetaPanel vacia(int tamanoFuente) {
+        TarjetaPanel tarjeta = new TarjetaPanel(Estilo.OSCURA);
+        tarjeta.setLayout(new BorderLayout());
+
+        JLabel signo = new JLabel("?", SwingConstants.CENTER);
+        signo.setFont(new Font("SansSerif", Font.BOLD, tamanoFuente));
+        signo.setForeground(new Color(242, 205, 98));
+        tarjeta.add(signo, BorderLayout.CENTER);
+        return tarjeta;
+    }
+
+    /**
      * Dibuja la tarjeta según su estilo.
      *
      * @param g gráficos del componente

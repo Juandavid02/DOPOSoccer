@@ -1,6 +1,8 @@
 package domain;
 
-public class Arco {
+import java.io.Serializable;
+
+public class Arco implements Serializable {
     private final double x;
     private final double y;
     private final double ancho;

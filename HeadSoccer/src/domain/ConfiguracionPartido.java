@@ -1,6 +1,8 @@
 package domain;
 
-public class ConfiguracionPartido {
+import java.io.Serializable;
+
+public class ConfiguracionPartido implements Serializable {
     private final Modalidad modalidad;
     private final TipoPartido tipo;
     private final Resolucion resolucion;

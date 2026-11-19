@@ -3,6 +3,7 @@ package presentation;
 import domain.ExcepcionDOPOSoccer;
 import domain.PerfilJugador;
 import domain.TipoEstadistica;
+import domain.Tienda;
 
 import javax.swing.*;
 import java.util.List;
@@ -93,7 +94,7 @@ public class MejorasController {
             return;
         }
 
-        Desbloqueos desbloqueos = gui.getDesbloqueos();
+        Tienda desbloqueos = gui.getDesbloqueos();
         boolean comprado;
         switch (tarjeta.getTipo()) {
             case PERSONAJE:

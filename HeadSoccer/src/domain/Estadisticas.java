@@ -1,9 +1,14 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Estadísticas físicas de un jugador: velocidad, salto, patada y resistencia.
  */
-public class Estadisticas {
+public class Estadisticas implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private int speed;
     private int jump;
     private int kick;

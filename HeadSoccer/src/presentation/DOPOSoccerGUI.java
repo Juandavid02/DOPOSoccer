@@ -2,13 +2,18 @@ package presentation;
 
 import domain.ConfiguracionIA;
 import domain.ConfiguracionPartido;
+import domain.ExcepcionDOPOSoccer;
 import domain.Modalidad;
+import domain.PartidaGuardada;
 import domain.Partido;
 import domain.PerfilJugador;
 import domain.Personaje;
+import domain.Tienda;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -19,6 +24,7 @@ public class DOPOSoccerGUI extends JFrame {
     private static final String CARTA_MENU = "menu";
     private static final String CARTA_SELECCION_MODO = "seleccionModo";
     private static final String CARTA_PERFIL = "perfil";
+    private static final String CARTA_GESTION_PROGRESO = "gestionProgreso";
     private static final String CARTA_SELECCION_PERFIL = "seleccionPerfil";
     private static final String CARTA_SELECCION_PERFIL_IA = "seleccionPerfilIA";
     private static final String CARTA_CONFIGURACION = "configuracionPartido";
@@ -40,6 +46,8 @@ public class DOPOSoccerGUI extends JFrame {
     private SeleccionModoView seleccionModoView;
     private PerfilView perfilView;
     private PerfilController perfilController;
+    private GestionProgresoView gestionProgresoView;
+    private GestionProgresoController gestionProgresoController;
     private SeleccionPerfilView seleccionPerfilView;
     private SeleccionPerfilController seleccionPerfilController;
     private SeleccionPerfilIAView seleccionPerfilIAView;
@@ -60,7 +68,7 @@ public class DOPOSoccerGUI extends JFrame {
     private final List<PerfilJugador> perfiles = new ArrayList<>();
     private boolean perfilVuelveASeleccion;
     private final GestorSonido gestorSonido = new GestorSonido();
-    private final Desbloqueos desbloqueos = new Desbloqueos();
+    private final Tienda desbloqueos = new Tienda();
     private boolean cambiarPersonajeDesdeJuego;
     private ConfiguracionPartido configuracionPartido;
     private ConfiguracionIA configuracionIA;
@@ -98,6 +106,7 @@ public class DOPOSoccerGUI extends JFrame {
     public static void main(String[] args) {
         Thread.setDefaultUncaughtExceptionHandler((hilo, error) -> {
             error.printStackTrace();
+            RegistroErrores.registrar("Error no controlado en la interfaz", error);
             String detalle = error.getMessage();
             if (detalle == null || detalle.isBlank()) {
                 detalle = error.getClass().getSimpleName();
@@ -128,6 +137,7 @@ public class DOPOSoccerGUI extends JFrame {
         prepareViewMenu();
         prepareViewSeleccionModo();
         prepareViewPerfil();
+        prepareViewGestionProgreso();
         prepareViewSeleccionPerfil();
         prepareViewSeleccionPerfilIA();
         prepareViewConfiguracionPartido();
@@ -169,6 +179,14 @@ public class DOPOSoccerGUI extends JFrame {
     private void prepareViewPerfil() {
         perfilView = new PerfilView();
         mainPanel.add(perfilView, CARTA_PERFIL);
+    }
+
+    /**
+     * Crea la vista de gestión de progreso y la agrega al panel principal.
+     */
+    private void prepareViewGestionProgreso() {
+        gestionProgresoView = new GestionProgresoView();
+        mainPanel.add(gestionProgresoView, CARTA_GESTION_PROGRESO);
     }
 
     /**
@@ -251,6 +269,8 @@ public class DOPOSoccerGUI extends JFrame {
         seleccionPerfilController = new SeleccionPerfilController(this, seleccionPerfilView, perfiles);
         new SeleccionPerfilIAController(this, seleccionPerfilIAView);
         perfilController = new PerfilController(this, perfilView, perfiles);
+        gestionProgresoController = new GestionProgresoController(
+                this, gestionProgresoView, perfiles);
         new ConfiguracionPartidoController(this, configuracionPartidoView);
         seleccionPersonajeController = new SeleccionPersonajeController(this, seleccionPersonajeView);
         new ConfiguracionVisualController(this, configuracionVisualView);
@@ -262,6 +282,7 @@ public class DOPOSoccerGUI extends JFrame {
         gestorSonido.agregarOyente(menuView.getBotonSonido()::setSilenciado);
         gestorSonido.agregarOyente(seleccionModoView.getBotonSonido()::setSilenciado);
         gestorSonido.agregarOyente(perfilView.getBotonSonido()::setSilenciado);
+        gestorSonido.agregarOyente(gestionProgresoView.getBotonSonido()::setSilenciado);
         gestorSonido.agregarOyente(seleccionPerfilView.getBotonSonido()::setSilenciado);
         gestorSonido.agregarOyente(seleccionPerfilIAView.getBotonSonido()::setSilenciado);
         gestorSonido.agregarOyente(configuracionPartidoView.getBotonSonido()::setSilenciado);
@@ -503,6 +524,15 @@ public class DOPOSoccerGUI extends JFrame {
     }
 
     /**
+     * Muestra la pantalla de gestión de progreso.
+     */
+    public void mostrarGestionProgreso() {
+        gestionProgresoController.abrirPantalla();
+        cardLayout.show(mainPanel, CARTA_GESTION_PROGRESO);
+        gestionProgresoView.repaint();
+    }
+
+    /**
      * Muestra la pantalla de perfil del jugador.
      */
     public void mostrarPerfil() {
@@ -659,7 +689,7 @@ public class DOPOSoccerGUI extends JFrame {
      *
      * @return el gestor de desbloqueos
      */
-    public Desbloqueos getDesbloqueos() {
+    public Tienda getDesbloqueos() {
         return desbloqueos;
     }
 
@@ -778,6 +808,82 @@ public class DOPOSoccerGUI extends JFrame {
     }
 
     /**
+     * Abre una partida guardada en un archivo .dat. Si el perfil guardado no
+     * existe se recrea; si existe, se conserva el actual y se unen sus
+     * desbloqueos.
+     */
+    public void continuarPartida() {
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle("Continuar partido");
+        selector.setFileFilter(new FileNameExtensionFilter(
+                "Partida de DOPOSoccer (*.dat)", "dat"));
+        if (selector.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File archivo = selector.getSelectedFile();
+        if (archivo == null) {
+            return;
+        }
+
+        try {
+            PartidaGuardada guardada = PartidaGuardada.open(archivo);
+            PerfilJugador vivo1 = resolverPerfil(guardada.getPerfil1());
+            PerfilJugador vivo2 = resolverPerfil(guardada.getPerfil2());
+            iniciarJuegoCargado(guardada, vivo1, vivo2);
+        } catch (ExcepcionDOPOSoccer e) {
+            RegistroErrores.registrar("Error al abrir la partida", e);
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage() + "\n\nDetalle técnico en "
+                            + RegistroErrores.getRutaArchivo(),
+                    "Continuar partido",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Busca el perfil guardado entre los perfiles en memoria. Si existe,
+     * conserva el perfil actual y le une los desbloqueos guardados. Si no
+     * existe, lo agrega a la lista.
+     *
+     * @param guardado perfil leído del archivo, o null
+     * @return perfil vivo que se usará en la partida, o null
+     */
+    private PerfilJugador resolverPerfil(PerfilJugador guardado) {
+        if (guardado == null) {
+            return null;
+        }
+        for (PerfilJugador perfil : perfiles) {
+            if (perfil.getId().equals(guardado.getId())) {
+                unirDesbloqueos(perfil, guardado);
+                return perfil;
+            }
+        }
+        perfiles.add(guardado);
+        return guardado;
+    }
+
+    /**
+     * Agrega al perfil destino los desbloqueos del perfil guardado. Nunca
+     * quita desbloqueos.
+     *
+     * @param destino perfil actual
+     * @param guardado perfil leído del archivo
+     */
+    private void unirDesbloqueos(PerfilJugador destino, PerfilJugador guardado) {
+        for (String nombre : guardado.getPersonajesDesbloqueados()) {
+            destino.desbloquearPersonaje(nombre);
+        }
+        for (String nombre : guardado.getBalonesDesbloqueados()) {
+            destino.desbloquearBalon(nombre);
+        }
+        for (String nombre : guardado.getEscenariosDesbloqueados()) {
+            destino.desbloquearEscenario(nombre);
+        }
+    }
+
+    /**
      * Inicia un partido normal con la configuración actual.
      */
     public void iniciarJuego() {
@@ -803,12 +909,7 @@ public class DOPOSoccerGUI extends JFrame {
     private void iniciarJuego(boolean otorgarPuntos,
                               Consumer<Partido> alVolverTorneo) {
         liberarJuegoAnterior();
-
-        juegoView = new JuegoView();
-        juegoController = new JuegoController(this, juegoView);
-        mainPanel.add(juegoView, CARTA_JUEGO);
-        oyenteSonidoJuego = juegoView.getBotonSonido()::setSilenciado;
-        gestorSonido.agregarOyente(oyenteSonidoJuego);
+        prepararJuegoView();
 
         boolean iniciado = juegoController.iniciar(
                 configuracionPartido,
@@ -829,6 +930,42 @@ public class DOPOSoccerGUI extends JFrame {
 
         cardLayout.show(mainPanel, CARTA_JUEGO);
         gestorSonido.cambiarMusicaFondo(AMBIENTE_PARTIDO);
+        juegoView.requestFocusInWindow();
+    }
+
+    /**
+     * Crea la vista y el controlador del partido y los conecta al sonido.
+     */
+    private void prepararJuegoView() {
+        juegoView = new JuegoView();
+        juegoController = new JuegoController(this, juegoView);
+        mainPanel.add(juegoView, CARTA_JUEGO);
+        oyenteSonidoJuego = juegoView.getBotonSonido()::setSilenciado;
+        gestorSonido.agregarOyente(oyenteSonidoJuego);
+    }
+
+    /**
+     * Inicia un partido cargado desde un archivo.
+     *
+     * @param guardada partida guardada
+     * @param vivo1 perfil actual del jugador 1
+     * @param vivo2 perfil actual del jugador 2, o null en PvsM
+     */
+    private void iniciarJuegoCargado(PartidaGuardada guardada,
+                                     PerfilJugador vivo1,
+                                     PerfilJugador vivo2) {
+        liberarJuegoAnterior();
+        prepararJuegoView();
+
+        boolean iniciado = juegoController.iniciarDesdePartida(
+                guardada, vivo1, vivo2);
+        if (!iniciado) {
+            liberarJuegoAnterior();
+            return;
+        }
+
+        cardLayout.show(mainPanel, CARTA_JUEGO);
+        gestorSonido.cambiarMusicaFondo(MUSICA_MENU);
         juegoView.requestFocusInWindow();
     }
 

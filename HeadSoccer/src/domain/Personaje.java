@@ -1,6 +1,8 @@
 package domain;
 
-public class Personaje {
+import java.io.Serializable;
+
+public class Personaje implements Serializable {
     private final String nombre;
     private final String pais;
     private final Poder poder;

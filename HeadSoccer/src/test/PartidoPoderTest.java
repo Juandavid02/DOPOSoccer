@@ -18,12 +18,7 @@ import domain.ParametrosJuego;
 import domain.Partido;
 import domain.Personaje;
 import domain.Poder;
-import domain.PoderAuraAzul;
-import domain.PoderBarril;
-import domain.PoderBesoDeLaFea;
-import domain.PoderIlusion;
-import domain.PoderRayo;
-import domain.PoderTornado;
+import domain.PoderConfigurado;
 import domain.Resolucion;
 import domain.TipoEfecto;
 import domain.TipoPartido;
@@ -41,8 +36,8 @@ public class PartidoPoderTest {
     @BeforeEach
     public void setUp() {
         partido = crearPartido(
-                new Personaje("Goku", "Japón", new PoderRayo()),
-                new Personaje("Bob", "Estados Unidos", new PoderIlusion()),
+                new Personaje("Goku", "Japón", PoderConfigurado.rayo()),
+                new Personaje("Bob", "Estados Unidos", PoderConfigurado.ilusion()),
                 new Estadisticas(5, 5, 5, 5),
                 new Estadisticas(5, 5, 5, 5));
     }
@@ -129,32 +124,46 @@ public class PartidoPoderTest {
                 jugador2.getBarraPoder().getCarga(), 1.0);
     }
 
-    /** Verifica que se pueden tener varios efectos activos a la vez. */
+    /** Mientras hay confusión aparecen siete balones falsos simples. */
     @Test
-    public void shouldKeepMultipleEffectsAtTheSameTime() {
+    public void shouldCreateSevenFakeBallsWhileConfused() {
+        Jugador jugador = partido.getJugadores().get(0);
+        jugador.aplicarEfecto(new EfectoConfundido(2.5));
+
+        partido.actualizar(0.016);
+
+        assertEquals(ParametrosJuego.CANTIDAD_BALONES_ILUSION,
+                partido.getBalonesIlusion().size());
+    }
+
+    /** Verifica que el efecto nuevo reemplaza al anterior. */
+    @Test
+    public void shouldReplacePreviousEffectWithNewOne() {
         Jugador jugador = partido.getJugadores().get(0);
 
         jugador.aplicarEfecto(new EfectoElectrocutado(3));
         jugador.aplicarEfecto(new EfectoConfundido(2.5));
 
-        assertTrue(tieneEfecto(jugador, TipoEfecto.ELECTROCUTADO));
-        assertTrue(tieneEfecto(jugador, TipoEfecto.CONFUNDIDO));
-        assertEquals(2, jugador.getEfectosActivos().size());
-    }
-
-    /** Verifica que cada efecto expira de forma independiente. */
-    @Test
-    public void shouldExpireEachEffectIndependently() {
-        Jugador jugador = partido.getJugadores().get(0);
-
-        jugador.aplicarEfecto(new EfectoElectrocutado(1));
-        jugador.aplicarEfecto(new EfectoConfundido(5));
-
-        jugador.actualizar(1.1, partido.getCancha());
-
         assertFalse(tieneEfecto(jugador, TipoEfecto.ELECTROCUTADO));
         assertTrue(tieneEfecto(jugador, TipoEfecto.CONFUNDIDO));
         assertEquals(1, jugador.getEfectosActivos().size());
+    }
+
+    /** Verifica que al reemplazar un efecto solo queda el más reciente. */
+    @Test
+    public void shouldKeepOnlyTheLatestEffectAndItsDuration() {
+        Jugador jugador = partido.getJugadores().get(0);
+
+        jugador.aplicarEfecto(new EfectoElectrocutado(5));
+        jugador.aplicarEfecto(new EfectoConfundido(2.5));
+        jugador.actualizar(1.0, partido.getCancha());
+
+        assertEquals(1, jugador.getEfectosActivos().size());
+        assertEquals(TipoEfecto.CONFUNDIDO,
+                jugador.getEfectosActivos().get(0).getTipo());
+        assertEquals(1.5,
+                jugador.getEfectosActivos().get(0).getTiempoRestante(),
+                0.0001);
     }
 
     /** Verifica que al anotar un gol se eliminan todos los efectos. */
@@ -234,10 +243,10 @@ public class PartidoPoderTest {
     @Test
     public void shouldResetAndRestoreStatsWithBarrelEffect() {
         Estadisticas estadisticas = new Estadisticas(8, 7, 6, 9);
-        Personaje chavo = new Personaje("Chavo", "México", new PoderBarril());
+        Personaje chavo = new Personaje("Chavo", "México", PoderConfigurado.barril());
         Partido partidoBarril = crearPartido(
                 chavo,
-                new Personaje("Betty", "Colombia", new PoderAuraAzul()),
+                new Personaje("Betty", "Colombia", PoderConfigurado.auraAzul()),
                 estadisticas,
                 new Estadisticas(5, 5, 5, 5));
         Jugador jugador = partidoBarril.getJugadores().get(0);
@@ -261,12 +270,12 @@ public class PartidoPoderTest {
     @Test
     public void shouldApplyTheCorrectEffectForEveryPower() {
         Poder[] poderes = {
-                new PoderAuraAzul(),
-                new PoderRayo(),
-                new PoderTornado(),
-                new PoderIlusion(),
-                new PoderBesoDeLaFea(),
-                new PoderBarril()
+                PoderConfigurado.auraAzul(),
+                PoderConfigurado.rayo(),
+                PoderConfigurado.tornado(),
+                PoderConfigurado.ilusion(),
+                PoderConfigurado.besoDeLaFea(),
+                PoderConfigurado.barril()
         };
         TipoEfecto[] efectos = {
                 TipoEfecto.EMPUJE,
@@ -280,7 +289,7 @@ public class PartidoPoderTest {
         for (int i = 0; i < poderes.length; i++) {
             Partido partidoPoder = crearPartido(
                     new Personaje("Atacante", "País", poderes[i]),
-                    new Personaje("Rival", "Otro país", new PoderIlusion()),
+                    new Personaje("Rival", "Otro país", PoderConfigurado.ilusion()),
                     new Estadisticas(5, 5, 5, 5),
                     new Estadisticas(5, 5, 5, 5));
             Jugador atacante = partidoPoder.getJugadores().get(0);
@@ -308,10 +317,10 @@ public class PartidoPoderTest {
     @Test
     public void shouldNotModifyProfileStatsWhenBarrelIsApplied() {
         Estadisticas estadisticasPerfil = new Estadisticas(8, 7, 6, 9);
-        Personaje chavo = new Personaje("Chavo", "México", new PoderBarril());
+        Personaje chavo = new Personaje("Chavo", "México", PoderConfigurado.barril());
         Partido partidoBarril = crearPartido(
                 chavo,
-                new Personaje("Betty", "Colombia", new PoderAuraAzul()),
+                new Personaje("Betty", "Colombia", PoderConfigurado.auraAzul()),
                 estadisticasPerfil,
                 new Estadisticas(5, 5, 5, 5));
 

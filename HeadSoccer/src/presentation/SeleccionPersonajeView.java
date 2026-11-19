@@ -6,6 +6,7 @@ import domain.ParametrosJuego;
 import domain.PerfilJugador;
 import domain.Personaje;
 import domain.Poder;
+import domain.Tienda;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -24,7 +25,7 @@ public class SeleccionPersonajeView extends JPanel {
     private static final Color COLOR_IA = new Color(112, 82, 190);
 
     private final List<BotonCaja> botonesCaja = new ArrayList<>();
-    private Desbloqueos desbloqueos;
+    private Tienda desbloqueos;
     private BufferedImage fondo;
     private PanelLateral panelJugador1;
     private PanelLateral panelJugador2;
@@ -272,7 +273,7 @@ public class SeleccionPersonajeView extends JPanel {
      *
      * @param desbloqueos control de personajes desbloqueados
      */
-    public void setDesbloqueos(Desbloqueos desbloqueos) {
+    public void setDesbloqueos(Tienda desbloqueos) {
         this.desbloqueos = desbloqueos;
         repaint();
     }
@@ -314,7 +315,8 @@ public class SeleccionPersonajeView extends JPanel {
         } else {
             numeroJugador = 0;
         }
-        boton.setJugadorSeleccionado(numeroJugador);
+        boolean esIA = modoIA && !soloHumano && esJugador2;
+        boton.setJugadorSeleccionado(numeroJugador, esIA);
         boton.setEnabled(!elegido && !bloqueado);
         boton.repaint();
     }
@@ -720,7 +722,8 @@ public class SeleccionPersonajeView extends JPanel {
         }
 
         /**
-         * Marco del color del jugador (azul para J1, rojo para J2).
+         * Marco del color del jugador (azul para J1, rojo para J2 y morado
+         * para la IA).
          *
          * @param g2 contexto gráfico
          */
@@ -1085,21 +1088,9 @@ public class SeleccionPersonajeView extends JPanel {
             int xBarra = 112;
             int anchoValor = 26;
             int anchoBarra = ancho - xBarra - anchoValor - 16;
-            int segmentos = ParametrosJuego.MAX_ESTADISTICA;
-            int separacion = 3;
-            int anchoSegmento = Math.max(3,
-                    (anchoBarra - separacion * (segmentos - 1)) / segmentos);
-            int altoSegmento = 12;
 
-            for (int i = 0; i < segmentos; i++) {
-                int x = xBarra + i * (anchoSegmento + separacion);
-                if (i < valor) {
-                    g2.setColor(colorBarra);
-                } else {
-                    g2.setColor(new Color(255, 255, 255, 35));
-                }
-                g2.fillRoundRect(x, y, anchoSegmento, altoSegmento, 4, 4);
-            }
+            BarraEstadistica.pintar(g2, xBarra, y, anchoBarra, 12, 3, valor,
+                    colorBarra, new Color(255, 255, 255, 35), false);
 
             g2.setFont(FUENTE_VALOR);
             String textoValor = String.valueOf(valor);
@@ -1447,11 +1438,12 @@ public class SeleccionPersonajeView extends JPanel {
 
         private static final Color COLOR_J1 = new Color(48, 132, 220);
         private static final Color COLOR_J2 = new Color(214, 62, 72);
-        private static final BufferedImage CADENA = cargarCadena();
+        private static final BufferedImage CADENA = RecursosImagen.cargarCadena();
 
         private final CatalogoSeleccion.Opcion opcion;
         private BufferedImage imagen;
         private int jugadorSeleccionado;
+        private boolean esIA;
         private boolean bloqueado;
 
         /**
@@ -1491,10 +1483,22 @@ public class SeleccionPersonajeView extends JPanel {
          * @param jugador 1, 2 o 0 si nadie lo eligió
          */
         private void setJugadorSeleccionado(int jugador) {
+            setJugadorSeleccionado(jugador, false);
+        }
+
+        /**
+         * Marca cuál jugador tiene elegido este personaje y si es la IA.
+         *
+         * @param jugador 1, 2 o 0 si nadie lo eligió
+         * @param esIA true si el lado derecho lo controla la máquina
+         */
+        private void setJugadorSeleccionado(int jugador, boolean esIA) {
             if (jugador == 1 || jugador == 2) {
                 this.jugadorSeleccionado = jugador;
+                this.esIA = esIA && jugador == 2;
             } else {
                 this.jugadorSeleccionado = 0;
+                this.esIA = false;
             }
             repaint();
         }
@@ -1507,20 +1511,6 @@ public class SeleccionPersonajeView extends JPanel {
         private void setBloqueado(boolean bloqueado) {
             this.bloqueado = bloqueado;
             repaint();
-        }
-
-        /**
-         * Carga la imagen de la cadena de bloqueo.
-         *
-         * @return imagen de la cadena, o null si no se pudo cargar
-         */
-        private static BufferedImage cargarCadena() {
-            try {
-                return RecursosImagen.cargar(
-                        "resources/images/Objetos/CadenaDeBloqueo.png");
-            } catch (RuntimeException e) {
-                return null;
-            }
         }
 
         /**
@@ -1616,6 +1606,8 @@ public class SeleccionPersonajeView extends JPanel {
                 Color color;
                 if (jugadorSeleccionado == 1) {
                     color = COLOR_J1;
+                } else if (esIA) {
+                    color = COLOR_IA;
                 } else {
                     color = COLOR_J2;
                 }
@@ -1646,7 +1638,8 @@ public class SeleccionPersonajeView extends JPanel {
         }
 
         /**
-         * Cuadrado con J1 (azul) o J2 (rojo) sobre el personaje elegido.
+         * Cuadrado con J1 (azul), J2 (rojo) o IA (morado) sobre el personaje
+         * elegido.
          *
          * @param g2 contexto gráfico
          * @param color color de la etiqueta
@@ -1672,6 +1665,8 @@ public class SeleccionPersonajeView extends JPanel {
             String texto;
             if (jugadorSeleccionado == 1) {
                 texto = "J1";
+            } else if (esIA) {
+                texto = "IA";
             } else {
                 texto = "J2";
             }

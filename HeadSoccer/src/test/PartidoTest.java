@@ -17,7 +17,7 @@ import domain.MotivoFin;
 import domain.ParametrosJuego;
 import domain.Partido;
 import domain.Personaje;
-import domain.PoderAuraAzul;
+import domain.PoderConfigurado;
 import domain.Resolucion;
 import domain.TipoPartido;
 
@@ -227,6 +227,45 @@ public class PartidoTest
         assertTrue(partido.getBalon().getVelocidadX() > 0);
     }
 
+    /**
+     * Un jugador que salta por encima del rival puede pasar al otro lado:
+     * su bota queda por encima de la cabeza del otro y no se separan.
+     */
+    @Test
+    public void shouldPassOverOpponentWhenJumping()
+    {
+        Jugador jugador1 = partido.getJugadores().get(0);
+        Jugador jugador2 = partido.getJugadores().get(1);
+        partido.getBalon().reiniciar(400, 400);
+
+        // El jugador 1 queda 180 px por encima del jugador 2.
+        jugador1.reiniciar(600, 500);
+        jugador2.reiniciar(600, 680);
+
+        partido.actualizar(0.001);
+
+        assertEquals(600, jugador1.getPosicionX(), 0.0001);
+        assertEquals(600, jugador2.getPosicionX(), 0.0001);
+    }
+
+    /** A la misma altura los jugadores siguen chocando y se separan. */
+    @Test
+    public void shouldKeepPlayerCollisionWhenAtSameHeight()
+    {
+        Jugador jugador1 = partido.getJugadores().get(0);
+        Jugador jugador2 = partido.getJugadores().get(1);
+        partido.getBalon().reiniciar(400, 400);
+
+        jugador1.reiniciar(600, 680);
+        jugador2.reiniciar(610, 680);
+
+        partido.actualizar(0.001);
+
+        double separacion = Math.abs(jugador1.getPosicionX() - jugador2.getPosicionX());
+        assertTrue(separacion > 60,
+                "Los jugadores debían separarse; separación: " + separacion);
+    }
+
     /** No se puede usar un número de jugador distinto de 1 o 2. */
     @Test
     public void shouldNotAcceptInvalidPlayer()
@@ -308,7 +347,7 @@ public class PartidoTest
      */
     private Personaje crearPersonaje()
     {
-        return new Personaje("Polar", "Canadá", new PoderAuraAzul());
+        return new Personaje("Polar", "Canadá", PoderConfigurado.auraAzul());
     }
 
     /** Libera el escenario de pruebas después de cada test. */

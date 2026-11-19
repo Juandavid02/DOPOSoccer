@@ -71,7 +71,7 @@ public class PerfilView extends VistaBase {
         listaPerfiles.setFont(new Font("SansSerif", Font.BOLD, 18));
         listaPerfiles.setSelectionForeground(COLOR_TEXTO);
         listaPerfiles.setFixedCellHeight(40);
-        listaPerfiles.setCellRenderer(new PerfilRenderer());
+        listaPerfiles.setCellRenderer(new PerfilRenderer(18, 7, false));
         listaPerfiles.setBorder(new EmptyBorder(0, 0, 0, 10));
 
         JScrollPane scroll = new JScrollPane(listaPerfiles);
@@ -132,10 +132,10 @@ public class PerfilView extends VistaBase {
         c.weightx = 1;
         panel.add(etiquetaPuntos, c);
 
-        barraVelocidad = new BarraEstadistica();
-        barraSalto = new BarraEstadistica();
-        barraPatada = new BarraEstadistica();
-        barraSupervivencia = new BarraEstadistica();
+        barraVelocidad = new BarraEstadistica(240, 18, 4, true);
+        barraSalto = new BarraEstadistica(240, 18, 4, true);
+        barraPatada = new BarraEstadistica(240, 18, 4, true);
+        barraSupervivencia = new BarraEstadistica(240, 18, 4, true);
 
         agregarEstadistica(panel, "Velocidad", 2, barraVelocidad);
         agregarEstadistica(panel, "Salto", 3, barraSalto);
@@ -309,113 +309,5 @@ public class PerfilView extends VistaBase {
      */
     public JButton getBotonEliminar() {
         return botonEliminar;
-    }
-
-    // ------------------------------------------------------------------
-    // Renderer de la lista de perfiles.
-    // ------------------------------------------------------------------
-    private static final class PerfilRenderer extends DefaultListCellRenderer {
-
-        /**
-         * Prepara la etiqueta que representa un perfil en la lista.
-         *
-         * @param lista lista que dibuja la celda
-         * @param valor valor de la celda
-         * @param indice índice de la celda
-         * @param seleccionado indica si la celda está seleccionada
-         * @param tieneFoco indica si la lista tiene el foco
-         * @return el componente de la celda
-         */
-        @Override
-        public Component getListCellRendererComponent(JList<?> lista, Object valor,
-                                                      int indice, boolean seleccionado,
-                                                      boolean tieneFoco) {
-            JLabel etiqueta = (JLabel) super.getListCellRendererComponent(
-                    lista, valor, indice, seleccionado, tieneFoco);
-
-            Color colorTexto;
-            Color colorFondo;
-
-            if (seleccionado) {
-                colorTexto = Color.WHITE;
-                colorFondo = new Color(38, 108, 148);
-            } else {
-                colorTexto = COLOR_TEXTO;
-                colorFondo = new Color(214, 232, 242);
-            }
-
-            etiqueta.setOpaque(true);
-            etiqueta.setFont(new Font("SansSerif", Font.BOLD, 18));
-            etiqueta.setForeground(colorTexto);
-            etiqueta.setBorder(new EmptyBorder(7, 14, 7, 14));
-            etiqueta.setBackground(colorFondo);
-            return etiqueta;
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // Barra de estadística de 1 a 10.
-    // ------------------------------------------------------------------
-    private static final class BarraEstadistica extends JComponent {
-
-        private int valor;
-
-        /**
-         * Crea la barra de estadística.
-         */
-        private BarraEstadistica() {
-            setPreferredSize(new Dimension(240, 18));
-        }
-
-        /**
-         * Asigna el valor que muestra la barra.
-         *
-         * @param valor valor entre 0 y el máximo permitido
-         */
-        private void setValor(int valor) {
-            this.valor = Math.max(0, Math.min(ParametrosJuego.MAX_ESTADISTICA, valor));
-            repaint();
-        }
-
-        /**
-         * Dibuja los segmentos y el valor de la estadística.
-         *
-         * @param g contexto gráfico
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int segmentos = ParametrosJuego.MAX_ESTADISTICA;
-            int anchoTexto = 30;
-            int separacion = 4;
-            int anchoBarra = Math.max(40, getWidth() - anchoTexto);
-            int anchoSegmento = Math.max(4, (anchoBarra - separacion * (segmentos - 1)) / segmentos);
-            int altoSegmento = Math.max(8, getHeight() - 4);
-
-            for (int i = 0; i < segmentos; i++) {
-                int x = i * (anchoSegmento + separacion);
-                if (i < valor) {
-                    g2.setPaint(new GradientPaint(
-                            x, 0, new Color(120, 235, 150),
-                            x, altoSegmento, new Color(52, 170, 110)));
-                } else {
-                    g2.setColor(new Color(30, 70, 95, 55));
-                }
-                g2.fillRoundRect(x, 2, anchoSegmento, altoSegmento, 6, 6);
-            }
-
-            g2.setFont(new Font("SansSerif", Font.BOLD, 15));
-            g2.setColor(COLOR_TEXTO);
-            String texto = String.valueOf(valor);
-            FontMetrics fm = g2.getFontMetrics();
-            g2.drawString(texto,
-                    getWidth() - fm.stringWidth(texto),
-                    (getHeight() + fm.getAscent() - fm.getDescent()) / 2);
-
-            g2.dispose();
-        }
     }
 }

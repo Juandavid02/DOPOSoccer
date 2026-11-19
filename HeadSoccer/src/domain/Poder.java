@@ -1,9 +1,11 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Comportamiento de un tiro de poder de un personaje.
  */
-public interface Poder {
+public interface Poder extends Serializable {
     /**
      * Obtiene el nombre del poder.
      *

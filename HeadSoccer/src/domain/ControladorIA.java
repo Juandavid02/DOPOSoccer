@@ -1,5 +1,7 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Base de los controladores de la máquina.
  *
@@ -7,7 +9,7 @@ package domain;
  * decisión concreta según el perfil de IA. Aplica el patrón Template
  * Method.
  */
-public abstract class ControladorIA {
+public abstract class ControladorIA implements Serializable {
 
     /** Tiempo que debe esperar la IA antes de volver a saltar. */
     protected double tiempoSalto;

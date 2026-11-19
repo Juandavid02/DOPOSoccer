@@ -240,10 +240,7 @@ public class PerfilController {
      * @param mensaje texto del error
      */
     private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(
-                view,
-                mensaje,
-                "Perfil",
+        Dialogos.aviso(view, "Perfil", mensaje,
                 JOptionPane.WARNING_MESSAGE);
     }
 }

@@ -207,7 +207,7 @@ public class SeleccionPerfilIAView extends VistaBase {
                 new EnumMap<>(TipoEstadistica.class);
         private final Map<TipoEstadistica, JLabel> etiquetasValor =
                 new EnumMap<>(TipoEstadistica.class);
-        private final Map<TipoEstadistica, BarraStat> barras =
+        private final Map<TipoEstadistica, BarraEstadistica> barras =
                 new EnumMap<>(TipoEstadistica.class);
         private final Map<TipoEstadistica, BotonPaso> botonesMenos =
                 new EnumMap<>(TipoEstadistica.class);
@@ -267,7 +267,8 @@ public class SeleccionPerfilIAView extends VistaBase {
                 c.gridy = fila;
                 filas.add(nombre, c);
 
-                BarraStat barra = new BarraStat();
+                BarraEstadistica barra = new BarraEstadistica(150, 16, 3, false,
+                BarraEstadistica.Estilo.PLANO);
                 barras.put(tipo, barra);
                 c.gridx = 1;
                 filas.add(barra, c);
@@ -367,55 +368,4 @@ public class SeleccionPerfilIAView extends VistaBase {
     // ------------------------------------------------------------------
     // Barra de 10 segmentos.
     // ------------------------------------------------------------------
-    private static final class BarraStat extends JComponent {
-
-        private int valor;
-
-        /**
-         * Crea la barra de segmentos de la estadística.
-         */
-        private BarraStat() {
-            setPreferredSize(new Dimension(150, 16));
-        }
-
-        /**
-         * Cambia el valor que muestra la barra.
-         *
-         * @param valor nuevo valor de la barra
-         */
-        private void setValor(int valor) {
-            this.valor = valor;
-            repaint();
-        }
-
-        /**
-         * Dibuja los segmentos de la barra según el valor actual.
-         *
-         * @param g contexto gráfico del componente
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int segmentos = ParametrosJuego.MAX_ESTADISTICA;
-            int separacion = 3;
-            int anchoSegmento = Math.max(4,
-                    (getWidth() - separacion * (segmentos - 1)) / segmentos);
-            int alto = Math.max(8, getHeight() - 2);
-
-            for (int i = 0; i < segmentos; i++) {
-                int x = i * (anchoSegmento + separacion);
-                if (i < valor) {
-                    g2.setColor(new Color(52, 170, 110));
-                } else {
-                    g2.setColor(new Color(30, 70, 95, 45));
-                }
-                g2.fillRoundRect(x, 1, anchoSegmento, alto, 5, 5);
-            }
-
-            g2.dispose();
-        }
-    }
 }

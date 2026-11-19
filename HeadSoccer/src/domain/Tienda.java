@@ -1,17 +1,15 @@
-package presentation;
-
-import domain.PerfilJugador;
+package domain;
 
 /**
  * Precios y compras de la tienda. El estado de lo desbloqueado pertenece a
  * cada perfil: un personaje comprado por un perfil no queda disponible para
  * los demás.
  */
-public final class Desbloqueos {
+public final class Tienda {
 
-    static final int PRECIO_PERSONAJE = 500;
-    static final int PRECIO_BALON = 300;
-    static final int PRECIO_ESCENARIO = 400;
+    public static final int PRECIO_PERSONAJE = 500;
+    public static final int PRECIO_BALON = 300;
+    public static final int PRECIO_ESCENARIO = 400;
 
     /**
      * Indica si un personaje está desbloqueado para el perfil.

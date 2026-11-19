@@ -22,6 +22,12 @@ public class ParametrosJuego {
     public static final int ANCHO_ARCO = 120;
     public static final int ALTO_ARCO = 220;
 
+    // Rampa invisible sobre cada arco: triángulo rectángulo con su lado alto
+    // contra la pared y su lado bajo hacia la cancha.
+    public static final double ALTO_RAMPA_ARCO = 45;
+    // Si el balón cae con menos velocidad que esta, no rebota y se resbala.
+    public static final double UMBRAL_REBOTE_RAMPA = 90;
+
     // Jugador
     public static final double RADIO_JUGADOR = 20;
     /** Velocidad base de desplazamiento; las estadísticas la modifican. */
@@ -41,7 +47,6 @@ public class ParametrosJuego {
     /** Distancia a la que se puede patear el balón: pie, balón y tolerancia visual. */
     public static final double ALCANCE_PATADA = RADIO_BOTA_JUGADOR + RADIO_BALON_COLISION + 17;
     public static final double IMPULSO_SALTO_BASE = 300;
-    public static final double IMPULSO_SALTO_POR_NIVEL = 80;
     public static final double POTENCIA_PATADA_BASE = 650;
     /** Componente hacia arriba de la patada para que el balón haga curva. */
     public static final double POTENCIA_LEVANTE_PATADA = 520;
@@ -70,14 +75,8 @@ public class ParametrosJuego {
     /** Impulso vertical del Tornado para lanzar al rival al aire. */
     public static final double IMPULSO_INCONSCIENTE = 650;
 
-    // Ilusión: balones falsos que distraen y empujan al rival.
+    // Ilusión: siete balones falsos que distraen al rival.
     public static final int CANTIDAD_BALONES_ILUSION = 7;
-    /** Desplazamiento lateral que aplica cada balón falso al tocar al rival. */
-    public static final double DESPLAZAMIENTO_BALON_ILUSION = 14;
-    /** Pequeño salto al recibir el empuje de un balón falso. */
-    public static final double ALTURA_EMPUJE_BALON_ILUSION = 4;
-    /** Tiempo mínimo entre dos empujes consecutivos del mismo balón. */
-    public static final double TIEMPO_ENTRE_EMPUJES_ILUSION = 1.0;
 
     // Barra de poder
     public static final double CAPACIDAD_BARRA_PODER = 100;

@@ -1,6 +1,11 @@
 package domain;
 
-public class ConfiguracionJugador {
+import java.io.Serializable;
+
+public class ConfiguracionJugador implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private final String nombre;
     private final Estadisticas estadisticas;
     private final Puntos puntos;

@@ -12,7 +12,7 @@ import domain.Modalidad;
 import domain.MotivoFin;
 import domain.Partido;
 import domain.Personaje;
-import domain.PoderAuraAzul;
+import domain.PoderConfigurado;
 import domain.ReglaGoles;
 import domain.Resolucion;
 import domain.TipoPartido;
@@ -121,7 +121,7 @@ public class ReglaGolesTest
      */
     private Personaje crearPersonaje()
     {
-        return new Personaje("Prueba", "Prueba", new PoderAuraAzul());
+        return new Personaje("Prueba", "Prueba", PoderConfigurado.auraAzul());
     }
 
     /**

@@ -458,57 +458,28 @@ public class ConfiguracionPartidoView extends VistaBase {
             super(texto);
             setFont(new Font("SansSerif", Font.BOLD, 16));
             setPreferredSize(new Dimension(140, 42));
-            setOpaque(false);
-            setContentAreaFilled(false);
-            setBorderPainted(false);
+            setOpaque(true);
             setFocusPainted(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            actualizarEstilo();
+            addItemListener(e -> actualizarEstilo());
         }
 
         /**
-         * Dibuja el botón de opción según su estado.
-         *
-         * @param g contexto gráfico donde se dibuja
+         * Aplica el color según si el botón está seleccionado.
          */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            boolean seleccionado = isSelected() || getModel().isRollover();
-
-            Color colorFondo;
-            Color colorBorde;
-            Color colorTexto;
-
-            if (seleccionado) {
-                colorFondo = new Color(46, 168, 74);
-                colorBorde = new Color(20, 90, 45);
-                colorTexto = Color.WHITE;
+        private void actualizarEstilo() {
+            if (isSelected()) {
+                setBackground(new Color(46, 168, 74));
+                setForeground(Color.WHITE);
+                setBorder(BorderFactory.createLineBorder(
+                        new Color(20, 90, 45), 2, true));
             } else {
-                colorFondo = new Color(214, 232, 242);
-                colorBorde = new Color(120, 160, 185);
-                colorTexto = COLOR_TEXTO;
+                setBackground(new Color(214, 232, 242));
+                setForeground(COLOR_TEXTO);
+                setBorder(BorderFactory.createLineBorder(
+                        new Color(120, 160, 185), 2, true));
             }
-
-            g2.setColor(colorFondo);
-            g2.fillRoundRect(0, 0, ancho, alto, alto, alto);
-
-            g2.setColor(colorBorde);
-            g2.setStroke(new BasicStroke(2f));
-            g2.drawRoundRect(1, 1, ancho - 2, alto - 2, alto, alto);
-
-            g2.setFont(getFont());
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (ancho - fm.stringWidth(getText())) / 2;
-            int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-            g2.setColor(colorTexto);
-            g2.drawString(getText(), x, y);
-
-            g2.dispose();
         }
     }
 }

@@ -17,12 +17,12 @@ public class CatalogoPersonajes {
      */
     public static List<Personaje> getPersonajes() {
         return List.of(
-                new Personaje("Jungkook", "Corea del Sur", new PoderAuraAzul()),
-                new Personaje("Goku", "Japón", new PoderRayo()),
-                new Personaje("Mario", "Italia", new PoderTornado()),
-                new Personaje("Bob Esponja", "Estados Unidos", new PoderIlusion()),
-                new Personaje("Betty la fea", "Colombia", new PoderBesoDeLaFea()),
-                new Personaje("El Chavo del Ocho", "México", new PoderBarril())
+                new Personaje("Jungkook", "Corea del Sur", PoderConfigurado.auraAzul()),
+                new Personaje("Goku", "Japón", PoderConfigurado.rayo()),
+                new Personaje("Mario", "Italia", PoderConfigurado.tornado()),
+                new Personaje("Bob Esponja", "Estados Unidos", PoderConfigurado.ilusion()),
+                new Personaje("Betty la fea", "Colombia", PoderConfigurado.besoDeLaFea()),
+                new Personaje("El Chavo del Ocho", "México", PoderConfigurado.barril())
         );
     }
 }

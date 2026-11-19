@@ -1,5 +1,7 @@
 package domain;
-public class Balon {
+
+import java.io.Serializable;
+public class Balon implements Serializable {
     private double x;
     private double y;
     private double velocidadX;

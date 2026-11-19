@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import domain.PoderBarril;
+import domain.Poder;
+import domain.PoderConfigurado;
 
 /**
  * Clase de pruebas PoderBarrilTest.
@@ -12,7 +13,7 @@ import domain.PoderBarril;
  */
 public class PoderBarrilTest
 {
-    private PoderBarril poder;
+    private Poder poder;
 
     /**
      * Constructor de la clase de pruebas PoderBarrilTest.
@@ -27,7 +28,7 @@ public class PoderBarrilTest
     @BeforeEach
     public void setUp()
     {
-        poder = new PoderBarril();
+        poder = PoderConfigurado.barril();
     }
 
     /** El nombre visible del poder es "Barril". */

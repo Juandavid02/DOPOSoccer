@@ -1,11 +1,13 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Efecto temporal que sufre un jugador después de recibir un tiro de poder.
  * Cada efecto concreto (Empuje, Barril, etc.) sabe qué le hace al jugador
  * cuando empieza, mientras dura y cuando termina.
  */
-public abstract class Efecto {
+public abstract class Efecto implements Serializable {
 
     private final TipoEfecto tipo;
     private double tiempoRestante;

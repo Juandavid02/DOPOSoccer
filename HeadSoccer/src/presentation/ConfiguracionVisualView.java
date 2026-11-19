@@ -1,6 +1,7 @@
 package presentation;
 
 import domain.PerfilJugador;
+import domain.Tienda;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -30,7 +31,7 @@ public class ConfiguracionVisualView extends VistaBase {
 
     private TarjetaVisual balonSeleccionado;
     private TarjetaVisual escenarioSeleccionado;
-    private Desbloqueos desbloqueos;
+    private Tienda desbloqueos;
     private PerfilJugador perfil1;
     private PerfilJugador perfil2;
 
@@ -48,7 +49,7 @@ public class ConfiguracionVisualView extends VistaBase {
      *
      * @param desbloqueos desbloqueos de los perfiles
      */
-    public void setDesbloqueos(Desbloqueos desbloqueos) {
+    public void setDesbloqueos(Tienda desbloqueos) {
         this.desbloqueos = desbloqueos;
         actualizarDesbloqueos();
     }
@@ -150,12 +151,12 @@ public class ConfiguracionVisualView extends VistaBase {
         c.weighty = 1;
 
         c.gridx = 0;
-        c.weightx = 0.30;
+        c.weightx = 0.42;
         c.insets = new Insets(0, 0, 0, 24);
         secciones.add(prepararBalones(), c);
 
         c.gridx = 1;
-        c.weightx = 0.70;
+        c.weightx = 0.58;
         c.insets = new Insets(0, 0, 0, 0);
         secciones.add(prepararEscenarios(), c);
 
@@ -179,9 +180,9 @@ public class ConfiguracionVisualView extends VistaBase {
             cuadricula.add(tarjeta);
         }
         // Tres espacios reservados para futuros balones.
-        cuadricula.add(new TarjetaVacia());
-        cuadricula.add(new TarjetaVacia());
-        cuadricula.add(new TarjetaVacia());
+        cuadricula.add(TarjetaPanel.vacia(40));
+        cuadricula.add(TarjetaPanel.vacia(40));
+        cuadricula.add(TarjetaPanel.vacia(40));
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -202,7 +203,7 @@ public class ConfiguracionVisualView extends VistaBase {
     private JPanel prepararEscenarios() {
         JLabel titulo = crearEtiqueta("ESCENARIO");
 
-        JPanel cuadricula = new JPanel(new GridLayout(3, 2, 10, 8));
+        JPanel cuadricula = new JPanel(new GridLayout(2, 3, 10, 8));
         cuadricula.setOpaque(false);
 
         for (CatalogoVisual.Opcion opcion : CatalogoVisual.getEscenarios()) {
@@ -211,8 +212,8 @@ public class ConfiguracionVisualView extends VistaBase {
             cuadricula.add(tarjeta);
         }
         // Dos espacios reservados para futuros escenarios.
-        cuadricula.add(new TarjetaVacia());
-        cuadricula.add(new TarjetaVacia());
+        cuadricula.add(TarjetaPanel.vacia(40));
+        cuadricula.add(TarjetaPanel.vacia(40));
 
         JPanel panel = new JPanel(new BorderLayout(0, 10));
         panel.setOpaque(false);
@@ -371,65 +372,15 @@ public class ConfiguracionVisualView extends VistaBase {
     }
 
     // ------------------------------------------------------------------
-    // Espacio reservado para un balón o escenario futuro.
-    // ------------------------------------------------------------------
-    private static final class TarjetaVacia extends JComponent {
-
-        /**
-         * Dibuja un espacio reservado con el signo de interrogación.
-         *
-         * @param g contexto gráfico donde se dibuja
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            int arco = 18;
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    0, 0, ancho - 1, alto - 1, arco, arco);
-
-            g2.setColor(new Color(8, 26, 48, 235));
-            g2.fill(forma);
-
-            g2.setStroke(new BasicStroke(2.5f));
-            g2.setColor(new Color(202, 170, 92));
-            g2.draw(forma);
-
-            g2.setStroke(new BasicStroke(1f));
-            g2.setColor(new Color(255, 225, 145, 80));
-            g2.draw(new RoundRectangle2D.Float(
-                    3, 3, ancho - 7, alto - 7, arco, arco));
-
-            g2.setFont(new Font("SansSerif", Font.BOLD,
-                    Math.max(26, alto / 3)));
-            FontMetrics fm = g2.getFontMetrics();
-            String signo = "?";
-            int x = (ancho - fm.stringWidth(signo)) / 2;
-            int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-
-            g2.setColor(new Color(0, 0, 0, 130));
-            g2.drawString(signo, x + 2, y + 2);
-            g2.setColor(new Color(242, 205, 98));
-            g2.drawString(signo, x, y);
-
-            g2.dispose();
-        }
-    }
-
-    // ------------------------------------------------------------------
     // Tarjeta de balón o escenario.
     // ------------------------------------------------------------------
     public static final class TarjetaVisual extends JButton {
 
-        private static final BufferedImage CADENA = cargarCadena();
+        private static final BufferedImage CADENA = RecursosImagen.cargarCadena();
 
         private final CatalogoVisual.Opcion opcion;
-        private final boolean esBalon;
         private final BufferedImage imagen;
+        private final boolean esBalon;
         private boolean seleccionada;
         private boolean bloqueada;
 
@@ -442,13 +393,10 @@ public class ConfiguracionVisualView extends VistaBase {
         private TarjetaVisual(CatalogoVisual.Opcion opcion, boolean esBalon) {
             this.opcion = opcion;
             this.esBalon = esBalon;
-
             BufferedImage original = RecursosImagen.cargar(opcion.getRuta());
-            if (esBalon) {
-                imagen = RecursosImagen.recortarTransparente(original);
-            } else {
-                imagen = original;
-            }
+            this.imagen = esBalon
+                    ? RecursosImagen.recortarTransparente(original)
+                    : original;
 
             setOpaque(false);
             setContentAreaFilled(false);
@@ -497,23 +445,7 @@ public class ConfiguracionVisualView extends VistaBase {
         }
 
         /**
-         * Carga la imagen de la cadena de bloqueo.
-         *
-         * @return imagen de la cadena o null si no se pudo cargar
-         */
-        private static BufferedImage cargarCadena() {
-            try {
-                return RecursosImagen.cargar(
-                        "resources/images/Objetos/CadenaDeBloqueo.png");
-            } catch (RuntimeException e) {
-                System.err.println(
-                        "No se pudo cargar la cadena de bloqueo.");
-                return null;
-            }
-        }
-
-        /**
-         * Dibuja la tarjeta con su imagen y estado.
+         * Dibuja la imagen ajustada, el nombre y la cadena si está bloqueada.
          *
          * @param g contexto gráfico donde se dibuja
          */
@@ -527,17 +459,40 @@ public class ConfiguracionVisualView extends VistaBase {
 
             int ancho = getWidth();
             int alto = getHeight();
-            int arco = 18;
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    0, 0, ancho - 1, alto - 1, arco, arco);
+            int margen = 6;
+            int altoTexto = 24;
 
-            g2.setClip(forma);
+            g2.setColor(bloqueada
+                    ? new Color(228, 232, 236)
+                    : new Color(246, 250, 252));
+            g2.fillRoundRect(0, 0, ancho - 1, alto - 1, 16, 16);
 
-            if (esBalon) {
-                dibujarBalon(g2, ancho, alto);
-            } else {
-                dibujarEscenario(g2, ancho, alto);
+            int areaAlto = Math.max(1, alto - altoTexto - margen * 2);
+            double escala = Math.min(
+                    (double) (ancho - margen * 2) / imagen.getWidth(),
+                    (double) areaAlto / imagen.getHeight());
+            int anchoImagen = Math.max(1,
+                    (int) Math.round(imagen.getWidth() * escala));
+            int altoImagen = Math.max(1,
+                    (int) Math.round(imagen.getHeight() * escala));
+            int x = (ancho - anchoImagen) / 2;
+            int y = margen + (areaAlto - altoImagen) / 2;
+
+            if (bloqueada) {
+                g2.setComposite(AlphaComposite.getInstance(
+                        AlphaComposite.SRC_OVER, 0.45f));
             }
+            g2.drawImage(imagen, x, y, anchoImagen, altoImagen, null);
+            g2.setComposite(AlphaComposite.SrcOver);
+
+            g2.setFont(new Font("SansSerif", Font.BOLD, 15));
+            FontMetrics fm = g2.getFontMetrics();
+            g2.setColor(bloqueada
+                    ? new Color(110, 120, 130)
+                    : COLOR_TEXTO);
+            g2.drawString(opcion.getNombre(),
+                    (ancho - fm.stringWidth(opcion.getNombre())) / 2,
+                    alto - 6);
 
             if (bloqueada && CADENA != null) {
                 double escalaCadena = Math.max(
@@ -553,13 +508,6 @@ public class ConfiguracionVisualView extends VistaBase {
                         anchoCadena, altoCadena, null);
             }
 
-            if (getModel().isRollover() && !bloqueada) {
-                g2.setColor(new Color(255, 255, 255, 45));
-                g2.fill(forma);
-            }
-
-            g2.setClip(null);
-
             if (seleccionada) {
                 g2.setStroke(new BasicStroke(4f));
                 g2.setColor(new Color(255, 210, 70));
@@ -567,69 +515,9 @@ public class ConfiguracionVisualView extends VistaBase {
                 g2.setStroke(new BasicStroke(2f));
                 g2.setColor(new Color(30, 70, 90));
             }
-            g2.draw(forma);
+            g2.drawRoundRect(1, 1, ancho - 3, alto - 3, 16, 16);
 
             g2.dispose();
         }
-
-        /**
-         * Dibuja la imagen del balón con su nombre.
-         *
-         * @param g2 contexto gráfico donde se dibuja
-         * @param ancho ancho disponible de la tarjeta
-         * @param alto alto disponible de la tarjeta
-         */
-        private void dibujarBalon(Graphics2D g2, int ancho, int alto) {
-            g2.setColor(new Color(246, 250, 252));
-            g2.fillRect(0, 0, ancho, alto);
-
-            int altoTexto = 24;
-            int areaAlto = alto - altoTexto;
-            double escala = Math.min(
-                    (double) (ancho - 20) / imagen.getWidth(),
-                    (double) (areaAlto - 10) / imagen.getHeight());
-            int anchoImagen = (int) (imagen.getWidth() * escala);
-            int altoImagen = (int) (imagen.getHeight() * escala);
-            int x = (ancho - anchoImagen) / 2;
-            int y = (areaAlto - altoImagen) / 2;
-
-            g2.drawImage(imagen, x, y, anchoImagen, altoImagen, null);
-
-            g2.setFont(new Font("SansSerif", Font.BOLD, 15));
-            g2.setColor(COLOR_TEXTO);
-            FontMetrics fm = g2.getFontMetrics();
-            g2.drawString(opcion.getNombre(),
-                    (ancho - fm.stringWidth(opcion.getNombre())) / 2,
-                    alto - 7);
-        }
-
-        /**
-         * Dibuja la imagen del escenario con su nombre.
-         *
-         * @param g2 contexto gráfico donde se dibuja
-         * @param ancho ancho disponible de la tarjeta
-         * @param alto alto disponible de la tarjeta
-         */
-        private void dibujarEscenario(Graphics2D g2, int ancho, int alto) {
-            double escala = Math.max(
-                    (double) ancho / imagen.getWidth(),
-                    (double) alto / imagen.getHeight());
-            int anchoImagen = (int) Math.ceil(imagen.getWidth() * escala);
-            int altoImagen = (int) Math.ceil(imagen.getHeight() * escala);
-
-            g2.drawImage(imagen, (ancho - anchoImagen) / 2, (alto - altoImagen) / 2,
-                    anchoImagen, altoImagen, null);
-
-            g2.setColor(new Color(0, 0, 0, 150));
-            g2.fillRect(0, alto - 30, ancho, 30);
-
-            g2.setFont(new Font("SansSerif", Font.BOLD, 15));
-            g2.setColor(Color.WHITE);
-            FontMetrics fm = g2.getFontMetrics();
-            g2.drawString(opcion.getNombre(),
-                    (ancho - fm.stringWidth(opcion.getNombre())) / 2,
-                    alto - 9);
-        }
     }
-
 }

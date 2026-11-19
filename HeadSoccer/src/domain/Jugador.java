@@ -1,11 +1,13 @@
 package domain;
 
+import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public abstract class Jugador {
+public abstract class Jugador implements Serializable {
     private final String nombre;
 
     private final Personaje personaje;
@@ -183,6 +185,64 @@ public abstract class Jugador {
     }
 
     /**
+     * Devuelve la coordenada horizontal del centro de la cabeza.
+     *
+     * @return X del centro de la cabeza
+     */
+    public double getCabezaX() {
+        return posicionX;
+    }
+
+    /**
+     * Devuelve la coordenada vertical del centro de la cabeza.
+     *
+     * @return Y del centro de la cabeza
+     */
+    public double getCabezaY() {
+        return posicionY + ParametrosJuego.OFFSET_CABEZA_JUGADOR;
+    }
+
+    /**
+     * Devuelve la coordenada horizontal del centro de la bota.
+     *
+     * @return X del centro de la bota
+     */
+    public double getBotaX() {
+        double direccion = -1;
+        if (lado == Lado.IZQUIERDO) {
+            direccion = 1;
+        }
+        return posicionX + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR;
+    }
+
+    /**
+     * Devuelve la coordenada vertical del centro de la bota.
+     *
+     * @return Y del centro de la bota
+     */
+    public double getBotaY() {
+        return posicionY + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR;
+    }
+
+    /**
+     * Devuelve el borde inferior del círculo de la bota.
+     *
+     * @return Y del borde inferior de la bota
+     */
+    public double getBordeInferiorBota() {
+        return getBotaY() + ParametrosJuego.RADIO_BOTA_JUGADOR;
+    }
+
+    /**
+     * Devuelve el borde superior del círculo de la cabeza.
+     *
+     * @return Y del borde superior de la cabeza
+     */
+    public double getBordeSuperiorCabeza() {
+        return getCabezaY() - ParametrosJuego.RADIO_CABEZA_JUGADOR;
+    }
+
+    /**
      * Indica si el jugador está apoyado en el suelo.
      *
      * @return true si está en el suelo
@@ -285,10 +345,9 @@ public abstract class Jugador {
     }
 
     /**
-     * Aplica un efecto de poder. Los efectos se acumulan: si el jugador ya
-     * tenía otro efecto, ambos permanecen activos hasta que termine su
-     * tiempo. Si se vuelve a aplicar el mismo tipo, se reinicia la
-     * duración.
+     * Aplica un efecto de poder. Los efectos no se acumulan: el efecto
+     * nuevo reemplaza al que estuviera activo. Antes de aplicar el nuevo se
+     * termina el anterior para que deshaga sus cambios.
      *
      * @param nuevo efecto que se aplica
      * @throws IllegalArgumentException si el efecto es nulo
@@ -298,20 +357,13 @@ public abstract class Jugador {
             throw new IllegalArgumentException("El efecto no puede ser nulo");
         }
 
-        Efecto activo = null;
-        for (Efecto efecto : efectosActivos) {
-            if (efecto.getTipo() == nuevo.getTipo()) {
-                activo = efecto;
-                break;
-            }
+        List<Efecto> anteriores = new ArrayList<>(efectosActivos);
+        efectosActivos.clear();
+        for (Efecto efecto : anteriores) {
+            efecto.alTerminar(this);
         }
 
-        if (activo != null) {
-            int indice = efectosActivos.indexOf(activo);
-            efectosActivos.set(indice, nuevo);
-        } else {
-            efectosActivos.add(nuevo);
-        }
+        efectosActivos.add(nuevo);
         nuevo.alAplicar(this);
     }
 
@@ -616,7 +668,9 @@ public abstract class Jugador {
             return;
         }
         int salto = estadisticas.getJump();
-        velocidadY = -(ParametrosJuego.IMPULSO_SALTO_BASE + salto * ParametrosJuego.IMPULSO_SALTO_POR_NIVEL);
+        double factorSalto = 1
+                + ParametrosJuego.INCREMENTO_POR_PUNTO * (salto - 1);
+        velocidadY = -(ParametrosJuego.IMPULSO_SALTO_BASE * factorSalto);
         enSuelo = false;
     }
 
@@ -634,8 +688,8 @@ public abstract class Jugador {
         if (lado == Lado.IZQUIERDO) {
             direccion = 1;
         }
-        double botaX = posicionX + direccion * ParametrosJuego.OFFSET_BOTA_X_JUGADOR;
-        double botaY = posicionY + ParametrosJuego.OFFSET_BOTA_Y_JUGADOR;
+        double botaX = getBotaX();
+        double botaY = getBotaY();
 
         double distanciaX = balon.getX() - botaX;
         double distanciaY = balon.getY() - botaY;

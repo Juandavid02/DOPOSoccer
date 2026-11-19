@@ -1,6 +1,8 @@
 package domain;
 
-public class Vida {
+import java.io.Serializable;
+
+public class Vida implements Serializable {
     private double actual;
     private double maxima;
 

@@ -1,6 +1,11 @@
 package domain;
 
-public class Puntos {
+import java.io.Serializable;
+
+public class Puntos implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private int total;
 
     /**
