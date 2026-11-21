@@ -7,7 +7,7 @@
 ![JUnit](https://img.shields.io/badge/Tests-JUnit%205-25A162)
 ![Estado](https://img.shields.io/badge/estado-en%20desarrollo-yellow)
 
-DOPOSoccer lleva la experiencia de *Head Soccer* al computador: partidos rápidos, tiros de poder con efectos, estadísticas mejorables y progresión del jugador. El proyecto prioriza una **arquitectura MVC limpia**, pruebas unitarias y un modelo de dominio independiente de la interfaz.
+DOPOSoccer lleva la experiencia de *Head Soccer* al computador: partidos rápidos, tiros de poder con efectos, estadísticas mejorables, perfiles con progresión, una tienda de desbloqueos y un torneo de eliminación directa. El proyecto prioriza una **arquitectura MVC limpia**, pruebas unitarias y un modelo de dominio independiente de la interfaz.
 
 ---
 
@@ -20,15 +20,17 @@ DOPOSoccer lleva la experiencia de *Head Soccer* al computador: partidos rápido
 5. [Modalidades y tipos de partido](#modalidades-y-tipos-de-partido)
 6. [Personajes y poderes](#personajes-y-poderes)
 7. [Estadísticas, vida y daño](#estadísticas-vida-y-daño)
-8. [Puntos y mejoras](#puntos-y-mejoras)
-9. [Requisitos](#requisitos)
-10. [Estructura del proyecto](#estructura-del-proyecto)
-11. [Compilar y ejecutar](#compilar-y-ejecutar)
-12. [Pruebas unitarias](#pruebas-unitarias)
-13. [Arquitectura](#arquitectura)
-14. [Estado del proyecto](#estado-del-proyecto)
-15. [Plan de entregas](#plan-de-entregas)
-16. [Autores y contexto académico](#autores-y-contexto-académico)
+8. [Puntos, mejoras y tienda](#puntos-mejoras-y-tienda)
+9. [Perfiles y persistencia](#perfiles-y-persistencia)
+10. [Torneo](#torneo)
+11. [Requisitos](#requisitos)
+12. [Estructura del proyecto](#estructura-del-proyecto)
+13. [Compilar y ejecutar](#compilar-y-ejecutar)
+14. [Pruebas unitarias](#pruebas-unitarias)
+15. [Arquitectura](#arquitectura)
+16. [Estado del proyecto](#estado-del-proyecto)
+17. [Plan de entregas](#plan-de-entregas)
+18. [Autores y contexto académico](#autores-y-contexto-académico)
 
 ---
 
@@ -37,12 +39,17 @@ DOPOSoccer lleva la experiencia de *Head Soccer* al computador: partidos rápido
 - Partido 1 contra 1 en 2D con vista lateral, física de balón con gravedad y rebotes.
 - **Dos modalidades:** jugador vs jugador (PvsP) y jugador vs máquina (PvsM).
 - **Dos tipos de partido:** por tiempo (con muerte súbita) y por goles, ambos configurables.
-- **Cuatro personajes** basados en el juego original, cada uno con un tiro de poder único.
-- **Tiros de poder** con aura, daño y efectos sobre el rival.
+- **Seis personajes**, cada uno con un tiro de poder y un efecto único sobre el rival.
+- **Tiros de poder** con aura, daño y efectos (empuje, electrocutado, inconsciente, confusión, controles invertidos y barril).
 - **Estadísticas mejorables** (`speed`, `jump`, `kick`, `survival`) y economía de puntos.
 - **Sistema de vida y daño** con aturdimiento.
+- **Perfiles de jugador** con nombre, puntos, estadísticas y desbloqueos propios.
+- **Tienda** para desbloquear personajes, balones y escenarios.
+- **Torneo** de eliminación directa contra la máquina, con inscripción y premios.
+- **Configuración visual:** elección de balón y escenario.
+- **Controles personalizables** y **sonido** (música de fondo y efectos de sonido).
 - **Tres resoluciones** de cancha configurables.
-- **Guardar y abrir partidas**, además de conservar el progreso del jugador.
+- **Persistencia completa:** guardar/abrir partidas y guardar/abrir/exportar/importar el progreso.
 - **Perfiles de máquina:** torpe, ofensiva, defensiva y experta.
 - Manejo de errores mediante excepciones específicas y registro de logs.
 
@@ -50,9 +57,7 @@ DOPOSoccer lleva la experiencia de *Head Soccer* al computador: partidos rápido
 
 ## Vista previa
 
-El diseño de la interfaz se documenta en [`Bosquejo de interfaz.jpg`](Bosquejo%20de%20interfaz.jpg) y el modelo en [`HeadSoccer.asta`](HeadSoccer.asta). La especificación funcional completa está en [`!DOPO-FIN-2026-02.pdf`](!DOPO-FIN-2026-02.pdf).
-
-> La versión final de DOPOSoccer reemplaza la propuesta anterior `POOBSoccer`. Los cambios principales son: se elimina la modalidad MvsM, se elimina el modo Supervivencia y se agregan vida, daño, puntos, persistencia y resoluciones.
+El diseño de la interfaz se documenta en [`Bosquejo de interfaz.jpg`](Bosquejo%20de%20interfaz.jpg) y el modelo de clases en [`HeadSoccer.asta`](HeadSoccer.asta). La especificación funcional completa está en [`HeadSoccer/!DOPO-FIN-2026-02.pdf`](HeadSoccer/!DOPO-FIN-2026-02.pdf).
 
 ---
 
@@ -70,7 +75,7 @@ DOPOSoccer es un partido de fútbol 2D de dos jugadores. Cada jugador defiende e
 
 ## Controles
 
-Ambos jugadores comparten el mismo teclado.
+Ambos jugadores comparten el mismo teclado. Las teclas se pueden **personalizar** desde la pantalla de configuración; estos son los valores por defecto:
 
 | Acción | Jugador 1 | Jugador 2 |
 |---|---|---|
@@ -112,14 +117,18 @@ La **resolución de la cancha** se elige al iniciar: `1280×720`, `1600×900` o 
 
 ## Personajes y poderes
 
-Cada personaje representa un país y tiene un tiro de poder único. La barra de poder se llena en **10 segundos** y sube **un cuarto (¼)** cuando el jugador recibe un gol.
+Cada personaje representa un país (o universo) y tiene un tiro de poder único. La barra de poder se llena en **10 segundos** y sube **un cuarto (¼)** cuando el jugador recibe un gol.
 
-| País | Tiro de poder | Efecto si golpea al rival | Duración | Daño base |
-|---|---|---|---|---|
-| Corea del Sur | **Aura Azul** | Empuje: el rival es lanzado hacia su propio arco | 1.5 s | 40 |
-| Camerún | **Rayo** | Electrocutado: no puede saltar y se mueve al 50 % de su velocidad | 3 s | 60 |
-| Nigeria | **Tornado** | Inconsciente: es lanzado al aire y no puede moverse, saltar ni patear | 3 s | 40 |
-| Estados Unidos | **Ilusión** | Confusión: el balón se divide en 8 (7 falsos) y el rival no sabe cuál es el real | 2.5 s | 30 |
+| Personaje | País | Tiro de poder | Efecto si golpea al rival | Duración | Daño base |
+|---|---|---|---|---|---|
+| Jungkook | Corea del Sur | **Aura Azul** | Empuje: el rival es lanzado hacia su propio arco | 1.5 s | 40 |
+| Goku | Japón | **Rayo** | Electrocutado: no puede saltar y se mueve al 50 % de su velocidad | 3 s | 60 |
+| Mario | Italia | **Tornado** | Inconsciente: es lanzado al aire y no puede moverse, saltar ni patear | 3 s | 40 |
+| Bob Esponja | Estados Unidos | **Ilusión** | Confusión: el balón se divide en 8 (7 falsos) y el rival no sabe cuál es el real | 2.5 s | 30 |
+| Betty la fea | Colombia | **Beso de la Fea** | Controles invertidos: los movimientos del rival se invierten | 2.5 s | 30 |
+| El Chavo del Ocho | México | **Barril** | Barril: las estadísticas del rival vuelven a su valor inicial y su barra de poder queda en cero | 5 s | 35 |
+
+Cuatro personajes están disponibles desde el inicio (**Betty la fea, El Chavo del Ocho, Goku y Bob Esponja**); **Jungkook** y **Mario** se desbloquean en la tienda.
 
 ### Reglas de los poderes
 
@@ -129,9 +138,7 @@ Cada personaje representa un país y tiene un tiro de poder único. La barra de 
 4. Si el tiro **golpea al rival**, se aplican daño y efecto.
 5. Si el tiro **entra al arco sin tocar al rival**, el gol cuenta, pero no hay daño ni efecto.
 6. No se puede activar otro poder mientras el aura esté activa.
-7. Los efectos **se acumulan**: un jugador puede sufrir varios a la vez
-   (por ejemplo, aturdimiento e ilusión) y cada uno dura su propio tiempo
-   hasta que se agota. Al marcarse un gol se quitan todos los efectos.
+7. Los efectos **no se acumulan**: si el rival ya está bajo un efecto, el nuevo lo reemplaza y dura su propio tiempo. Al marcarse un gol se quitan todos los efectos.
 
 ---
 
@@ -170,13 +177,62 @@ Tiro de poder (Rayo) = 60 × 1.4 = 84   → quedan 36 y electrocutado 3 s
 
 ---
 
-## Puntos y mejoras
+## Puntos, mejoras y tienda
+
+### Puntos y mejoras
 
 - Cada partido otorga **100 puntos al ganador** y **25 al perdedor**.
 - Los puntos se gastan al inicio de los partidos para **mejorar estadísticas**.
 - El precio de cada punto de mejora se **duplica**: `500`, `1000`, `2000`, `4000`…
 - Cada punto de mejora suma **+10 % sobre el valor base** de la estadística.
-- El progreso del jugador (puntos y estadísticas) se conserva entre partidas.
+
+### Tienda
+
+La tienda permite desbloquear contenido para el perfil activo:
+
+| Contenido | Precio |
+|---|---|
+| Personaje | 500 puntos |
+| Balón | 300 puntos |
+| Escenario | 400 puntos |
+
+Lo que compra un perfil **no** se desbloquea para los demás perfiles.
+
+### Contenido visual
+
+- **Balones:** Mario y Betty (iniciales), BTS (desbloqueable).
+- **Escenarios:** Fondo de Bikini, Tenkaichi Budokai y Vecindad del Chavo (iniciales); Reino Champiñón (desbloqueable).
+
+---
+
+## Perfiles y persistencia
+
+### Perfiles
+
+Cada persona puede crear uno o varios **perfiles de jugador**. Un perfil guarda de forma independiente:
+
+- Nombre e identificador único.
+- Puntos y estadísticas.
+- Personajes, balones y escenarios desbloqueados.
+
+### Persistencia
+
+- **Progreso** (conjunto de perfiles) se puede:
+  - **Guardar como** y **abrir** en archivos binarios `.dat` (serialización).
+  - **Exportar** e **importar** en archivos de texto `.txt` (una línea por ítem, campos separados por `;`).
+- **Partida en curso** se puede **guardar como** y **abrir** en `.dat`, conservando el estado completo del partido y los perfiles participantes.
+
+---
+
+## Torneo
+
+Además de los partidos sueltos, existe un **torneo de eliminación directa** con cuatro participantes: el jugador humano y tres máquinas.
+
+- La **inscripción** cuesta **100 puntos**.
+- El **campeón** recibe **500 puntos** y el **subcampeón**, **150**.
+- Los partidos del torneo **no reparten puntos por sí mismos**.
+- Las máquinas **mejoran sus estadísticas al avanzar de ronda**; el humano no.
+- La otra semifinal y, si el humano queda eliminado, la final, se simulan automáticamente.
 
 ---
 
@@ -197,26 +253,31 @@ HeadSoccer/                        ← raíz del repositorio
 ├── README.md
 ├── Bosquejo de interfaz.jpg
 ├── HeadSoccer.asta
-├── !DOPO-FIN-2026-02.pdf          ← especificación final
-├── POOBSoccer_2026-2  (1).pdf     ← propuesta anterior (histórica)
+├── Retrospectivas/                ← retrospectivas de los ciclos
+│   └── Retrospectiva Ciclo 1.pdf
 └── HeadSoccer/                    ← proyecto Java
+    ├── !DOPO-FIN-2026-02.pdf      ← especificación final
     ├── src/
     │   ├── domain/                # Modelo del juego (sin Swing)
     │   ├── presentation/          # Interfaz gráfica (Swing)
     │   └── test/                  # Pruebas unitarias (JUnit 5)
+    ├── resources/                 # Imágenes, fuentes y audio
+    │   ├── images/                # Personajes, balones, escenarios, etc.
+    │   ├── audio/                 # Música de fondo y efectos
+    │   └── fuentes/               # Tipografías del juego
     ├── lib/                       # Dependencias (JUnit)
     ├── bin/                       # Salida de compilación (no versionada)
-    ├── doc/                       # Documentación y diagramas
-    └── mini-ciclos-pooBSoccer.md  # Plan de mini ciclos
+    ├── logs/                      # Registro de errores (no versionado)
+    └── doc/                       # Documentación y diagramas
 ```
 
-> Los paquetes `domain` y `presentation` son **planos**: no se crean subpaquetes dentro de ellos.
+> Los paquetes `domain` y `presentation` son **planos**: no se crean subpaquetes dentro de ellos. Los archivos `bin/`, `logs/` y los `.class` están ignorados en `.gitignore`; `lib/` y `resources/` sí se versionan.
 
 ---
 
 ## Compilar y ejecutar
 
-Todos los comandos se ejecutan desde la **carpeta del proyecto Java** (la carpeta `HeadSoccer/` que contiene `src/`, `lib/` y `bin/`).
+Todos los comandos se ejecutan desde la **carpeta del proyecto Java** (la carpeta `HeadSoccer/` que contiene `src/`, `lib/`, `resources/` y `bin/`). Es importante ejecutar el juego desde esta carpeta para que `resources/` se encuentre por ruta relativa.
 
 ### Compilar
 
@@ -280,16 +341,17 @@ java -jar "lib/junit-platform-console-standalone-1.10.2.jar" --class-path bin --
 
 El proyecto sigue el patrón **MVC**:
 
-- **Dominio (`domain`):** reglas, física, jugadores, poderes, vida, puntos y persistencia. No conoce Swing.
-- **Presentación (`presentation`):** un único `JFrame` (`DOPOSoccerGUI`) con `CardLayout`; cada pantalla es un `JPanel`.
+- **Dominio (`domain`):** reglas, física, jugadores, poderes, vida, puntos, tienda, torneo y persistencia. No conoce Swing.
+- **Presentación (`presentation`):** un único `JFrame` (`DOPOSoccerGUI`) con `CardLayout`; cada pantalla es un `JPanel` con su controlador.
 - **Controladores:** traducen la entrada y coordinan el flujo; no dibujan.
 
 Principios:
 
 - `Partido` es la **única frontera** entre dominio y presentación.
+- `FisicaPartido`, `ColisionesArcos`, `GestorPoderes` y `FabricaJugadores` son colaboradores internos: `Partido` los orquesta y ellos resuelven una sola responsabilidad cada uno.
 - La vista **dibuja y delega**; el controlador **traduce y coordina**; el dominio **decide**.
 - Los números ajustables viven en `ParametrosJuego`, no hardcodeados.
-- `Poder`, `ReglaPartido` y `ControladorJugador` son **puntos de extensión**: agregar personajes, poderes, perfiles de IA o reglas no obliga a reescribir el núcleo.
+- `Poder`, `Efecto`, `ReglaPartido` y `ControladorIA` son **puntos de extensión**: agregar personajes, poderes, efectos, perfiles de IA o reglas no obliga a reescribir el núcleo.
 - El dominio se prueba con JUnit sin abrir Swing.
 
 ---
@@ -301,18 +363,18 @@ Principios:
 | Proyecto Java y ventana Swing (`DOPOSoccerGUI`) | ✅ |
 | Modelo base del dominio (partido, jugador, balón, cancha, física) | ✅ |
 | Estadísticas 1–10, vida, puntos y configuración del jugador | ✅ |
-| Enums del modelo final (`PvsP`/`PvsM`, tiempo/goles, perfiles, resoluciones) | ✅ |
+| Modalidades (`PvsP`/`PvsM`), tipos de partido, perfiles de IA y resoluciones | ✅ |
+| Pantallas (inicio, menú, configuración, selección, juego, pausa, resultado) | ✅ |
+| Poderes y tiros de poder (6 personajes) | ✅ |
+| IA con perfiles | ✅ |
+| Perfiles, tienda, mejoras y desbloqueos | ✅ |
+| Torneo de eliminación directa | ✅ |
+| Persistencia (guardar/abrir partidas y progreso, exportar/importar) | ✅ |
+| Sonido, configuración visual y controles personalizables | ✅ |
 | Pruebas unitarias del dominio | ✅ |
-| Pantallas (menú, configuración, selección, juego, pausa, resultado) | 🚧 |
-| Poderes y tiros de poder (4 personajes) | 🚧 |
-| IA con perfiles | 🚧 |
-| Reglas por tiempo/goles configurables y muerte súbita | 🚧 |
-| Persistencia (guardar/abrir y progreso) | ⏳ |
-| Excepciones específicas y log de errores | ⏳ |
+| Excepciones específicas y log de errores | ✅ |
 
 **Leyenda:** ✅ implementado · 🚧 en progreso · ⏳ pendiente.
-
-El plan detallado por mini ciclos está en [`HeadSoccer/mini-ciclos-pooBSoccer.md`](HeadSoccer/mini-ciclos-pooBSoccer.md).
 
 ---
 
@@ -348,6 +410,6 @@ El plan detallado por mini ciclos está en [`HeadSoccer/mini-ciclos-pooBSoccer.m
 
 ## Notas
 
-- El proyecto se inspira en *Head Soccer* de D&D Dream, pero **no** distribuye sus recursos gráficos ni de audio. El arte se construye con primitivas (formas y texto).
-- `bin/` y los `.class` están ignorados en `.gitignore`; `lib/` sí se versiona porque contiene JUnit.
+- El proyecto se inspira en *Head Soccer* de D&D Dream, pero **no** distribuye sus recursos gráficos ni de audio originales; el arte, la música y los efectos del proyecto son recursos propios incluidos en `resources/`.
+- `bin/`, `logs/` y los `.class` están ignorados en `.gitignore`; `lib/` y `resources/` sí se versionan.
 - Se recomienda un commit por cada ciclo terminado.

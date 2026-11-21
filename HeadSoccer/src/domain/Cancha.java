@@ -1,12 +1,14 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Geometría de la cancha: dimensiones, suelo y arcos.
  *
  * La cancha se construye a partir de una resolución. Los arcos se ubican
  * justo fuera de las líneas de gol, apoyados sobre el suelo.
  */
-public class Cancha {
+public class Cancha implements Serializable {
     private final Resolucion resolucion;
     private final double ancho;
     private final double alto;

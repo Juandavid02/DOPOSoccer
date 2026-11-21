@@ -1,6 +1,8 @@
 package domain;
 
-public class Marcador {
+import java.io.Serializable;
+
+public class Marcador implements Serializable {
     private int golesJugador1;
     private int golesJugador2;
 

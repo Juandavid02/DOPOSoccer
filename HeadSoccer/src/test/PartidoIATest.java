@@ -4,7 +4,12 @@ import domain.CatalogoPersonajes;
 import domain.ConfiguracionIA;
 import domain.ConfiguracionJugador;
 import domain.ConfiguracionPartido;
+import domain.ControladorDefensivo;
+import domain.ControladorExperto;
+import domain.ControladorOfensivo;
+import domain.ControladorTorpe;
 import domain.Estadisticas;
+import domain.FabricaControladorIA;
 import domain.JugadorMaquina;
 import domain.Modalidad;
 import domain.Partido;
@@ -17,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PartidoIATest {
@@ -119,5 +125,20 @@ class PartidoIATest {
         assertEquals(2, configuracion.getEstadisticas().getJump());
         assertEquals("IA · DEFENSIVA",
                 configuracion.crearConfiguracionJugador().getNombre());
+    }
+
+    /** Verifica que la fábrica cree el controlador de cada perfil. */
+    @Test
+    void laFabricaCreaElControladorDeCadaPerfil() {
+        assertTrue(FabricaControladorIA.crear(PerfilIA.TORPE)
+                instanceof ControladorTorpe);
+        assertTrue(FabricaControladorIA.crear(PerfilIA.OFENSIVA)
+                instanceof ControladorOfensivo);
+        assertTrue(FabricaControladorIA.crear(PerfilIA.DEFENSIVA)
+                instanceof ControladorDefensivo);
+        assertTrue(FabricaControladorIA.crear(PerfilIA.EXPERTA)
+                instanceof ControladorExperto);
+        assertThrows(IllegalArgumentException.class,
+                () -> FabricaControladorIA.crear(null));
     }
 }

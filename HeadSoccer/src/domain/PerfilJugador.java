@@ -1,5 +1,6 @@
 package domain;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +15,9 @@ import java.util.UUID;
  * desbloqueados. Lo que compra un perfil en la tienda no lo desbloquea para
  * los demás perfiles.
  */
-public class PerfilJugador {
+public class PerfilJugador implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /** Personajes disponibles para todo perfil nuevo. */
     private static final List<String> PERSONAJES_INICIALES = List.of(

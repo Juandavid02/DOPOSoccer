@@ -5,7 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import domain.Personaje;
-import domain.PoderAuraAzul;
+import domain.PoderConfigurado;
 
 /**
  * Clase de pruebas PersonajeTest.
@@ -29,7 +29,7 @@ public class PersonajeTest
     @BeforeEach
     public void setUp()
     {
-        personaje = new Personaje("Polar", "Canadá", new PoderAuraAzul());
+        personaje = new Personaje("Polar", "Canadá", PoderConfigurado.auraAzul());
     }
 
     /** Se puede crear un personaje con todos los datos válidos. */
@@ -66,7 +66,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithNullName()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje(null, "Canadá", new PoderAuraAzul()));
+                () -> new Personaje(null, "Canadá", PoderConfigurado.auraAzul()));
         assertEquals("El nombre no puede ser nulo o vacío", e.getMessage());
     }
 
@@ -75,7 +75,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithEmptyName()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje("", "Canadá", new PoderAuraAzul()));
+                () -> new Personaje("", "Canadá", PoderConfigurado.auraAzul()));
         assertEquals("El nombre no puede ser nulo o vacío", e.getMessage());
     }
 
@@ -84,7 +84,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithBlankName()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje("   ", "Canadá", new PoderAuraAzul()));
+                () -> new Personaje("   ", "Canadá", PoderConfigurado.auraAzul()));
         assertEquals("El nombre no puede ser nulo o vacío", e.getMessage());
     }
 
@@ -93,7 +93,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithNullCountry()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje("Polar", null, new PoderAuraAzul()));
+                () -> new Personaje("Polar", null, PoderConfigurado.auraAzul()));
         assertEquals("El país no puede ser nulo o vacío", e.getMessage());
     }
 
@@ -102,7 +102,7 @@ public class PersonajeTest
     public void shouldNotCreateCharacterWithEmptyCountry()
     {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> new Personaje("Polar", "", new PoderAuraAzul()));
+                () -> new Personaje("Polar", "", PoderConfigurado.auraAzul()));
         assertEquals("El país no puede ser nulo o vacío", e.getMessage());
     }
 

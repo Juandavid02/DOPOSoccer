@@ -1,10 +1,12 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Tiro de poder activo. Se crea cuando un jugador con aura toca el balón y
  * permanece activo hasta que golpea al rival, entra al arco o expira.
  */
-public class TiroPoder {
+public class TiroPoder implements Serializable {
 
     /** Tiempo máximo que el tiro puede estar activo si no impacta. */
     private static final double DURACION_MAXIMA = 6.0;

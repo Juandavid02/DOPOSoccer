@@ -382,10 +382,7 @@ public class SeleccionPerfilController {
      * @param mensaje texto del mensaje
      */
     private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(
-                view,
-                mensaje,
-                "Seleccionar perfil",
+        Dialogos.aviso(view, "Seleccionar perfil", mensaje,
                 JOptionPane.WARNING_MESSAGE);
     }
 }

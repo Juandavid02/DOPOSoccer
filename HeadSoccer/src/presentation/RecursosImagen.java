@@ -39,6 +39,19 @@ final class RecursosImagen {
     }
 
     /**
+     * Carga la cadena de bloqueo de la tienda y la selección de personaje.
+     *
+     * @return imagen de la cadena o null si no se pudo cargar
+     */
+    static BufferedImage cargarCadena() {
+        try {
+            return cargar("resources/images/Objetos/CadenaDeBloqueo.png");
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /**
      * Recorta los píxeles transparentes que rodean una imagen.
      *
      * @param imagen imagen original

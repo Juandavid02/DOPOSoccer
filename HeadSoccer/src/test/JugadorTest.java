@@ -15,7 +15,7 @@ import domain.JugadorHumano;
 import domain.Lado;
 import domain.ParametrosJuego;
 import domain.Personaje;
-import domain.PoderAuraAzul;
+import domain.PoderConfigurado;
 import domain.Resolucion;
 
 /**
@@ -140,20 +140,23 @@ public class JugadorTest
         assertEquals(0, jugador.getBarraPoder().getCarga(), 0.0001);
     }
 
-    /** Un jugador con más jump alcanza mayor velocidad vertical. */
+    /** Cada punto de jump aumenta el salto un 10 % sobre el valor base. */
     @Test
     public void shouldUsePlayerJumpStat()
     {
-        Jugador saltadorBajo = crearJugador("Bajo", 3, 1, 3, 1,
+        Jugador saltadorBase = crearJugador("Base", 3, 1, 3, 1,
                 Lado.IZQUIERDO, 100, 680);
         Jugador saltadorAlto = crearJugador("Alto", 3, 5, 3, 1,
                 Lado.IZQUIERDO, 100, 680);
 
-        saltadorBajo.saltar();
+        saltadorBase.saltar();
         saltadorAlto.saltar();
 
-        assertTrue(Math.abs(saltadorAlto.getVelocidadY())
-                > Math.abs(saltadorBajo.getVelocidadY()));
+        assertEquals(-ParametrosJuego.IMPULSO_SALTO_BASE,
+                saltadorBase.getVelocidadY(), 0.0001);
+        assertEquals(-(ParametrosJuego.IMPULSO_SALTO_BASE
+                        * (1 + ParametrosJuego.INCREMENTO_POR_PUNTO * 4)),
+                saltadorAlto.getVelocidadY(), 0.0001);
     }
 
     /** El jugador patea el balón si está dentro del alcance. */
@@ -264,7 +267,7 @@ public class JugadorTest
      */
     private Personaje crearPersonaje()
     {
-        return new Personaje("Polar", "Canadá", new PoderAuraAzul());
+        return new Personaje("Polar", "Canadá", PoderConfigurado.auraAzul());
     }
 
     /** Libera el escenario de pruebas después de cada test. */

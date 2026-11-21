@@ -16,16 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Pantalla del torneo. Primero muestra la inscripción y después la llave
- * sobre la imagen de llaves, con las banderas de los participantes dentro de
- * los recuadros blancos.
+ * Pantalla del torneo. Primero muestra la inscripción y después el cuadro
+ * de semifinales, final y campeón con componentes estándar.
  */
 public class TorneoView extends VistaBase {
 
     private static final String RUTA_FONDO =
             "resources/images/Ventanas/FondoPerfil.png";
-    private static final String RUTA_LLAVES =
-            "resources/images/Objetos/Llaves.png";
     private static final String RUTA_BOTONES =
             "resources/images/Botones/";
 
@@ -50,7 +47,6 @@ public class TorneoView extends VistaBase {
     private final JButton botonInscribirse = new BotonTexto("INSCRIBIRSE");
     private final JButton botonJugar = BotonImagen.crear(
             RUTA_BOTONES + "Play.png", 280);
-    private final BufferedImage llaves = RecursosImagen.cargar(RUTA_LLAVES);
     private final Map<String, BufferedImage> banderas = new HashMap<>();
 
     /**
@@ -180,26 +176,10 @@ public class TorneoView extends VistaBase {
          * Crea la pastilla de fondo del mensaje.
          */
         private PastillaMensaje() {
-            setOpaque(false);
+            setOpaque(true);
+            setBackground(Color.WHITE);
             setLayout(new BorderLayout());
             setBorder(new EmptyBorder(5, 18, 5, 18));
-        }
-
-        /**
-         * Dibuja la pastilla redondeada detrás del mensaje.
-         *
-         * @param g contexto gráfico del componente
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(new Color(255, 255, 255, 210));
-            int alto = getHeight();
-            g2.fill(new RoundRectangle2D.Float(
-                    0, 0, getWidth(), alto, alto, alto));
-            g2.dispose();
         }
 
         /**
@@ -312,11 +292,173 @@ public class TorneoView extends VistaBase {
      * @return componente con la llave del torneo
      */
     private JComponent crearLlave(Torneo torneo) {
-        JPanel raiz = new JPanel(new BorderLayout(0, 4));
+        JPanel raiz = new JPanel(new BorderLayout(0, 10));
         raiz.setOpaque(false);
         raiz.add(crearCabecera(torneo), BorderLayout.NORTH);
-        raiz.add(new PanelLlave(torneo), BorderLayout.CENTER);
+        raiz.add(crearCuadro(torneo), BorderLayout.CENTER);
         return raiz;
+    }
+
+    /**
+     * Crea el cuadro con las semifinales, la final y el campeón usando
+     * paneles y etiquetas estándar.
+     *
+     * @param torneo torneo mostrado
+     * @return panel con el cuadro del torneo
+     */
+    private JComponent crearCuadro(Torneo torneo) {
+        JPanel columnas = new JPanel(new GridLayout(1, 3, 18, 0));
+        columnas.setOpaque(false);
+
+        JPanel semifinales = new JPanel(new GridLayout(2, 1, 0, 14));
+        semifinales.setOpaque(false);
+        semifinales.add(crearPartido("SEMIFINAL 1", torneo.getSemifinal1()));
+        semifinales.add(crearPartido("SEMIFINAL 2", torneo.getSemifinal2()));
+        columnas.add(semifinales);
+
+        JPanel centro = new JPanel(new GridBagLayout());
+        centro.setOpaque(false);
+        centro.add(crearPartido("FINAL", torneo.getFinal()));
+        columnas.add(centro);
+
+        JPanel derecha = new JPanel(new GridBagLayout());
+        derecha.setOpaque(false);
+        derecha.add(crearCampeon(torneo));
+        columnas.add(derecha);
+        return columnas;
+    }
+
+    /**
+     * Crea la tarjeta de un partido con sus dos participantes.
+     *
+     * @param titulo título del partido
+     * @param partido partido que se muestra
+     * @return tarjeta del partido
+     */
+    private JComponent crearPartido(String titulo, PartidoTorneo partido) {
+        TarjetaPanel tarjeta = new TarjetaPanel();
+        tarjeta.setLayout(new BorderLayout(0, 8));
+        tarjeta.setBorder(new EmptyBorder(12, 14, 12, 14));
+        tarjeta.setPreferredSize(new Dimension(300, 150));
+
+        JLabel etiqueta = new JLabel(titulo, SwingConstants.CENTER);
+        etiqueta.setFont(new Font("SansSerif", Font.BOLD, 16));
+        etiqueta.setForeground(COLOR_TEXTO);
+        tarjeta.add(etiqueta, BorderLayout.NORTH);
+
+        boolean jugado = partido != null && partido.isJugado();
+        ParticipanteTorneo ganador = jugado ? partido.getGanador() : null;
+        ParticipanteTorneo primero = partido == null ? null : partido.getPrimero();
+        ParticipanteTorneo segundo = partido == null ? null : partido.getSegundo();
+
+        JPanel filas = new JPanel(new GridLayout(2, 1, 0, 4));
+        filas.setOpaque(false);
+        filas.add(crearParticipante(primero, ganador, jugado));
+        filas.add(crearParticipante(segundo, ganador, jugado));
+        tarjeta.add(filas, BorderLayout.CENTER);
+        return tarjeta;
+    }
+
+    /**
+     * Crea la fila de un participante con su bandera y su nombre.
+     *
+     * @param participante participante que se muestra
+     * @param ganador ganador del partido, o null si aún no se jugó
+     * @param jugado true si el partido ya se jugó
+     * @return fila del participante
+     */
+    private JComponent crearParticipante(ParticipanteTorneo participante,
+                                         ParticipanteTorneo ganador,
+                                         boolean jugado) {
+        JPanel fila = new JPanel(new BorderLayout(8, 0));
+        fila.setOpaque(false);
+
+        JLabel bandera = new JLabel();
+        if (participante != null) {
+            ImageIcon icono = iconoBandera(participante.getPersonaje());
+            if (icono != null) {
+                bandera.setIcon(icono);
+            }
+        }
+
+        JLabel nombre = new JLabel(participante == null
+                ? "Por definir" : participante.getNombre());
+        nombre.setFont(new Font("SansSerif", Font.BOLD, 15));
+        if (participante == null) {
+            nombre.setForeground(COLOR_SUAVE);
+        } else if (jugado && ganador != null && participante != ganador) {
+            nombre.setForeground(COLOR_SUAVE);
+        } else if (participante == ganador) {
+            nombre.setForeground(COLOR_VERDE);
+        } else {
+            nombre.setForeground(COLOR_TEXTO);
+        }
+
+        fila.add(bandera, BorderLayout.WEST);
+        fila.add(nombre, BorderLayout.CENTER);
+        return fila;
+    }
+
+    /**
+     * Crea la tarjeta del campeón del torneo.
+     *
+     * @param torneo torneo mostrado
+     * @return tarjeta del campeón
+     */
+    private JComponent crearCampeon(Torneo torneo) {
+        TarjetaPanel tarjeta = new TarjetaPanel(TarjetaPanel.Estilo.OSCURA);
+        tarjeta.setLayout(new BorderLayout(0, 10));
+        tarjeta.setBorder(new EmptyBorder(16, 18, 16, 18));
+        tarjeta.setPreferredSize(new Dimension(300, 200));
+
+        JLabel titulo = new JLabel("CAMPEÓN", SwingConstants.CENTER);
+        titulo.setFont(new Font("SansSerif", Font.BOLD, 20));
+        titulo.setForeground(new Color(242, 205, 98));
+        tarjeta.add(titulo, BorderLayout.NORTH);
+
+        ParticipanteTorneo campeon = torneo.getCampeon();
+        JPanel centro = new JPanel();
+        centro.setOpaque(false);
+        centro.setLayout(new BoxLayout(centro, BoxLayout.Y_AXIS));
+
+        JLabel bandera = new JLabel();
+        bandera.setAlignmentX(Component.CENTER_ALIGNMENT);
+        if (campeon != null) {
+            ImageIcon icono = iconoBandera(campeon.getPersonaje());
+            if (icono != null) {
+                bandera.setIcon(icono);
+            }
+        }
+
+        JLabel nombre = new JLabel(campeon == null
+                ? "Por definir" : campeon.getNombre());
+        nombre.setFont(new Font("SansSerif", Font.BOLD, 18));
+        nombre.setForeground(campeon == null
+                ? COLOR_SUAVE : Color.WHITE);
+        nombre.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        centro.add(Box.createVerticalGlue());
+        centro.add(bandera);
+        centro.add(Box.createVerticalStrut(8));
+        centro.add(nombre);
+        centro.add(Box.createVerticalGlue());
+        tarjeta.add(centro, BorderLayout.CENTER);
+        return tarjeta;
+    }
+
+    /**
+     * Crea el icono escalado de la bandera de un personaje.
+     *
+     * @param personaje personaje del que se toma la bandera
+     * @return icono de la bandera, o null si no existe
+     */
+    private ImageIcon iconoBandera(Personaje personaje) {
+        BufferedImage imagen = bandera(personaje);
+        if (imagen == null) {
+            return null;
+        }
+        Image escalada = imagen.getScaledInstance(48, 32, Image.SCALE_SMOOTH);
+        return new ImageIcon(escalada);
     }
 
     /**
@@ -422,354 +564,4 @@ public class TorneoView extends VistaBase {
         return botonJugar;
     }
 
-    // ------------------------------------------------------------------
-    // Llave dibujada sobre la imagen Llaves.png.
-    // ------------------------------------------------------------------
-    private final class PanelLlave extends JComponent {
-
-        private static final int IMAGEN_ANCHO = 1024;
-        private static final int IMAGEN_ALTO = 572;
-
-        // Coordenadas de los recuadros blancos dentro de la imagen.
-        private static final int[][] CAJAS_IZQUIERDA = {
-                {143, 38, 148, 84},   // humano
-                {143, 162, 148, 84},  // rival semifinal 1
-                {143, 322, 148, 84},  // semifinal 2, participante 1
-                {143, 447, 148, 84}   // semifinal 2, participante 2
-        };
-        private static final int[] CAJA_SEMIFINAL_1 = {350, 94, 146, 85};
-        private static final int[] CAJA_SEMIFINAL_2 = {350, 389, 146, 85};
-        private static final int[] CAJA_CAMPEON = {578, 218, 185, 102};
-
-        /** Todas las banderas usan la misma proporción y el mismo tamaño. */
-        private static final double ASPECTO_BANDERA = 1.5;
-        private static final int ALTO_BANDERA_REFERENCIA = 50;
-
-        private final Torneo torneo;
-
-        /**
-         * Crea el panel que dibuja la llave sobre la imagen.
-         *
-         * @param torneo torneo que se va a dibujar
-         */
-        private PanelLlave(Torneo torneo) {
-            this.torneo = torneo;
-            setOpaque(false);
-            setPreferredSize(new Dimension(1120, 626));
-        }
-
-        /**
-         * Dibuja la imagen de la llave y sus participantes.
-         *
-         * @param g contexto gráfico del componente
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            double escala = Math.min(
-                    (double) getWidth() / IMAGEN_ANCHO,
-                    (double) getHeight() / IMAGEN_ALTO);
-            int ancho = (int) Math.floor(IMAGEN_ANCHO * escala);
-            int alto = (int) Math.floor(IMAGEN_ALTO * escala);
-            Rectangle area = new Rectangle(
-                    (getWidth() - ancho) / 2,
-                    (getHeight() - alto) / 2,
-                    ancho, alto);
-
-            g2.drawImage(llaves, area.x, area.y, area.width, area.height, null);
-
-            PartidoTorneo semifinal1 = torneo.getSemifinal1();
-            PartidoTorneo semifinal2 = torneo.getSemifinal2();
-
-            dibujarParticipante(g2, area, CAJAS_IZQUIERDA[0],
-                    semifinal1.getPrimero(), false);
-            dibujarEtiquetaJ1(g2, area, CAJAS_IZQUIERDA[0]);
-            dibujarParticipante(g2, area, CAJAS_IZQUIERDA[1],
-                    semifinal1.getSegundo(), false);
-            dibujarParticipante(g2, area, CAJAS_IZQUIERDA[2],
-                    semifinal2.getPrimero(), false);
-            dibujarParticipante(g2, area, CAJAS_IZQUIERDA[3],
-                    semifinal2.getSegundo(), false);
-
-            dibujarGanador(g2, area, CAJA_SEMIFINAL_1, semifinal1);
-            dibujarGanador(g2, area, CAJA_SEMIFINAL_2, semifinal2);
-
-            dibujarParticipante(g2, area, CAJA_CAMPEON,
-                    torneo.getCampeon(), true);
-
-            g2.dispose();
-        }
-
-        /**
-         * Dibuja al ganador del partido en su recuadro.
-         *
-         * @param g2 contexto gráfico
-         * @param area área de la imagen en pantalla
-         * @param caja coordenadas del recuadro
-         * @param partido partido del que se toma el ganador
-         */
-        private void dibujarGanador(Graphics2D g2, Rectangle area, int[] caja,
-                                    PartidoTorneo partido) {
-            if (!partido.isJugado()) {
-                return;
-            }
-            dibujarParticipante(g2, area, caja, partido.getGanador(), false);
-        }
-
-        /**
-         * Dibuja la bandera del participante dentro del recuadro de la imagen.
-         * El jugador humano usa fondo azul y su etiqueta "J1" va fuera del
-         * recuadro. Las banderas de todos los participantes tienen el mismo
-         * tamaño y la misma proporción.
-         *
-         * @param g2 contexto gráfico
-         * @param area área de dibujo de la llave
-         * @param caja coordenadas del recuadro
-         * @param participante participante que se dibuja
-         * @param campeon indica si el participante es el campeón
-         */
-        private void dibujarParticipante(Graphics2D g2, Rectangle area,
-                                         int[] caja,
-                                         ParticipanteTorneo participante,
-                                         boolean campeon) {
-            if (participante == null) {
-                return;
-            }
-
-            Rectangle cajaPantalla = cajaEnPantalla(area, caja);
-            if (participante.isHumano()) {
-                pintarFondoHumano(g2, cajaPantalla);
-            }
-
-            BufferedImage imagen = bandera(participante.getPersonaje());
-            String etiqueta = null;
-            if (campeon) {
-                etiqueta = "CAMPEÓN";
-            } else if (!participante.isHumano()) {
-                etiqueta = participante.getPerfilIA().name();
-            }
-
-            int pad = Math.max(6, cajaPantalla.height / 10);
-            int anchoInterior = Math.max(1, cajaPantalla.width - pad * 2);
-            int separacion = Math.max(6, cajaPantalla.width / 25);
-
-            int altoBandera = Math.max(1, (int) Math.round(
-                    ALTO_BANDERA_REFERENCIA
-                            * (double) area.height / IMAGEN_ALTO));
-            int anchoBandera = Math.max(1,
-                    (int) Math.round(altoBandera * ASPECTO_BANDERA));
-
-            if (anchoBandera > anchoInterior) {
-                anchoBandera = anchoInterior;
-                altoBandera = Math.max(1,
-                        (int) Math.round(anchoBandera / ASPECTO_BANDERA));
-            }
-
-            Font fuente = new Font("SansSerif", Font.BOLD,
-                    Math.max(10, cajaPantalla.height / 8));
-            FontMetrics fm = g2.getFontMetrics(fuente);
-            int anchoTexto = 0;
-            if (etiqueta != null) {
-                anchoTexto = fm.stringWidth(etiqueta);
-            }
-
-            boolean conTexto = etiqueta != null
-                    && anchoBandera + separacion + anchoTexto <= anchoInterior;
-            int anchoTotal = anchoBandera;
-            if (conTexto) {
-                anchoTotal = anchoBandera + separacion + anchoTexto;
-            }
-            int x = cajaPantalla.x + (cajaPantalla.width - anchoTotal) / 2;
-            int yBandera = cajaPantalla.y
-                    + (cajaPantalla.height - altoBandera) / 2;
-
-            if (imagen != null) {
-                dibujarBandera(g2, imagen, x, yBandera,
-                        anchoBandera, altoBandera);
-            }
-
-            if (conTexto) {
-                g2.setFont(fuente);
-                g2.setColor(colorEtiqueta(campeon, participante));
-                int yTexto = cajaPantalla.y
-                        + (cajaPantalla.height + fm.getAscent()
-                        - fm.getDescent()) / 2;
-                g2.drawString(etiqueta,
-                        x + anchoBandera + separacion, yTexto);
-            } else if (imagen == null && etiqueta != null) {
-                g2.setFont(fuente);
-                g2.setColor(colorEtiqueta(campeon, participante));
-                int yTexto = cajaPantalla.y
-                        + (cajaPantalla.height + fm.getAscent()
-                        - fm.getDescent()) / 2;
-                g2.drawString(etiqueta,
-                        cajaPantalla.x
-                                + (cajaPantalla.width - anchoTexto) / 2,
-                        yTexto);
-            }
-        }
-
-        /**
-         * Devuelve el color de la etiqueta del participante.
-         *
-         * @param campeon indica si el participante es el campeón
-         * @param participante participante dibujado
-         * @return color de la etiqueta
-         */
-        private Color colorEtiqueta(boolean campeon,
-                                    ParticipanteTorneo participante) {
-            if (!campeon) {
-                return COLOR_TEXTO;
-            }
-            if (participante.isHumano()) {
-                return new Color(255, 238, 180);
-            }
-            return COLOR_ORO;
-        }
-
-        /**
-         * Pinta de azul el recuadro del jugador humano, como el marco de J1
-         * en la selección de personajes.
-         *
-         * @param g2 contexto gráfico
-         * @param caja recuadro que se pinta
-         */
-        private void pintarFondoHumano(Graphics2D g2, Rectangle caja) {
-            int inset = Math.max(3, caja.height / 18);
-            int radio = Math.max(6, caja.height / 6);
-            RoundRectangle2D fondo = new RoundRectangle2D.Float(
-                    caja.x + inset,
-                    caja.y + inset,
-                    Math.max(1, caja.width - inset * 2),
-                    Math.max(1, caja.height - inset * 2),
-                    radio, radio);
-
-            g2.setPaint(new GradientPaint(
-                    0, caja.y, COLOR_JUGADOR1.brighter(),
-                    0, caja.y + caja.height, COLOR_JUGADOR1.darker()));
-            g2.fill(fondo);
-
-            g2.setStroke(new BasicStroke(Math.max(1f, caja.height / 40f)));
-            g2.setColor(new Color(255, 255, 255, 165));
-            g2.draw(fondo);
-        }
-
-        /**
-         * Etiqueta "J1" fuera del recuadro del jugador, con el mismo estilo
-         * azul que usa la selección de personajes.
-         *
-         * @param g2 contexto gráfico
-         * @param area área de dibujo de la llave
-         * @param caja coordenadas del recuadro
-         */
-        private void dibujarEtiquetaJ1(Graphics2D g2, Rectangle area, int[] caja) {
-            Rectangle cajaPantalla = cajaEnPantalla(area, caja);
-            int tamano = Math.max(30, Math.min(48,
-                    (int) Math.round(cajaPantalla.height * 0.55)));
-            int separacion = Math.max(6, cajaPantalla.height / 10);
-            int x = cajaPantalla.x - tamano - separacion;
-            int y = cajaPantalla.y + (cajaPantalla.height - tamano) / 2;
-            int arco = Math.max(8, tamano / 4);
-
-            g2.setColor(new Color(0, 0, 0, 80));
-            g2.fillRoundRect(x + 2, y + 3, tamano, tamano, arco, arco);
-
-            g2.setPaint(new GradientPaint(
-                    0, y, COLOR_JUGADOR1.brighter(),
-                    0, y + tamano, COLOR_JUGADOR1.darker()));
-            g2.fillRoundRect(x, y, tamano, tamano, arco, arco);
-
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 255, 255, 210));
-            g2.drawRoundRect(x, y, tamano, tamano, arco, arco);
-
-            String texto = "J1";
-            g2.setFont(new Font("SansSerif", Font.BOLD,
-                    Math.max(13, tamano / 3)));
-            FontMetrics fm = g2.getFontMetrics();
-            int xTexto = x + (tamano - fm.stringWidth(texto)) / 2;
-            int yTexto = y + (tamano - fm.getHeight()) / 2 + fm.getAscent();
-
-            g2.setColor(new Color(0, 0, 0, 160));
-            g2.drawString(texto, xTexto + 1, yTexto + 1);
-            g2.setColor(Color.WHITE);
-            g2.drawString(texto, xTexto, yTexto);
-        }
-
-        /**
-         * Dibuja la bandera con esquinas redondeadas y un borde suave para
-         * que no se confunda con el fondo blanco del recuadro.
-         *
-         * @param g2 contexto gráfico
-         * @param imagen bandera que se dibuja
-         * @param x posición horizontal
-         * @param y posición vertical
-         * @param ancho ancho de la bandera
-         * @param alto alto de la bandera
-         */
-        private void dibujarBandera(Graphics2D g2, BufferedImage imagen,
-                                    int x, int y, int ancho, int alto) {
-            if (imagen == null || ancho <= 0 || alto <= 0) {
-                return;
-            }
-
-            int radio = Math.max(4, Math.min(ancho, alto) / 8);
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    x, y, ancho, alto, radio, radio);
-
-            int anchoOrigen = imagen.getWidth();
-            int altoOrigen = imagen.getHeight();
-            double aspectoOrigen = (double) anchoOrigen / altoOrigen;
-            int sx = 0;
-            int sy = 0;
-            int sw = anchoOrigen;
-            int sh = altoOrigen;
-
-            if (aspectoOrigen > ASPECTO_BANDERA) {
-                sw = Math.max(1,
-                        (int) Math.round(altoOrigen * ASPECTO_BANDERA));
-                sx = (anchoOrigen - sw) / 2;
-            } else {
-                sh = Math.max(1,
-                        (int) Math.round(anchoOrigen / ASPECTO_BANDERA));
-                sy = (altoOrigen - sh) / 2;
-            }
-
-            Shape clipAnterior = g2.getClip();
-            g2.clip(forma);
-            g2.drawImage(imagen, x, y, x + ancho, y + alto,
-                    sx, sy, sx + sw, sy + sh, null);
-            g2.setClip(clipAnterior);
-
-            g2.setColor(new Color(35, 55, 75, 130));
-            g2.setStroke(new BasicStroke(Math.max(1f, alto / 40f)));
-            g2.draw(forma);
-        }
-
-        /**
-         * Convierte una caja de la imagen a coordenadas en pantalla.
-         *
-         * @param area área de la imagen en pantalla
-         * @param caja coordenadas de la caja en la imagen
-         * @return caja escalada a la pantalla
-         */
-        private Rectangle cajaEnPantalla(Rectangle area, int[] caja) {
-            double escalaX = (double) area.width / IMAGEN_ANCHO;
-            double escalaY = (double) area.height / IMAGEN_ALTO;
-            return new Rectangle(
-                    area.x + (int) Math.round(caja[0] * escalaX),
-                    area.y + (int) Math.round(caja[1] * escalaY),
-                    Math.max(1, (int) Math.round(caja[2] * escalaX)),
-                    Math.max(1, (int) Math.round(caja[3] * escalaY)));
-        }
-    }
 }

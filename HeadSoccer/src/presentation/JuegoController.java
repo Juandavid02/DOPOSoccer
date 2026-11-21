@@ -4,19 +4,23 @@ import domain.ConfiguracionIA;
 import domain.ConfiguracionJugador;
 import domain.ConfiguracionPartido;
 import domain.EstadoPartido;
+import domain.ExcepcionDOPOSoccer;
 import domain.Jugador;
 import domain.Modalidad;
 import domain.ParametrosJuego;
+import domain.PartidaGuardada;
 import domain.Partido;
 import domain.PerfilIA;
 import domain.PerfilJugador;
 import domain.Personaje;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -59,6 +63,14 @@ public class JuegoController {
     private double vidaAnterior1;
     private double vidaAnterior2;
     private EstadoPartido estadoAnterior;
+    private boolean partidaCargada;
+    private boolean puntosTransferidos;
+    private PerfilJugador perfilVivo1;
+    private PerfilJugador perfilVivo2;
+    private PerfilJugador perfilGuardado1;
+    private PerfilJugador perfilGuardado2;
+    private boolean transferirPuntos1;
+    private boolean transferirPuntos2;
 
     /**
      * Crea el controlador del partido y conecta los botones con sus acciones.
@@ -105,6 +117,12 @@ public class JuegoController {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cambiarPersonaje();
+            }
+        });
+        view.getBotonPausaGuardarPartida().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                guardarPartida();
             }
         });
         view.getBotonPausaConfiguracion().addActionListener(new ActionListener() {
@@ -213,6 +231,86 @@ public class JuegoController {
     }
 
     /**
+     * Inicia un partido cargado desde un archivo. El partido arranca en
+     * pausa para que el jugador pueda reanudarlo cuando quiera.
+     *
+     * @param guardada partida leída del archivo
+     * @param vivo1 perfil actual que juega como jugador 1
+     * @param vivo2 perfil actual que juega como jugador 2, o null en PvsM
+     * @return true si el partido se pudo iniciar
+     */
+    public boolean iniciarDesdePartida(PartidaGuardada guardada,
+                                       PerfilJugador vivo1,
+                                       PerfilJugador vivo2) {
+        if (guardada == null || guardada.getPartido() == null
+                || guardada.getConfiguracion() == null || vivo1 == null) {
+            JOptionPane.showMessageDialog(
+                    view,
+                    "La partida no tiene datos suficientes para abrirse.",
+                    "DOPOSoccer",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (guardada.getConfiguracion().getModalidad() == Modalidad.PvsP
+                && vivo2 == null) {
+            JOptionPane.showMessageDialog(
+                    view,
+                    "La partida no tiene el perfil del jugador 2.",
+                    "DOPOSoccer",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (guardada.getPartido().getEstado() == EstadoPartido.TERMINADO) {
+            JOptionPane.showMessageDialog(
+                    view,
+                    "La partida guardada ya había terminado.",
+                    "DOPOSoccer",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        this.configuracion = guardada.getConfiguracion();
+        this.personaje1 = guardada.getPersonaje1();
+        this.personaje2 = guardada.getPersonaje2();
+        this.perfil1 = vivo1;
+        this.perfil2 = vivo2;
+        this.configuracionIA = guardada.getConfiguracionIA();
+        this.rutaEscenario = guardada.getRutaEscenario();
+        this.rutaBalon = guardada.getRutaBalon();
+        this.otorgarPuntos = guardada.isOtorgarPuntos();
+        this.modoTorneo = false;
+        this.alVolverTorneo = null;
+        this.partido = guardada.getPartido();
+        this.partidaCargada = true;
+        this.puntosTransferidos = false;
+        this.perfilVivo1 = vivo1;
+        this.perfilVivo2 = vivo2;
+        this.perfilGuardado1 = guardada.getPerfil1();
+        this.perfilGuardado2 = guardada.getPerfil2();
+        this.transferirPuntos1 = vivo1 != perfilGuardado1;
+        this.transferirPuntos2 = vivo2 != null
+                && vivo2 != perfilGuardado2;
+
+        partido.pausar();
+        golesAnteriores = partido.getMarcador().getGoles(1)
+                + partido.getMarcador().getGoles(2);
+        vidaAnterior1 = partido.getJugadores().get(0).getVida().getActual();
+        vidaAnterior2 = partido.getJugadores().get(1).getVida().getActual();
+        estadoAnterior = partido.getEstado();
+
+        prepararTeclas();
+        ultimoTiempo = System.nanoTime();
+        timer = new Timer(INTERVALO, e -> actualizar());
+        timer.start();
+        view.iniciar(partido, rutaEscenario, rutaBalon);
+        view.setModoTorneo(false);
+        view.setPausaVisible(true);
+        view.requestFocusInWindow();
+        view.repaint();
+        return true;
+    }
+
+    /**
      * Crea el partido con la configuración actual y lo muestra en la vista.
      */
     private void crearPartido() {
@@ -224,6 +322,14 @@ public class JuegoController {
             musicaMenuFinal.stop();
             musicaMenuFinal = null;
         }
+        partidaCargada = false;
+        puntosTransferidos = false;
+        perfilVivo1 = null;
+        perfilVivo2 = null;
+        perfilGuardado1 = null;
+        perfilGuardado2 = null;
+        transferirPuntos1 = false;
+        transferirPuntos2 = false;
         partido = new Partido(
                 configuracion,
                 personaje1,
@@ -571,6 +677,80 @@ public class JuegoController {
     }
 
     /**
+     * Guarda la partida actual en un archivo .dat. Solo está disponible en
+     * partidas normales, no en torneo.
+     */
+    private void guardarPartida() {
+        if (modoTorneo || partido == null) {
+            return;
+        }
+
+        JFileChooser selector = new JFileChooser();
+        selector.setDialogTitle("Guardar partido");
+        selector.setFileFilter(new FileNameExtensionFilter(
+                "Partida de DOPOSoccer (*.dat)", "dat"));
+        selector.setSelectedFile(new File("partida.dat"));
+        if (selector.showSaveDialog(view) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File archivo = conExtension(selector.getSelectedFile(), ".dat");
+        try {
+            PartidaGuardada guardada = new PartidaGuardada(
+                    partido,
+                    configuracion,
+                    personaje1,
+                    personaje2,
+                    partidaCargada ? perfilGuardado1 : perfil1,
+                    partidaCargada ? perfilGuardado2 : perfil2,
+                    configuracionIA,
+                    rutaEscenario,
+                    rutaBalon,
+                    otorgarPuntos);
+            guardada.saveAs(archivo);
+            JOptionPane.showMessageDialog(
+                    view,
+                    "Partida guardada en:\n" + archivo.getAbsolutePath(),
+                    "Guardar partido",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (ExcepcionDOPOSoccer e) {
+            RegistroErrores.registrar("Error al guardar la partida", e);
+            JOptionPane.showMessageDialog(
+                    view,
+                    e.getMessage() + "\n\nDetalle técnico en "
+                            + RegistroErrores.getRutaArchivo(),
+                    "Guardar partido",
+                    JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            RegistroErrores.registrar(
+                    "Datos inválidos al guardar la partida", e);
+            JOptionPane.showMessageDialog(
+                    view,
+                    ExcepcionDOPOSoccer.PARTIDA_INVALIDA,
+                    "Guardar partido",
+                    JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    /**
+     * Agrega la extensión al archivo si el usuario no la escribió.
+     *
+     * @param archivo archivo elegido
+     * @param extension extensión esperada, con punto
+     * @return archivo con la extensión correcta
+     */
+    private File conExtension(File archivo, String extension) {
+        if (archivo == null) {
+            return null;
+        }
+        if (archivo.getName().toLowerCase().endsWith(extension)) {
+            return archivo;
+        }
+        return new File(archivo.getParentFile(),
+                archivo.getName() + extension);
+    }
+
+    /**
      * Reinicia el partido actual después de pedir confirmación.
      */
     private void reiniciarPartido() {
@@ -693,20 +873,37 @@ public class JuegoController {
      * @return true si el usuario eligió sí
      */
     private boolean confirmar(String mensaje) {
-        int opcion = JOptionPane.showConfirmDialog(
-                view,
-                mensaje,
-                "Pausa",
-                JOptionPane.YES_NO_OPTION,
+        return Dialogos.confirmar(view, "Pausa", mensaje,
                 JOptionPane.QUESTION_MESSAGE);
-        return opcion == JOptionPane.YES_OPTION;
     }
 
     /**
      * Muestra el resultado final del partido en la vista.
      */
     private void mostrarResultado() {
+        transferirPuntosDePartidaCargada();
         view.mostrarResultado(partido, modoTorneo);
+    }
+
+    /**
+     * Si la partida se cargó desde un archivo, suma los puntos ganados a los
+     * perfiles vivos. Cuando el perfil no existía, los puntos ya se sumaron
+     * al perfil recreado por el propio partido.
+     */
+    private void transferirPuntosDePartidaCargada() {
+        if (!partidaCargada || puntosTransferidos || partido == null) {
+            return;
+        }
+        puntosTransferidos = true;
+        if (!otorgarPuntos) {
+            return;
+        }
+        if (perfilVivo1 != null && transferirPuntos1) {
+            perfilVivo1.getPuntos().sumar(partido.getPuntosJugador1());
+        }
+        if (perfilVivo2 != null && transferirPuntos2) {
+            perfilVivo2.getPuntos().sumar(partido.getPuntosJugador2());
+        }
     }
 
     /**

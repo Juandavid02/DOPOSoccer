@@ -1,10 +1,12 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Barra de poder de un jugador. Se llena con el tiempo y se vacía cuando el
  * jugador activa su tiro de poder.
  */
-public class BarraPoder {
+public class BarraPoder implements Serializable {
     private final double capacidad;
     private final double recargaPorSegundo;
     private double carga;

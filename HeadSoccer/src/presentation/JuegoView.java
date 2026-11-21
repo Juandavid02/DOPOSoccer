@@ -2,7 +2,6 @@ package presentation;
 
 import domain.Arco;
 import domain.Balon;
-import domain.BalonIlusion;
 import domain.Cancha;
 import domain.Efecto;
 import domain.Jugador;
@@ -25,6 +24,7 @@ import java.io.IOException;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class JuegoView extends JPanel {
 
@@ -95,6 +95,7 @@ public class JuegoView extends JPanel {
             new EnumMap<>(TipoEfecto.class);
     private long finPatadaJugador1;
     private long finPatadaJugador2;
+    private long semillaIlusion;
 
     private final JButton botonAtras;
     private final BotonSonido botonSonido;
@@ -196,10 +197,10 @@ public class JuegoView extends JPanel {
             }
         }
 
-        finPatadaJugador1 = 0;
-        finPatadaJugador2 = 0;
         inicioGol = 0;
         finGol = 0;
+        finPatadaJugador1 = 0;
+        finPatadaJugador2 = 0;
 
         panelPausa.setVisible(false);
         panelResultado.setVisible(false);
@@ -227,6 +228,7 @@ public class JuegoView extends JPanel {
     public void setModoTorneo(boolean modoTorneo) {
         panelPausa.setCambiarPersonajeVisible(!modoTorneo);
         panelPausa.setReiniciarVisible(!modoTorneo);
+        panelPausa.setGuardarPartidaVisible(!modoTorneo);
         botonAtras.setVisible(!modoTorneo);
         revalidate();
         repaint();
@@ -360,6 +362,15 @@ public class JuegoView extends JPanel {
      */
     public JButton getBotonPausaCambiarPersonaje() {
         return panelPausa.getBotonCambiarPersonaje();
+    }
+
+    /**
+     * Devuelve el botón para guardar la partida desde la pausa.
+     *
+     * @return botón de guardar partida
+     */
+    public JButton getBotonPausaGuardarPartida() {
+        return panelPausa.getBotonGuardarPartida();
     }
 
     /**
@@ -519,12 +530,14 @@ public class JuegoView extends JPanel {
         g2.drawImage(escenario, xFondo, yFondo, anchoFondo, altoFondo, null);
 
         BufferedImage sprite1 = spriteJugador1;
-        if (System.currentTimeMillis() < finPatadaJugador1 && spriteJugador1Patada != null) {
+        if (System.currentTimeMillis() < finPatadaJugador1
+                && spriteJugador1Patada != null) {
             sprite1 = spriteJugador1Patada;
         }
 
         BufferedImage sprite2 = spriteJugador2;
-        if (System.currentTimeMillis() < finPatadaJugador2 && spriteJugador2Patada != null) {
+        if (System.currentTimeMillis() < finPatadaJugador2
+                && spriteJugador2Patada != null) {
             sprite2 = spriteJugador2Patada;
         }
 
@@ -533,10 +546,12 @@ public class JuegoView extends JPanel {
         dibujarAura(g2, partido.getJugadores().get(1), auraJugador2,
                 escala, campoX, campoY);
 
+        // El balón se dibuja antes que los personajes para que los pies
+        // (y el resto del cuerpo) queden por encima del balón.
+        dibujarBalon(g2, partido.getBalon(), cancha, escala, campoX, campoY);
+
         dibujarJugador(g2, partido.getJugadores().get(0), sprite1, escala, campoX, campoY);
         dibujarJugador(g2, partido.getJugadores().get(1), sprite2, escala, campoX, campoY);
-
-        dibujarBalon(g2, partido.getBalon(), cancha, escala, campoX, campoY);
         dibujarTiroPoder(g2, cancha, escala, campoX, campoY);
 
         // Las redes se dibujan delante para que el personaje y el balón
@@ -572,18 +587,13 @@ public class JuegoView extends JPanel {
                 + (jugador.getPosicionY() + ParametrosJuego.RADIO_JUGADOR) * escala;
         double altoJugador = ParametrosJuego.RADIO_JUGADOR * 6.0 * escala;
 
-        double pulso = 1.0 + 0.08 * Math.sin(System.currentTimeMillis() / 150.0);
-        double altoAura = altoJugador * 1.35 * pulso;
+        double altoAura = altoJugador * 1.35;
         double anchoAura = altoAura * aura.getWidth() / aura.getHeight();
 
         int x = (int) (centroX - anchoAura / 2);
         int y = (int) (suelo - altoAura * 0.92);
 
-        Graphics2D gAura = (Graphics2D) g2.create();
-        gAura.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        gAura.drawImage(aura, x, y, (int) anchoAura, (int) altoAura, null);
-        gAura.dispose();
+        g2.drawImage(aura, x, y, (int) anchoAura, (int) altoAura, null);
     }
 
     /**
@@ -618,21 +628,12 @@ public class JuegoView extends JPanel {
                 + (partido.getBalon().getY()
                 - (radioVisual - partido.getBalon().getRadio())) * escala;
 
-        double pulso = 1.0 + 0.12 * Math.sin(System.currentTimeMillis() / 90.0);
-        double diametro = radioVisual * 2 * escala * 1.8 * pulso;
+        double diametro = radioVisual * 2 * escala * 1.8;
 
-        Graphics2D gTiro = (Graphics2D) g2.create();
-        gTiro.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        gTiro.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        gTiro.rotate(Math.toRadians(12 * Math.sin(System.currentTimeMillis() / 250.0)),
-                centroX, centroY);
-        gTiro.drawImage(imagen,
+        g2.drawImage(imagen,
                 (int) (centroX - diametro / 2),
                 (int) (centroY - diametro / 2),
                 (int) diametro, (int) diametro, null);
-        gTiro.dispose();
     }
 
     /**
@@ -698,109 +699,39 @@ public class JuegoView extends JPanel {
             double altoEfecto = anchoEfecto * efectoAturdimiento.getHeight()
                     / efectoAturdimiento.getWidth();
 
-            long tiempo = System.currentTimeMillis();
             int xEfecto = (int) (centroX - anchoEfecto / 2);
-            int yEfecto = (int) (y - altoEfecto * 0.55
-                    + Math.sin(tiempo / 180.0) * 3 * escala);
+            int yEfecto = (int) (y - altoEfecto * 0.55);
 
-            Graphics2D gEfecto = (Graphics2D) g2.create();
-            gEfecto.rotate(Math.toRadians(8 * Math.sin(tiempo / 220.0)),
-                    centroX, yEfecto + altoEfecto / 2);
-            gEfecto.drawImage(efectoAturdimiento, xEfecto, yEfecto,
+            g2.drawImage(efectoAturdimiento, xEfecto, yEfecto,
                     (int) anchoEfecto, (int) altoEfecto, null);
-            gEfecto.dispose();
         }
     }
 
-    /**
-     * Dibuja todos los efectos de poder activos de un jugador.
-     *
-     * @param g2 contexto gráfico
-     * @param jugador jugador con los efectos
-     * @param centroX centro horizontal del jugador
-     * @param y posición vertical superior del jugador
-     * @param anchoJugador ancho del jugador
-     * @param altoJugador alto del jugador
-     */
     private void dibujarEfectoPoder(Graphics2D g2, Jugador jugador,
                                     double centroX, double y,
                                     double anchoJugador, double altoJugador) {
-        List<Efecto> efectos = jugador.getEfectosActivos();
-        if (efectos.isEmpty()) {
-            return;
-        }
+        for (Efecto efecto : jugador.getEfectosActivos()) {
+            BufferedImage imagen = efectosPoder.get(efecto.getTipo());
+            if (imagen == null) {
+                continue;
+            }
 
-        for (int i = 0; i < efectos.size(); i++) {
-            dibujarEfectoPoder(g2, efectos.get(i), i, efectos.size(),
-                    centroX, y, anchoJugador, altoJugador);
-        }
-    }
+            boolean barril = efecto.getTipo() == TipoEfecto.BARRIL;
+            double factorAncho = barril ? 1.45 : 1.05;
+            double anchoEfecto = anchoJugador * factorAncho;
+            double altoEfecto = anchoEfecto * imagen.getHeight() / imagen.getWidth();
 
-    /**
-     * Dibuja un efecto de poder concreto de un jugador.
-     *
-     * @param g2 contexto gráfico
-     * @param efecto efecto que se dibuja
-     * @param indice posición del efecto en la lista
-     * @param total cantidad de efectos activos
-     * @param centroX centro horizontal del jugador
-     * @param y posición vertical superior del jugador
-     * @param anchoJugador ancho del jugador
-     * @param altoJugador alto del jugador
-     */
-    private void dibujarEfectoPoder(Graphics2D g2, Efecto efecto,
-                                    int indice, int total,
-                                    double centroX, double y,
-                                    double anchoJugador, double altoJugador) {
-        BufferedImage imagen = efectosPoder.get(efecto.getTipo());
-        if (imagen == null) {
-            return;
-        }
+            int x = (int) (centroX - anchoEfecto / 2);
+            int yEfecto;
+            if (barril) {
+                yEfecto = (int) (y + altoJugador * 0.20 - altoEfecto * 0.50);
+            } else {
+                yEfecto = (int) (y - altoEfecto * 0.75);
+            }
 
-        long tiempo = System.currentTimeMillis();
-        double pulso = 1.0 + 0.07 * Math.sin(tiempo / 140.0 + indice);
-        boolean barril = efecto.getTipo() == TipoEfecto.BARRIL;
-
-        double factorAncho = 1.05;
-        if (barril) {
-            factorAncho = 1.45;
+            g2.drawImage(imagen, x, yEfecto,
+                    (int) anchoEfecto, (int) altoEfecto, null);
         }
-        double anchoEfecto = anchoJugador * factorAncho * pulso;
-        double altoEfecto = anchoEfecto * imagen.getHeight() / imagen.getWidth();
-
-        // Los efectos se abren en abanico para que varios sean visibles a la vez.
-        double separacion = anchoJugador * 0.30;
-        double desplazamiento = (indice - (total - 1) / 2.0) * separacion;
-        double centroEfectoX = centroX + desplazamiento;
-        if (barril) {
-            centroEfectoX = centroX;
-        }
-
-        int x = (int) (centroEfectoX - anchoEfecto / 2);
-        int yEfecto;
-        if (barril) {
-            yEfecto = (int) (y + altoJugador * 0.20
-                    - altoEfecto * 0.50);
-        } else {
-            yEfecto = (int) (y - altoEfecto * 0.75
-                    + Math.sin(tiempo / 180.0 + indice) * 4);
-        }
-
-        Graphics2D gEfecto = (Graphics2D) g2.create();
-        gEfecto.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        gEfecto.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        if (barril) {
-            gEfecto.rotate(Math.toRadians(5 * Math.sin(tiempo / 190.0)),
-                    centroEfectoX, yEfecto + altoEfecto / 2);
-        } else if (total > 1) {
-            gEfecto.rotate(Math.toRadians(6 * (indice - (total - 1) / 2.0)),
-                    centroEfectoX, yEfecto + altoEfecto / 2);
-        }
-        gEfecto.drawImage(imagen, x, yEfecto,
-                (int) anchoEfecto, (int) altoEfecto, null);
-        gEfecto.dispose();
     }
 
     /**
@@ -849,10 +780,11 @@ public class JuegoView extends JPanel {
 
     /**
      * Mientras algún jugador está confundido, dibuja siete balones falsos
-     * alrededor del balón real.
+     * repartidos por la cancha y moviéndose como balones de verdad. Son solo
+     * decorativos: no existen en el dominio ni se pueden tocar.
      *
      * @param g2 contexto gráfico
-     * @param balon imagen del balón real
+     * @param balon balón real del partido
      * @param cancha cancha del partido
      * @param escala escala de dibujo del campo
      * @param campoX desplazamiento horizontal del campo
@@ -860,73 +792,103 @@ public class JuegoView extends JPanel {
      */
     private void dibujarBalonesFalsos(Graphics2D g2, Balon balon, Cancha cancha,
                                       double escala, double campoX, double campoY) {
-        List<BalonIlusion> ilusiones = partido.getBalonesIlusion();
-        if (this.balon == null || ilusiones.isEmpty()) {
+        if (this.balon == null || !hayJugadorConfundido()) {
+            semillaIlusion = 0;
             return;
+        }
+
+        if (semillaIlusion == 0) {
+            semillaIlusion = System.nanoTime();
         }
 
         double radioVisual = ParametrosJuego.RADIO_BALON_COLISION;
         int diametro = (int) (radioVisual * 2 * escala);
+        double minX = radioVisual;
+        double maxX = cancha.getAncho() - radioVisual;
+        double minY = radioVisual;
+        double maxY = cancha.getSuelo() - radioVisual;
+        double tiempo = (System.nanoTime() - semillaIlusion) / 1_000_000_000.0;
 
-        for (BalonIlusion ilusion : ilusiones) {
-            int x = (int) (campoX + ilusion.getX() * escala);
-            int y = (int) (campoY
-                    + (ilusion.getY() - (radioVisual - balon.getRadio())) * escala);
+        for (int i = 0; i < ParametrosJuego.CANTIDAD_BALONES_ILUSION; i++) {
+            Random azar = new Random(semillaIlusion + i * 31L);
+            double x0 = minX + azar.nextDouble() * (maxX - minX);
+            double y0 = minY + azar.nextDouble() * (maxY - minY);
+            double vx = (azar.nextDouble() - 0.5) * 320;
+            double vy = (azar.nextDouble() - 0.5) * 320;
+
+            // Cada balón avanza recto y rebota en los bordes de la cancha.
+            double x = rebotar(x0 + vx * tiempo, minX, maxX);
+            double y = rebotar(y0 + vy * tiempo, minY, maxY);
+
+            int px = (int) (campoX + x * escala);
+            int py = (int) (campoY
+                    + (y - (radioVisual - balon.getRadio())) * escala);
 
             // Los balones falsos son idénticos al balón real, incluida su sombra.
             g2.setColor(new Color(0, 0, 0, 70));
-            g2.fillOval(x - diametro / 2, y - diametro / 4,
+            g2.fillOval(px - diametro / 2, py - diametro / 4,
                     diametro, Math.max(4, diametro / 2));
 
             g2.drawImage(this.balon,
-                    x - diametro / 2, y - diametro / 2,
+                    px - diametro / 2, py - diametro / 2,
                     diametro, diametro, null);
         }
     }
 
     /**
-     * Dibuja la imagen de gol con una pequeña animación de entrada y salida.
+     * Refleja un valor dentro de un rango, como un balón que rebota entre dos
+     * paredes.
+     *
+     * @param valor posición que se quiere reflejar
+     * @param min límite inferior
+     * @param max límite superior
+     * @return posición reflejada dentro del rango
+     */
+    private static double rebotar(double valor, double min, double max) {
+        double rango = max - min;
+        if (rango <= 0) {
+            return min;
+        }
+        double periodo = 2 * rango;
+        double posicion = ((valor - min) % periodo + periodo) % periodo;
+        return min + (posicion <= rango ? posicion : periodo - posicion);
+    }
+
+    /**
+     * Indica si algún jugador está confundido y, por tanto, ve balones falsos.
+     *
+     * @return true si algún jugador tiene el efecto Confundido
+     */
+    private boolean hayJugadorConfundido() {
+        if (partido == null) {
+            return false;
+        }
+        for (Jugador jugador : partido.getJugadores()) {
+            if (jugador.estaConfundido()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Dibuja la imagen de gol de forma estática mientras dura el aviso.
      *
      * @param g2 contexto gráfico
      */
     private void dibujarGol(Graphics2D g2) {
-        long ahora = System.currentTimeMillis();
-        if (imagenGol == null || inicioGol <= 0 || ahora >= finGol) {
+        if (imagenGol == null || inicioGol <= 0
+                || System.currentTimeMillis() >= finGol) {
             return;
         }
 
-        long duracion = finGol - inicioGol;
-        double progreso = (double) (ahora - inicioGol) / duracion;
-        double aparicion = Math.min(1.0, progreso / 0.16);
-        double escala = 0.55 + 0.45 * (1 - Math.pow(1 - aparicion, 3));
-        double pulso = 1.0 + 0.035 * Math.sin((ahora - inicioGol) / 85.0);
-        double alpha = 1;
-        if (progreso > 0.82) {
-            alpha = Math.max(0, (1 - progreso) / 0.18);
-        }
-
-        double anchoMaximo = getWidth() * 0.42;
-        double escalaImagen = anchoMaximo / imagenGol.getWidth()
-                * escala * pulso;
-        int ancho = Math.max(1,
-                (int) Math.round(imagenGol.getWidth() * escalaImagen));
-        int alto = Math.max(1,
-                (int) Math.round(imagenGol.getHeight() * escalaImagen));
+        double escala = getWidth() * 0.42 / imagenGol.getWidth();
+        int ancho = Math.max(1, (int) Math.round(imagenGol.getWidth() * escala));
+        int alto = Math.max(1, (int) Math.round(imagenGol.getHeight() * escala));
         int x = (getWidth() - ancho) / 2;
-        double centroY = getHeight() * 0.45;
-        int y = (int) centroY - alto / 2;
+        int y = (int) (getHeight() * 0.45) - alto / 2;
 
-        Graphics2D gGol = (Graphics2D) g2.create();
-        gGol.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        gGol.setComposite(AlphaComposite.getInstance(
-                AlphaComposite.SRC_OVER,
-                (float) Math.max(0, Math.min(1, alpha))));
-        gGol.rotate(Math.toRadians(
-                2.0 * Math.sin((ahora - inicioGol) / 120.0)),
-                getWidth() / 2.0, centroY);
-        gGol.drawImage(imagenGol, x, y, ancho, alto, null);
-        gGol.dispose();
+        g2.drawImage(imagenGol, x, y, ancho, alto, null);
     }
 
     /**
@@ -1163,22 +1125,6 @@ public class JuegoView extends JPanel {
         dibujarRellenoBarra(g2, xPoder, yPoder,
                 anchoPoder, altoPoder, poder, new Color(70, 155, 245));
 
-        boolean barraLlena = jugador.getBarraPoder().isFull();
-        if (barraLlena) {
-            Graphics2D gGlow = (Graphics2D) g2.create();
-            gGlow.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            float pulso = (float) (0.5 + 0.5 * Math.sin(
-                    System.currentTimeMillis() / 180.0));
-            gGlow.setStroke(new BasicStroke(
-                    Math.max(1.5f, (float) (3 * escala))));
-            gGlow.setColor(new Color(255, 220, 90, (int) (150 + 105 * pulso)));
-            gGlow.drawRoundRect(xPoder - 2, yPoder - 2,
-                    anchoPoder + 4, altoPoder + 4,
-                    altoPoder + 4, altoPoder + 4);
-            gGlow.dispose();
-        }
-
         BufferedImage emoji;
         int circuloX;
         if (izquierda) {
@@ -1192,8 +1138,7 @@ public class JuegoView extends JPanel {
                 xMarco(circuloX, hudX, escala),
                 yMarco(CIRCULO_Y, hudY, escala),
                 (int) Math.round(CIRCULO_ANCHO * escala),
-                (int) Math.round(CIRCULO_ALTO * escala),
-                barraLlena);
+                (int) Math.round(CIRCULO_ALTO * escala));
     }
 
     /**
@@ -1279,33 +1224,22 @@ public class JuegoView extends JPanel {
      * @param centroY centro vertical del círculo
      * @param anchoCirculo ancho del círculo
      * @param altoCirculo alto del círculo
-     * @param lleno true si la barra de poder está llena
      */
     private static void dibujarEmoji(Graphics2D g2, BufferedImage emoji,
                                      int centroX, int centroY,
-                                     int anchoCirculo, int altoCirculo,
-                                     boolean lleno) {
+                                     int anchoCirculo, int altoCirculo) {
         if (emoji == null || anchoCirculo <= 0 || altoCirculo <= 0) {
             return;
         }
 
-        double pulso = 1.0;
-        if (lleno) {
-            pulso = 1.0 + 0.08 * Math.sin(
-                    System.currentTimeMillis() / 160.0);
-        }
         double escala = Math.min(
                 anchoCirculo * 0.68 / emoji.getWidth(),
-                altoCirculo * 0.80 / emoji.getHeight()) * pulso;
+                altoCirculo * 0.80 / emoji.getHeight());
         int ancho = Math.max(1, (int) Math.round(emoji.getWidth() * escala));
         int alto = Math.max(1, (int) Math.round(emoji.getHeight() * escala));
 
-        Graphics2D g = (Graphics2D) g2.create();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.drawImage(emoji, centroX - ancho / 2, centroY - alto / 2,
+        g2.drawImage(emoji, centroX - ancho / 2, centroY - alto / 2,
                 ancho, alto, null);
-        g.dispose();
     }
 
     /**
@@ -1478,6 +1412,7 @@ public class JuegoView extends JPanel {
         private final JButton botonContinuar;
         private final JButton botonReiniciar;
         private final JButton botonCambiarPersonaje;
+        private final JButton botonGuardarPartida;
         private final JButton botonConfiguracion;
         private final JButton botonSalir;
 
@@ -1489,15 +1424,17 @@ public class JuegoView extends JPanel {
             setLayout(new GridBagLayout());
 
             botonContinuar = crearBotonImagen(
-                    RUTA_BOTONES + "ReaunadarPartida.png", 280);
+                    RUTA_BOTONES + "ReaunadarPartida.png", 240);
             botonReiniciar = crearBotonImagen(
-                    RUTA_BOTONES + "ReiniciarPartido.png", 280);
+                    RUTA_BOTONES + "ReiniciarPartido.png", 240);
             botonCambiarPersonaje = crearBotonImagen(
-                    RUTA_BOTONES + "CambiarPersonajeEnPartido.png", 280);
+                    RUTA_BOTONES + "CambiarPersonajeEnPartido.png", 240);
+            botonGuardarPartida = crearBotonImagen(
+                    RUTA_BOTONES + "GuardarPatido.png", 240);
             botonConfiguracion = crearBotonImagen(
-                    RUTA_BOTONES + "ConfiguracionEnPartido.png", 280);
+                    RUTA_BOTONES + "ConfiguracionEnPartido.png", 240);
             botonSalir = crearBotonImagen(
-                    RUTA_BOTONES + "MenuPrincipal.png", 280);
+                    RUTA_BOTONES + "MenuPrincipal.png", 240);
 
             JLabel titulo = new JLabel("PAUSA");
             titulo.setFont(new Font("SansSerif", Font.BOLD, 42));
@@ -1511,24 +1448,26 @@ public class JuegoView extends JPanel {
 
             JPanel menu = new PanelMenu();
             menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
-            menu.setBorder(new EmptyBorder(22, 30, 18, 30));
+            menu.setBorder(new EmptyBorder(18, 28, 16, 28));
 
             menu.add(titulo);
-            menu.add(Box.createVerticalStrut(14));
+            menu.add(Box.createVerticalStrut(10));
             agregarBoton(menu, botonContinuar);
             agregarBoton(menu, botonReiniciar);
             agregarBoton(menu, botonCambiarPersonaje);
+            agregarBoton(menu, botonGuardarPartida);
             agregarBoton(menu, botonConfiguracion);
             agregarBoton(menu, botonSalir);
-            menu.add(Box.createVerticalStrut(6));
+            menu.add(Box.createVerticalStrut(4));
             menu.add(ayuda);
 
             GridBagConstraints c = new GridBagConstraints();
             c.gridx = 0;
             c.gridy = 0;
-            c.anchor = GridBagConstraints.NORTH;
-            // Deja libre el marcador superior antes de empezar el menú.
-            c.insets = new Insets(118, 0, 0, 0);
+            c.anchor = GridBagConstraints.CENTER;
+            // Deja libre el marcador superior sin que el menú llegue al borde
+            // inferior en pantallas de 720p o 768p.
+            c.insets = new Insets(88, 0, 8, 0);
             add(menu, c);
         }
 
@@ -1541,7 +1480,7 @@ public class JuegoView extends JPanel {
         private static void agregarBoton(JPanel menu, JButton boton) {
             boton.setAlignmentX(Component.CENTER_ALIGNMENT);
             menu.add(boton);
-            menu.add(Box.createVerticalStrut(4));
+            menu.add(Box.createVerticalStrut(2));
         }
 
         /**
@@ -1591,6 +1530,25 @@ public class JuegoView extends JPanel {
          */
         private void setCambiarPersonajeVisible(boolean visible) {
             botonCambiarPersonaje.setVisible(visible);
+        }
+
+        /**
+         * Devuelve el botón para guardar la partida.
+         *
+         * @return el botón de guardar partida
+         */
+        private JButton getBotonGuardarPartida() {
+            return botonGuardarPartida;
+        }
+
+        /**
+         * Muestra u oculta el botón de guardar partida.
+         *
+         * @param visible true para mostrar el botón
+         */
+        private void setGuardarPartidaVisible(boolean visible) {
+            botonGuardarPartida.setVisible(visible);
+            botonGuardarPartida.setEnabled(visible);
         }
 
         /**

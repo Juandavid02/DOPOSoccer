@@ -101,8 +101,8 @@ public class ConfiguracionView extends VistaBase {
         etiqueta.setFont(new Font("SansSerif", Font.BOLD, 19));
         etiqueta.setForeground(TEXTO_CLARO);
 
-        botonVolumenMenos = new BotonPaso("-");
-        botonVolumenMas = new BotonPaso("+");
+        botonVolumenMenos = new BotonPaso("-", BotonPaso.Estilo.DORADO, 42);
+        botonVolumenMas = new BotonPaso("+", BotonPaso.Estilo.DORADO, 42);
 
         valorVolumen = new JLabel(volumen + " %", SwingConstants.CENTER);
         valorVolumen.setFont(new Font("SansSerif", Font.BOLD, 19));
@@ -196,7 +196,11 @@ public class ConfiguracionView extends VistaBase {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(0, 0, 8, 0);
 
-        PanelCabecera cabecera = new PanelCabecera(nombre, color);
+        JLabel cabecera = new JLabel(nombre, SwingConstants.CENTER);
+        cabecera.setOpaque(true);
+        cabecera.setBackground(color);
+        cabecera.setForeground(Color.WHITE);
+        cabecera.setFont(new Font("SansSerif", Font.BOLD, 19));
         cabecera.setPreferredSize(new Dimension(0, 38));
         cabecera.setMinimumSize(new Dimension(0, 38));
         panel.add(cabecera, c);
@@ -400,8 +404,10 @@ public class ConfiguracionView extends VistaBase {
             setFont(new Font("SansSerif", Font.BOLD, 15));
             setPreferredSize(new Dimension(190, 32));
             setMinimumSize(new Dimension(150, 32));
-            setContentAreaFilled(false);
-            setBorderPainted(false);
+            setOpaque(true);
+            setBackground(new Color(10, 30, 50));
+            setForeground(Color.WHITE);
+            setBorder(BorderFactory.createLineBorder(new Color(180, 150, 75)));
             setFocusPainted(false);
             setFocusable(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -452,6 +458,8 @@ public class ConfiguracionView extends VistaBase {
 
             capturando = true;
             setText("Presiona una tecla...");
+            setBackground(new Color(40, 70, 96));
+            setForeground(DORADO_CLARO);
             repaint();
 
             capturador = event -> {
@@ -494,6 +502,8 @@ public class ConfiguracionView extends VistaBase {
                 capturador = null;
             }
             actualizarTexto();
+            setBackground(new Color(10, 30, 50));
+            setForeground(Color.WHITE);
             repaint();
         }
 
@@ -511,192 +521,6 @@ public class ConfiguracionView extends VistaBase {
         public void removeNotify() {
             cancelarCaptura();
             super.removeNotify();
-        }
-
-        /**
-         * Dibuja el botón con el estilo de la pantalla.
-         *
-         * @param g contexto gráfico donde se dibuja
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            boolean encima = getModel().isRollover();
-
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    1, 1, ancho - 3, alto - 3, 16, 16);
-
-            Color fondo;
-            if (capturando) {
-                fondo = new Color(40, 70, 96, 245);
-            } else {
-                fondo = new Color(10, 30, 50, 230);
-            }
-            g2.setColor(fondo);
-            g2.fill(forma);
-
-            float grosor = 1.8f;
-            if (capturando || encima) {
-                grosor = 2.5f;
-            }
-            g2.setStroke(new BasicStroke(grosor));
-            if (capturando || encima) {
-                g2.setColor(DORADO_CLARO);
-            } else {
-                g2.setColor(new Color(180, 150, 75));
-            }
-            g2.draw(forma);
-
-            g2.setFont(getFont());
-            FontMetrics fm = g2.getFontMetrics();
-            String texto = getText();
-            int x = (ancho - fm.stringWidth(texto)) / 2;
-            int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-            if (capturando) {
-                g2.setColor(DORADO_CLARO);
-            } else {
-                g2.setColor(Color.WHITE);
-            }
-            g2.drawString(texto, x, y);
-
-            g2.dispose();
-        }
-    }
-
-    /**
-     * Deslizador de volumen con el estilo dorado de la pantalla.
-     */
-    private static final class BotonPaso extends JButton {
-
-        /**
-         * Crea un botón de paso con el texto indicado.
-         *
-         * @param texto texto que muestra el botón
-         */
-        private BotonPaso(String texto) {
-            super(texto);
-            setFont(new Font("SansSerif", Font.BOLD, 24));
-            setPreferredSize(new Dimension(42, 42));
-            setMinimumSize(new Dimension(42, 42));
-            setContentAreaFilled(false);
-            setBorderPainted(false);
-            setFocusPainted(false);
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        }
-
-        /**
-         * Dibuja el botón circular de paso.
-         *
-         * @param g contexto gráfico donde se dibuja
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            boolean activo = isEnabled();
-            boolean encima = getModel().isRollover() && activo;
-
-            Color relleno;
-            if (activo) {
-                relleno = new Color(10, 32, 54, 240);
-            } else {
-                relleno = new Color(28, 42, 56, 200);
-            }
-            Color borde;
-            if (!activo) {
-                borde = new Color(100, 110, 118);
-            } else if (encima) {
-                borde = DORADO_CLARO;
-            } else {
-                borde = DORADO;
-            }
-
-            int tamano = Math.min(getWidth(), getHeight());
-            int x = (getWidth() - tamano) / 2;
-            int y = (getHeight() - tamano) / 2;
-
-            g2.setColor(relleno);
-            g2.fillOval(x + 1, y + 1, tamano - 3, tamano - 3);
-
-            float grosor = 2.2f;
-            if (encima) {
-                grosor = 3f;
-            }
-            g2.setStroke(new BasicStroke(grosor));
-            g2.setColor(borde);
-            g2.drawOval(x + 1, y + 1, tamano - 3, tamano - 3);
-
-            g2.setFont(getFont());
-            FontMetrics fm = g2.getFontMetrics();
-            String texto = getText();
-            int tx = (getWidth() - fm.stringWidth(texto)) / 2;
-            int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-            if (activo) {
-                g2.setColor(Color.WHITE);
-            } else {
-                g2.setColor(new Color(160, 170, 178));
-            }
-            g2.drawString(texto, tx, ty);
-
-            g2.dispose();
-        }
-    }
-
-    private static final class PanelCabecera extends JComponent {
-
-        private final String texto;
-        private final Color color;
-
-        /**
-         * Crea la cabecera de un jugador.
-         *
-         * @param texto nombre del jugador
-         * @param color color de fondo de la cabecera
-         */
-        private PanelCabecera(String texto, Color color) {
-            this.texto = texto;
-            this.color = color;
-            setFont(new Font("SansSerif", Font.BOLD, 19));
-        }
-
-        /**
-         * Dibuja la cabecera con el nombre del jugador.
-         *
-         * @param g contexto gráfico donde se dibuja
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    1, 1, ancho - 3, alto - 3, 20, 20);
-
-            g2.setColor(color);
-            g2.fill(forma);
-
-            g2.setStroke(new BasicStroke(2f));
-            g2.setColor(new Color(255, 255, 255, 170));
-            g2.draw(forma);
-
-            g2.setFont(getFont());
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (ancho - fm.stringWidth(texto)) / 2;
-            int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-            g2.setColor(Color.WHITE);
-            g2.drawString(texto, x, y);
-
-            g2.dispose();
         }
     }
 }

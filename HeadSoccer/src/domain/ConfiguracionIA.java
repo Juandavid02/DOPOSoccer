@@ -1,10 +1,12 @@
 package domain;
 
+import java.io.Serializable;
+
 /**
  * Configuración de la máquina: perfil de comportamiento y estadísticas
  * físicas ajustables por el jugador humano.
  */
-public class ConfiguracionIA {
+public class ConfiguracionIA implements Serializable {
 
     private static final String NOMBRE = "IA";
 

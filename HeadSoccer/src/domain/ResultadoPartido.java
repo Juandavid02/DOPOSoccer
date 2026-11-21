@@ -1,6 +1,8 @@
 package domain;
 
-public class ResultadoPartido {
+import java.io.Serializable;
+
+public class ResultadoPartido implements Serializable {
     private final int golesJugador1;
     private final int golesJugador2;
     private final MotivoFin motivoFin;

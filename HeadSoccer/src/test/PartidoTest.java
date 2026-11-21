@@ -17,7 +17,7 @@ import domain.MotivoFin;
 import domain.ParametrosJuego;
 import domain.Partido;
 import domain.Personaje;
-import domain.PoderAuraAzul;
+import domain.PoderConfigurado;
 import domain.Resolucion;
 import domain.TipoPartido;
 
@@ -227,6 +227,78 @@ public class PartidoTest
         assertTrue(partido.getBalon().getVelocidadX() > 0);
     }
 
+    /**
+     * Un jugador que salta por encima del rival puede pasar al otro lado:
+     * su bota queda por encima de la cabeza del otro y no se separan.
+     */
+    @Test
+    public void shouldPassOverOpponentWhenJumping()
+    {
+        Jugador jugador1 = partido.getJugadores().get(0);
+        Jugador jugador2 = partido.getJugadores().get(1);
+        partido.getBalon().reiniciar(400, 400);
+
+        // El jugador 1 queda 180 px por encima del jugador 2.
+        jugador1.reiniciar(600, 500);
+        jugador2.reiniciar(600, 680);
+
+        partido.actualizar(0.001);
+
+        assertEquals(600, jugador1.getPosicionX(), 0.0001);
+        assertEquals(600, jugador2.getPosicionX(), 0.0001);
+    }
+
+    /**
+     * En una partida real, con el salto base (estadística 1) el jugador
+     * alcanza altura suficiente para pasar por encima del rival.
+     */
+    @Test
+    public void shouldPassOverOpponentWithBaseJump()
+    {
+        Partido conSaltoBase = crearPartido(TipoPartido.TIEMPO, 5,
+                new Estadisticas(1, 1, 1, 1),
+                new Estadisticas(1, 1, 1, 1));
+        Jugador atacante = conSaltoBase.getJugadores().get(0);
+        Jugador defensor = conSaltoBase.getJugadores().get(1);
+        double suelo = conSaltoBase.getCancha().getSuelo()
+                - ParametrosJuego.RADIO_JUGADOR;
+
+        conSaltoBase.getBalon().reiniciar(400, 400);
+        defensor.reiniciar(640, suelo);
+        atacante.reiniciar(540, suelo);
+        atacante.saltar();
+
+        double paso = ParametrosJuego.VELOCIDAD_BASE_JUGADOR * 0.016;
+        for (int i = 0; i < 200
+                && atacante.getPosicionX() <= defensor.getPosicionX(); i++) {
+            atacante.mover(paso, conSaltoBase.getCancha());
+            conSaltoBase.actualizar(0.016);
+        }
+
+        assertTrue(atacante.getPosicionX() > defensor.getPosicionX(),
+                "El jugador debía pasar al otro lado saltando; x atacante: "
+                        + atacante.getPosicionX() + ", x defensor: "
+                        + defensor.getPosicionX());
+    }
+
+    /** A la misma altura los jugadores siguen chocando y se separan. */
+    @Test
+    public void shouldKeepPlayerCollisionWhenAtSameHeight()
+    {
+        Jugador jugador1 = partido.getJugadores().get(0);
+        Jugador jugador2 = partido.getJugadores().get(1);
+        partido.getBalon().reiniciar(400, 400);
+
+        jugador1.reiniciar(600, 680);
+        jugador2.reiniciar(610, 680);
+
+        partido.actualizar(0.001);
+
+        double separacion = Math.abs(jugador1.getPosicionX() - jugador2.getPosicionX());
+        assertTrue(separacion > 60,
+                "Los jugadores debían separarse; separación: " + separacion);
+    }
+
     /** No se puede usar un número de jugador distinto de 1 o 2. */
     @Test
     public void shouldNotAcceptInvalidPlayer()
@@ -282,6 +354,18 @@ public class PartidoTest
      */
     private Partido crearPartido(TipoPartido tipo, int goles)
     {
+        return crearPartido(tipo, goles,
+                new Estadisticas(3, 4, 5, 6),
+                new Estadisticas(4, 3, 4, 5));
+    }
+
+    /**
+     * Crea un partido de prueba con las estadísticas indicadas.
+     */
+    private Partido crearPartido(TipoPartido tipo, int goles,
+                                 Estadisticas estadisticas1,
+                                 Estadisticas estadisticas2)
+    {
         try {
             ConfiguracionPartido configuracion = new ConfiguracionPartido(
                     Modalidad.PvsP,
@@ -295,8 +379,8 @@ public class PartidoTest
                     configuracion,
                     crearPersonaje(),
                     crearPersonaje(),
-                    new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
-                    new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5))
+                    new ConfiguracionJugador("Ana", estadisticas1),
+                    new ConfiguracionJugador("Luis", estadisticas2)
             );
         } catch (ExcepcionDOPOSoccer e) {
             throw new RuntimeException(e);
@@ -308,7 +392,7 @@ public class PartidoTest
      */
     private Personaje crearPersonaje()
     {
-        return new Personaje("Polar", "Canadá", new PoderAuraAzul());
+        return new Personaje("Polar", "Canadá", PoderConfigurado.auraAzul());
     }
 
     /** Libera el escenario de pruebas después de cada test. */

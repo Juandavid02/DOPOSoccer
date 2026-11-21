@@ -1,6 +1,8 @@
 package domain;
 
-public interface ReglaPartido {
+import java.io.Serializable;
+
+public interface ReglaPartido extends Serializable {
     /**
      * Indica si el partido ya terminó.
      *

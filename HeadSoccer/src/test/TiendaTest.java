@@ -4,18 +4,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import domain.ExcepcionDOPOSoccer;
 import domain.PerfilJugador;
+import domain.Tienda;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import presentation.Desbloqueos;
 
 /**
  * Pruebas de la tienda: cada perfil debe tener sus propios desbloqueos.
  */
-public class DesbloqueosTest {
+public class TiendaTest {
 
     private PerfilJugador perfilConPuntos;
     private PerfilJugador perfilSinPuntos;
-    private Desbloqueos tienda;
+    private Tienda tienda;
 
     /**
      * Prepara los perfiles y la tienda de desbloqueos.
@@ -27,7 +27,7 @@ public class DesbloqueosTest {
         perfilConPuntos = new PerfilJugador("Con puntos");
         perfilConPuntos.getPuntos().sumar(1000);
         perfilSinPuntos = new PerfilJugador("Sin puntos");
-        tienda = new Desbloqueos();
+        tienda = new Tienda();
     }
 
     /**

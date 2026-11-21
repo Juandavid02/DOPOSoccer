@@ -208,7 +208,7 @@ public class SeleccionPerfilView extends VistaBase {
             lista.setFont(new Font("SansSerif", Font.BOLD, 17));
             lista.setSelectionForeground(Color.WHITE);
             lista.setFixedCellHeight(38);
-            lista.setCellRenderer(new PerfilRenderer());
+            lista.setCellRenderer(new PerfilRenderer(17, 6, false));
             lista.setBorder(new EmptyBorder(0, 0, 0, 8));
 
             JScrollPane scroll = new JScrollPane(lista);
@@ -408,42 +408,4 @@ public class SeleccionPerfilView extends VistaBase {
     // ------------------------------------------------------------------
     // Renderer de la lista de perfiles.
     // ------------------------------------------------------------------
-    private static final class PerfilRenderer extends DefaultListCellRenderer {
-
-        /**
-         * Prepara la etiqueta que representa un perfil en la lista.
-         *
-         * @param lista lista que dibuja la celda
-         * @param valor valor de la celda
-         * @param indice índice de la celda
-         * @param seleccionado indica si la celda está seleccionada
-         * @param tieneFoco indica si la lista tiene el foco
-         * @return el componente de la celda
-         */
-        @Override
-        public Component getListCellRendererComponent(JList<?> lista, Object valor,
-                                                      int indice, boolean seleccionado,
-                                                      boolean tieneFoco) {
-            JLabel etiqueta = (JLabel) super.getListCellRendererComponent(
-                    lista, valor, indice, seleccionado, tieneFoco);
-
-            Color colorTexto;
-            Color colorFondo;
-
-            if (seleccionado) {
-                colorTexto = Color.WHITE;
-                colorFondo = new Color(38, 108, 148);
-            } else {
-                colorTexto = COLOR_TEXTO;
-                colorFondo = new Color(214, 232, 242);
-            }
-
-            etiqueta.setOpaque(true);
-            etiqueta.setFont(new Font("SansSerif", Font.BOLD, 17));
-            etiqueta.setForeground(colorTexto);
-            etiqueta.setBorder(new EmptyBorder(6, 14, 6, 14));
-            etiqueta.setBackground(colorFondo);
-            return etiqueta;
-        }
-    }
 }

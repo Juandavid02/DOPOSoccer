@@ -1,6 +1,11 @@
 package domain;
 
-public class ConfiguracionJugador {
+import java.io.Serializable;
+
+public class ConfiguracionJugador implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private final String nombre;
     private final Estadisticas estadisticas;
     private final Puntos puntos;
@@ -12,8 +17,7 @@ public class ConfiguracionJugador {
      * @param estadisticas estadísticas físicas del jugador
      * @throws ExcepcionDOPOSoccer si el nombre o las estadísticas no son válidos
      */
-    public ConfiguracionJugador(String nombre, Estadisticas estadisticas)
-            throws ExcepcionDOPOSoccer {
+    public ConfiguracionJugador(String nombre, Estadisticas estadisticas) throws ExcepcionDOPOSoccer {
         this(nombre, estadisticas, new Puntos());
     }
 
@@ -25,8 +29,7 @@ public class ConfiguracionJugador {
      * @param puntos puntos del jugador
      * @throws ExcepcionDOPOSoccer si algún dato no es válido
      */
-    public ConfiguracionJugador(String nombre, Estadisticas estadisticas, Puntos puntos)
-            throws ExcepcionDOPOSoccer {
+    public ConfiguracionJugador(String nombre, Estadisticas estadisticas, Puntos puntos) throws ExcepcionDOPOSoccer {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.NOMBRE_INVALIDO);
         }

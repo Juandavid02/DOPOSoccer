@@ -5,6 +5,7 @@ import domain.ParametrosJuego;
 import domain.PerfilJugador;
 import domain.Poder;
 import domain.TipoEstadistica;
+import domain.Tienda;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -51,7 +52,7 @@ public class MejorasView extends VistaBase {
     private JPanel panelBalones;
     private JPanel panelEscenarios;
     private String seccionActual = "MEJORAS";
-    private Desbloqueos desbloqueos;
+    private Tienda desbloqueos;
     private PerfilJugador perfilActual;
     private final List<TarjetaDesbloqueo> tarjetasTienda = new ArrayList<>();
     private Consumer<TarjetaDesbloqueo> accionCompra = tarjeta -> { };
@@ -70,7 +71,7 @@ public class MejorasView extends VistaBase {
      *
      * @param desbloqueos servicio de compras de la tienda
      */
-    public void setDesbloqueos(Desbloqueos desbloqueos) {
+    public void setDesbloqueos(Tienda desbloqueos) {
         this.desbloqueos = desbloqueos;
         actualizarTienda();
     }
@@ -148,7 +149,7 @@ public class MejorasView extends VistaBase {
         listaPerfiles.setOpaque(false);
         listaPerfiles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         listaPerfiles.setFixedCellHeight(46);
-        listaPerfiles.setCellRenderer(new PerfilRenderer());
+        listaPerfiles.setCellRenderer(new PerfilRenderer(16, 7, true));
         listaPerfiles.setBorder(new EmptyBorder(0, 0, 0, 8));
         listaPerfiles.setFont(new Font("SansSerif", Font.BOLD, 17));
 
@@ -239,7 +240,7 @@ public class MejorasView extends VistaBase {
         c.gridx = 0;
         panel.add(etiqueta, c);
 
-        BarraEstadistica barra = new BarraEstadistica();
+        BarraEstadistica barra = new BarraEstadistica(240, 20, 4, false);
         barras.put(tipo, barra);
         c.gridx = 1;
         c.weightx = 1;
@@ -313,15 +314,15 @@ public class MejorasView extends VistaBase {
                     nombre, opcion.getCaja(),
                     RecursosImagen.cargar(opcion.getDerecha()),
                     opcion.getPersonaje().getPoder(),
-                    Desbloqueos.PRECIO_PERSONAJE, preview);
+                    Tienda.PRECIO_PERSONAJE, preview);
             if (primera == null) {
                 primera = tarjeta;
             }
             cuadricula.add(tarjeta);
         }
-        cuadricula.add(new TarjetaVaciaTienda());
-        cuadricula.add(new TarjetaVaciaTienda());
-        cuadricula.add(new TarjetaVaciaTienda());
+        cuadricula.add(TarjetaPanel.vacia());
+        cuadricula.add(TarjetaPanel.vacia());
+        cuadricula.add(TarjetaPanel.vacia());
         return crearPanelTienda(cuadricula, preview, primera);
     }
 
@@ -338,9 +339,9 @@ public class MejorasView extends VistaBase {
         for (CatalogoVisual.Opcion opcion : CatalogoVisual.getBalones()) {
             cuadricula.add(crearTarjeta(TipoTienda.BALON,
                     opcion.getNombre(), opcion.getRuta(), null, null,
-                    Desbloqueos.PRECIO_BALON, null));
+                    Tienda.PRECIO_BALON, null));
         }
-        cuadricula.add(new TarjetaVaciaTienda());
+        cuadricula.add(TarjetaPanel.vacia());
         return cuadricula;
     }
 
@@ -357,10 +358,10 @@ public class MejorasView extends VistaBase {
         for (CatalogoVisual.Opcion opcion : CatalogoVisual.getEscenarios()) {
             cuadricula.add(crearTarjeta(TipoTienda.ESCENARIO,
                     opcion.getNombre(), opcion.getRuta(), null, null,
-                    Desbloqueos.PRECIO_ESCENARIO, null));
+                    Tienda.PRECIO_ESCENARIO, null));
         }
-        cuadricula.add(new TarjetaVaciaTienda());
-        cuadricula.add(new TarjetaVaciaTienda());
+        cuadricula.add(TarjetaPanel.vacia());
+        cuadricula.add(TarjetaPanel.vacia());
         return cuadricula;
     }
 
@@ -603,43 +604,6 @@ public class MejorasView extends VistaBase {
         return botones.get(tipo);
     }
 
-    private static final class PerfilRenderer extends DefaultListCellRenderer {
-
-        /**
-         * Configura la etiqueta de una celda de la lista de perfiles.
-         *
-         * @param lista lista que dibuja la celda
-         * @param valor perfil de la celda
-         * @param indice índice de la celda
-         * @param seleccionado si la celda está seleccionada
-         * @param tieneFoco si la celda tiene el foco
-         * @return componente de la celda
-         */
-        @Override
-        public Component getListCellRendererComponent(JList<?> lista, Object valor,
-                                                      int indice, boolean seleccionado,
-                                                      boolean tieneFoco) {
-            JLabel etiqueta = (JLabel) super.getListCellRendererComponent(
-                    lista, valor, indice, seleccionado, tieneFoco);
-
-            PerfilJugador perfil = (PerfilJugador) valor;
-            etiqueta.setText(perfil.getNombre()
-                    + "  ·  " + perfil.getPuntos().getTotal() + " pts");
-            etiqueta.setOpaque(true);
-            etiqueta.setFont(new Font("SansSerif", Font.BOLD, 16));
-            etiqueta.setBorder(new EmptyBorder(7, 12, 7, 12));
-
-            if (seleccionado) {
-                etiqueta.setForeground(Color.WHITE);
-                etiqueta.setBackground(AZUL);
-            } else {
-                etiqueta.setForeground(TEXTO_SUAVE);
-                etiqueta.setBackground(new Color(214, 232, 242));
-            }
-            return etiqueta;
-        }
-    }
-
     public enum TipoTienda {
         PERSONAJE,
         BALON,
@@ -661,9 +625,12 @@ public class MejorasView extends VistaBase {
          * Crea el panel de previsualización de la tienda.
          */
         private PanelPrevisualizacion() {
-            setOpaque(false);
+            setOpaque(true);
+            setBackground(new Color(245, 250, 253));
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-            setBorder(new EmptyBorder(10, 10, 10, 10));
+            setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(200, 220, 235)),
+                    new EmptyBorder(10, 10, 10, 10)));
             setPreferredSize(new Dimension(240, 0));
 
             imagen = new PanelImagenTienda(null, true);
@@ -801,27 +768,6 @@ public class MejorasView extends VistaBase {
             revalidate();
             repaint();
         }
-
-        /**
-         * Dibuja el fondo redondeado del panel de previsualización.
-         *
-         * @param g gráficos del componente
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    1, 1, getWidth() - 3, getHeight() - 3, 24, 24);
-            g2.setColor(new Color(255, 255, 255, 145));
-            g2.fill(forma);
-            g2.setStroke(new BasicStroke(1.5f));
-            g2.setColor(new Color(255, 255, 255, 190));
-            g2.draw(forma);
-            g2.dispose();
-            super.paintComponent(g);
-        }
     }
 
     private static final class BotonSeccion extends JButton {
@@ -837,10 +783,10 @@ public class MejorasView extends VistaBase {
             super(texto);
             setFont(new Font("SansSerif", Font.BOLD, 14));
             setPreferredSize(new Dimension(140, 38));
-            setContentAreaFilled(false);
-            setBorderPainted(false);
+            setOpaque(true);
             setFocusPainted(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            actualizarEstilo();
         }
 
         /**
@@ -850,50 +796,23 @@ public class MejorasView extends VistaBase {
          */
         private void setSeleccionado(boolean seleccionado) {
             this.seleccionado = seleccionado;
-            repaint();
+            actualizarEstilo();
         }
 
         /**
-         * Dibuja el botón de sección según su estado.
-         *
-         * @param g gráficos del componente
+         * Aplica el color y el borde según el estado de selección.
          */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            int ancho = getWidth();
-            int alto = getHeight();
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    1, 1, ancho - 3, alto - 3, 16, 16);
-
+        private void actualizarEstilo() {
             if (seleccionado) {
-                g2.setPaint(new GradientPaint(
-                        0, 0, AZUL_CLARO, 0, alto, AZUL));
-                g2.fill(forma);
-                g2.setColor(new Color(255, 255, 255, 200));
+                setBackground(AZUL);
+                setForeground(Color.WHITE);
+                setBorder(BorderFactory.createLineBorder(AZUL_CLARO));
             } else {
-                g2.setColor(new Color(236, 246, 252, 210));
-                g2.fill(forma);
-                g2.setColor(TEXTO_SUAVE);
+                setBackground(new Color(236, 246, 252));
+                setForeground(TEXTO_SUAVE);
+                setBorder(BorderFactory.createLineBorder(
+                        new Color(120, 160, 185)));
             }
-
-            g2.setStroke(new BasicStroke(1.5f));
-            g2.setColor(new Color(120, 160, 185));
-            g2.draw(forma);
-
-            g2.setFont(getFont());
-            FontMetrics fm = g2.getFontMetrics();
-            int x = (ancho - fm.stringWidth(getText())) / 2;
-            int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-            if (seleccionado) {
-                g2.setColor(Color.WHITE);
-            } else {
-                g2.setColor(TEXTO_SUAVE);
-            }
-            g2.drawString(getText(), x, y);
-            g2.dispose();
         }
     }
 
@@ -932,7 +851,8 @@ public class MejorasView extends VistaBase {
             this.imagenPrevia = imagenPrevia;
             this.poder = poder;
 
-            setOpaque(false);
+            setOpaque(true);
+            setBackground(new Color(236, 246, 252));
             setLayout(new BorderLayout(0, 4));
             setBorder(new EmptyBorder(6, 6, 6, 6));
             // Solo los personajes se seleccionan con clic; los balones y
@@ -987,6 +907,7 @@ public class MejorasView extends VistaBase {
             }
 
             add(pie, BorderLayout.SOUTH);
+            actualizarEstilo();
         }
 
         /**
@@ -996,7 +917,27 @@ public class MejorasView extends VistaBase {
          */
         private void setSeleccionada(boolean seleccionada) {
             this.seleccionada = seleccionada;
-            repaint();
+            actualizarEstilo();
+        }
+
+        /**
+         * Aplica el borde según el estado de selección y desbloqueo.
+         */
+        private void actualizarEstilo() {
+            Color colorBorde;
+            int grosor;
+            if (seleccionada) {
+                colorBorde = new Color(255, 205, 70);
+                grosor = 4;
+            } else {
+                colorBorde = desbloqueado
+                        ? new Color(120, 190, 145)
+                        : new Color(120, 160, 185);
+                grosor = 1;
+            }
+            setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(colorBorde, grosor),
+                    new EmptyBorder(6, 6, 6, 6)));
         }
 
         /**
@@ -1070,44 +1011,11 @@ public class MejorasView extends VistaBase {
         public boolean isDesbloqueado() {
             return desbloqueado;
         }
-
-        /**
-         * Dibuja el fondo y el borde de la tarjeta.
-         *
-         * @param g gráficos del componente
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    1, 1, getWidth() - 3, getHeight() - 3, 22, 22);
-            g2.setColor(new Color(236, 246, 252, 230));
-            g2.fill(forma);
-
-            if (seleccionada) {
-                g2.setStroke(new BasicStroke(4f));
-                g2.setColor(new Color(255, 205, 70));
-            } else {
-                g2.setStroke(new BasicStroke(1.5f));
-                if (desbloqueado) {
-                    g2.setColor(new Color(120, 190, 145));
-                } else {
-                    g2.setColor(new Color(120, 160, 185));
-                }
-            }
-            g2.draw(forma);
-            g2.dispose();
-
-            super.paintComponent(g);
-        }
     }
 
     private static final class PanelImagenTienda extends JComponent {
 
-        private static final BufferedImage CADENA = cargarCadena();
+        private static final BufferedImage CADENA = RecursosImagen.cargarCadena();
 
         private BufferedImage imagen;
         private boolean desbloqueado;
@@ -1206,53 +1114,6 @@ public class MejorasView extends VistaBase {
 
             g2.dispose();
         }
-
-        /**
-         * Carga la imagen de la cadena de bloqueo.
-         *
-         * @return imagen de la cadena o null si no se puede cargar
-         */
-        private static BufferedImage cargarCadena() {
-            try {
-                return RecursosImagen.cargar(
-                        "resources/images/Objetos/CadenaDeBloqueo.png");
-            } catch (RuntimeException e) {
-                return null;
-            }
-        }
-    }
-
-    private static final class TarjetaVaciaTienda extends JComponent {
-
-        /**
-         * Dibuja la tarjeta vacía con el signo de interrogación.
-         *
-         * @param g gráficos del componente
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    1, 1, getWidth() - 3, getHeight() - 3, 22, 22);
-            g2.setColor(new Color(8, 26, 48, 235));
-            g2.fill(forma);
-            g2.setStroke(new BasicStroke(2.5f));
-            g2.setColor(new Color(202, 170, 92));
-            g2.draw(forma);
-
-            g2.setFont(new Font("SansSerif", Font.BOLD,
-                    Math.max(30, getHeight() / 3)));
-            FontMetrics fm = g2.getFontMetrics();
-            String signo = "?";
-            int x = (getWidth() - fm.stringWidth(signo)) / 2;
-            int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-            g2.setColor(new Color(242, 205, 98));
-            g2.drawString(signo, x, y);
-            g2.dispose();
-        }
     }
 
     private static final class BotonMejora extends JButton {
@@ -1273,119 +1134,24 @@ public class MejorasView extends VistaBase {
             super(texto);
             setFont(new Font("SansSerif", Font.BOLD, 14));
             setPreferredSize(new Dimension(150, 34));
-            setContentAreaFilled(false);
-            setBorderPainted(false);
+            setOpaque(true);
+            setBackground(AZUL);
+            setForeground(Color.WHITE);
+            setBorder(BorderFactory.createLineBorder(new Color(24, 78, 110)));
             setFocusPainted(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
 
         /**
-         * Dibuja el botón según su estado y el cursor encima.
+         * Ajusta los colores cuando el botón se habilita o deshabilita.
          *
-         * @param g gráficos del componente
+         * @param enabled true para habilitar el botón
          */
         @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int ancho = getWidth();
-            int alto = getHeight();
-            boolean activo = isEnabled();
-            boolean encima = getModel().isRollover() && activo;
-            RoundRectangle2D forma = new RoundRectangle2D.Float(
-                    1, 1, ancho - 3, alto - 3, 16, 16);
-
-            if (activo) {
-                g2.setColor(AZUL);
-            } else {
-                g2.setColor(new Color(205, 216, 222));
-            }
-            g2.fill(forma);
-
-            float grosor = 1.8f;
-            if (encima) {
-                grosor = 2.5f;
-            }
-            g2.setStroke(new BasicStroke(grosor));
-            if (!activo) {
-                g2.setColor(new Color(150, 168, 180));
-            } else if (encima) {
-                g2.setColor(AZUL_CLARO);
-            } else {
-                g2.setColor(new Color(24, 78, 110));
-            }
-            g2.draw(forma);
-
-            g2.setFont(getFont());
-            FontMetrics fm = g2.getFontMetrics();
-            String texto = getText();
-            int x = (ancho - fm.stringWidth(texto)) / 2;
-            int y = (alto + fm.getAscent() - fm.getDescent()) / 2;
-            if (activo) {
-                g2.setColor(Color.WHITE);
-            } else {
-                g2.setColor(new Color(110, 125, 135));
-            }
-            g2.drawString(texto, x, y);
-
-            g2.dispose();
-        }
-    }
-
-    private static final class BarraEstadistica extends JComponent {
-
-        private int valor;
-
-        /**
-         * Crea la barra de estadística con su tamaño preferido.
-         */
-        private BarraEstadistica() {
-            setPreferredSize(new Dimension(240, 20));
-        }
-
-        /**
-         * Actualiza el valor de la barra y la redibuja.
-         *
-         * @param valor nuevo valor de la estadística
-         */
-        private void setValor(int valor) {
-            this.valor = Math.max(0,
-                    Math.min(ParametrosJuego.MAX_ESTADISTICA, valor));
-            repaint();
-        }
-
-        /**
-         * Dibuja los segmentos llenos y vacíos de la barra.
-         *
-         * @param g gráficos del componente
-         */
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int segmentos = ParametrosJuego.MAX_ESTADISTICA;
-            int separacion = 4;
-            int anchoSegmento = Math.max(4,
-                    (getWidth() - separacion * (segmentos - 1)) / segmentos);
-            int altoSegmento = Math.max(8, getHeight() - 4);
-
-            for (int i = 0; i < segmentos; i++) {
-                int x = i * (anchoSegmento + separacion);
-                if (i < valor) {
-                    g2.setPaint(new GradientPaint(
-                            x, 0, new Color(120, 235, 150),
-                            x, altoSegmento, new Color(52, 170, 110)));
-                } else {
-                    g2.setColor(new Color(30, 70, 95, 55));
-                }
-                g2.fillRoundRect(x, 2, anchoSegmento, altoSegmento, 6, 6);
-            }
-
-            g2.dispose();
+        public void setEnabled(boolean enabled) {
+            super.setEnabled(enabled);
+            setBackground(enabled ? AZUL : new Color(205, 216, 222));
+            setForeground(enabled ? Color.WHITE : new Color(110, 125, 135));
         }
     }
 

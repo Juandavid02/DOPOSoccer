@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import domain.PoderBesoDeLaFea;
+import domain.Poder;
+import domain.PoderConfigurado;
 
 /**
  * Clase de pruebas PoderBesoDeLaFeaTest.
@@ -12,7 +13,7 @@ import domain.PoderBesoDeLaFea;
  */
 public class PoderBesoDeLaFeaTest
 {
-    private PoderBesoDeLaFea poder;
+    private Poder poder;
 
     /**
      * Constructor de la clase de pruebas PoderBesoDeLaFeaTest.
@@ -27,7 +28,7 @@ public class PoderBesoDeLaFeaTest
     @BeforeEach
     public void setUp()
     {
-        poder = new PoderBesoDeLaFea();
+        poder = PoderConfigurado.besoDeLaFea();
     }
 
     /** El nombre visible del poder es "Beso de la Fea". */

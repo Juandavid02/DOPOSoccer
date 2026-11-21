@@ -16,6 +16,7 @@ public class MenuView extends JPanel {
     private JButton botonConfiguracion;
     private JButton botonTienda;
     private JButton botonPerfil;
+    private JButton botonContinuarPartido;
     private JButton botonSalir;
 
     private BotonSonido botonSonido;
@@ -57,6 +58,8 @@ public class MenuView extends JPanel {
         botonConfiguracion = crearBoton(RUTA_BOTONES + "Configuracion.png", 380);
         botonTienda = crearBoton(RUTA_BOTONES + "Tienda.png", 380);
         botonPerfil = crearBoton(RUTA_BOTONES + "Perfil.png", 380);
+        botonContinuarPartido = crearBoton(
+                RUTA_BOTONES + "ContinuarPartido.png", 380);
         botonSalir = crearBoton(RUTA_BOTONES + "SalirMenu.png", 380);
 
         JPanel panelBotones = new JPanel(new GridLayout(3, 3, 24, 16));
@@ -67,7 +70,7 @@ public class MenuView extends JPanel {
         panelBotones.add(botonConfiguracion);
         panelBotones.add(botonTienda);
         panelBotones.add(botonPerfil);
-        panelBotones.add(crearEspacioVacio());
+        panelBotones.add(botonContinuarPartido);
         panelBotones.add(botonSalir);
         panelBotones.add(crearEspacioVacio());
 
@@ -198,6 +201,15 @@ public class MenuView extends JPanel {
      */
     public JButton getBotonPerfil() {
         return botonPerfil;
+    }
+
+    /**
+     * Devuelve el botón para continuar una partida guardada.
+     *
+     * @return el botón de continuar partida
+     */
+    public JButton getBotonContinuarPartido() {
+        return botonContinuarPartido;
     }
 
     /**
