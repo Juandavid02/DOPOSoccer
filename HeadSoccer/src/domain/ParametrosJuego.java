@@ -11,7 +11,7 @@ public class ParametrosJuego {
 
     // Física
     public static final double GRAVEDAD = 1200;
-    public static final double REBOTE = 0.92;
+    public static final double REBOTE = 0.70;
     public static final double FRICCION = 0.995;
     public static final double PERDIDA_REBOTE = 0.9;
 
@@ -43,10 +43,15 @@ public class ParametrosJuego {
     /** Radio visual del balón para calcular sus choques. */
     public static final double RADIO_BALON_COLISION = 30;
 
-    public static final double RESTITUCION_COLISION = 0.8;
+    public static final double RESTITUCION_COLISION = 0.6;
     /** Distancia a la que se puede patear el balón: pie, balón y tolerancia visual. */
     public static final double ALCANCE_PATADA = RADIO_BOTA_JUGADOR + RADIO_BALON_COLISION + 17;
-    public static final double IMPULSO_SALTO_BASE = 300;
+    /**
+     * Impulso vertical del salto. Con la gravedad actual el salto base sube
+     * unos 150 px, lo suficiente para que la bota supere la cabeza del rival
+     * (126 px) y el personaje pueda pasar al otro lado saltando.
+     */
+    public static final double IMPULSO_SALTO_BASE = 600;
     public static final double POTENCIA_PATADA_BASE = 650;
     /** Componente hacia arriba de la patada para que el balón haga curva. */
     public static final double POTENCIA_LEVANTE_PATADA = 520;

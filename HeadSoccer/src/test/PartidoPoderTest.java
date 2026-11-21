@@ -124,16 +124,13 @@ public class PartidoPoderTest {
                 jugador2.getBarraPoder().getCarga(), 1.0);
     }
 
-    /** Mientras hay confusión aparecen siete balones falsos simples. */
+    /** Mientras dura la confusión, el jugador se considera confundido. */
     @Test
-    public void shouldCreateSevenFakeBallsWhileConfused() {
+    public void shouldConfusePlayerWhileEffectIsActive() {
         Jugador jugador = partido.getJugadores().get(0);
         jugador.aplicarEfecto(new EfectoConfundido(2.5));
 
-        partido.actualizar(0.016);
-
-        assertEquals(ParametrosJuego.CANTIDAD_BALONES_ILUSION,
-                partido.getBalonesIlusion().size());
+        assertTrue(jugador.estaConfundido());
     }
 
     /** Verifica que el efecto nuevo reemplaza al anterior. */

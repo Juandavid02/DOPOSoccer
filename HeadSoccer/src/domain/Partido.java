@@ -2,9 +2,7 @@ package domain;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Partido implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -27,8 +25,6 @@ public class Partido implements Serializable {
     private int puntosJugador1;
     private int puntosJugador2;
     private final GestorPoderes gestorPoderes = new GestorPoderes();
-    private final List<Balon> balonesIlusion = new ArrayList<>();
-    private final Random randomIlusion = new Random();
     private boolean patadaJugador1;
     private boolean patadaJugador2;
 
@@ -141,7 +137,6 @@ public class Partido implements Serializable {
         actualizarReloj(dt);
         actualizarEntidades(dt);
         resolverColisiones(dt);
-        actualizarBalonesIlusion(dt);
         detectarGoles();
 
         if (regla.terminado(this)) {
@@ -180,35 +175,17 @@ public class Partido implements Serializable {
      */
     private void resolverColisiones(double dt) {
         FisicaPartido.resolverJugadores(jugadores, cancha);
-        resolverBalonJugador();
+
+        // La física detecta los contactos; el partido decide qué efecto
+        // tienen sobre los poderes.
+        for (Jugador jugador : FisicaPartido.resolverBalonJugadores(
+                jugadores, balon, cancha)) {
+            gestorPoderes.alContactarBalon(jugador, balon);
+        }
+
         FisicaPartido.resolverBalonAtrapado(jugadores.get(0), jugadores.get(1),
                 balon, cancha, dt);
         ColisionesArcos.resolver(balon, cancha);
-    }
-
-    /**
-     * Hace que el balón rebote al chocar con la cabeza o la bota de un
-     * personaje y avisa al gestor de poderes de cada contacto.
-     */
-    private void resolverBalonJugador() {
-        for (int iteracion = 0; iteracion < 2; iteracion++) {
-            for (Jugador jugador : jugadores) {
-                // La cabeza solo choca con balones que estén a su altura;
-                // un balón rodando por el suelo no debe subir a la cabeza.
-                if (balon.getY() < jugador.getBotaY()
-                        && FisicaPartido.resolverBalonCirculo(balon, jugador,
-                                cancha, jugador.getCabezaX(), jugador.getCabezaY(),
-                                ParametrosJuego.RADIO_CABEZA_JUGADOR)) {
-                    gestorPoderes.alContactarBalon(jugador, balon);
-                }
-
-                if (FisicaPartido.resolverBalonCirculo(balon, jugador,
-                        cancha, jugador.getBotaX(), jugador.getBotaY(),
-                        ParametrosJuego.RADIO_BOTA_JUGADOR)) {
-                    gestorPoderes.alContactarBalon(jugador, balon);
-                }
-            }
-        }
     }
 
     /**
@@ -227,58 +204,6 @@ public class Partido implements Serializable {
             jugador(2).getBarraPoder().sumarFraccion(
                     ParametrosJuego.FRACCION_BARRA_POR_GOL);
             reiniciarDespuesDeGol();
-        }
-    }
-
-    /**
-     * Mientras algún jugador está confundido, mantiene siete balones falsos
-     * que se mueven como el balón real. Son solo decorativos: no empujan ni
-     * dañan a nadie.
-     *
-     * @param dt tiempo transcurrido desde la última actualización
-     */
-    private void actualizarBalonesIlusion(double dt) {
-        boolean hayConfundido = false;
-        for (Jugador jugador : jugadores) {
-            if (jugador.estaConfundido()) {
-                hayConfundido = true;
-                break;
-            }
-        }
-
-        if (!hayConfundido) {
-            balonesIlusion.clear();
-            return;
-        }
-
-        if (balonesIlusion.isEmpty()) {
-            crearBalonesIlusion();
-        }
-
-        for (Balon ilusion : balonesIlusion) {
-            ilusion.actualizar(dt, cancha);
-        }
-    }
-
-    /**
-     * Crea los siete balones falsos en posiciones aleatorias.
-     */
-    private void crearBalonesIlusion() {
-        balonesIlusion.clear();
-        double margen = ParametrosJuego.RADIO_BALON + 10;
-        double ancho = cancha.getAncho();
-        double alto = cancha.getSuelo();
-
-        for (int i = 0; i < ParametrosJuego.CANTIDAD_BALONES_ILUSION; i++) {
-            double x = margen + randomIlusion.nextDouble()
-                    * Math.max(1, ancho - margen * 2);
-            double y = margen + randomIlusion.nextDouble()
-                    * Math.max(1, alto - margen * 2);
-            Balon falso = new Balon(x, y, ParametrosJuego.RADIO_BALON);
-            falso.establecerVelocidad(
-                    (randomIlusion.nextDouble() - 0.5) * 240,
-                    -120 - randomIlusion.nextDouble() * 180);
-            balonesIlusion.add(falso);
         }
     }
 
@@ -348,15 +273,6 @@ public class Partido implements Serializable {
      */
     public TiroPoder getTiroPoder() {
         return gestorPoderes.getTiroPoder();
-    }
-
-    /**
-     * Devuelve los balones falsos activos de la Ilusión.
-     *
-     * @return lista de balones falsos
-     */
-    public List<Balon> getBalonesIlusion() {
-        return balonesIlusion;
     }
 
     /**
@@ -450,7 +366,6 @@ public class Partido implements Serializable {
      */
     public void reiniciarDespuesDeGol() {
         gestorPoderes.limpiar();
-        balonesIlusion.clear();
         balon.reiniciar(cancha.getAncho() / 2.0, cancha.getAlto() / 2.0);
         jugador(1).limpiarEfectos();
         jugador(2).limpiarEfectos();

@@ -248,6 +248,39 @@ public class PartidoTest
         assertEquals(600, jugador2.getPosicionX(), 0.0001);
     }
 
+    /**
+     * En una partida real, con el salto base (estadística 1) el jugador
+     * alcanza altura suficiente para pasar por encima del rival.
+     */
+    @Test
+    public void shouldPassOverOpponentWithBaseJump()
+    {
+        Partido conSaltoBase = crearPartido(TipoPartido.TIEMPO, 5,
+                new Estadisticas(1, 1, 1, 1),
+                new Estadisticas(1, 1, 1, 1));
+        Jugador atacante = conSaltoBase.getJugadores().get(0);
+        Jugador defensor = conSaltoBase.getJugadores().get(1);
+        double suelo = conSaltoBase.getCancha().getSuelo()
+                - ParametrosJuego.RADIO_JUGADOR;
+
+        conSaltoBase.getBalon().reiniciar(400, 400);
+        defensor.reiniciar(640, suelo);
+        atacante.reiniciar(540, suelo);
+        atacante.saltar();
+
+        double paso = ParametrosJuego.VELOCIDAD_BASE_JUGADOR * 0.016;
+        for (int i = 0; i < 200
+                && atacante.getPosicionX() <= defensor.getPosicionX(); i++) {
+            atacante.mover(paso, conSaltoBase.getCancha());
+            conSaltoBase.actualizar(0.016);
+        }
+
+        assertTrue(atacante.getPosicionX() > defensor.getPosicionX(),
+                "El jugador debía pasar al otro lado saltando; x atacante: "
+                        + atacante.getPosicionX() + ", x defensor: "
+                        + defensor.getPosicionX());
+    }
+
     /** A la misma altura los jugadores siguen chocando y se separan. */
     @Test
     public void shouldKeepPlayerCollisionWhenAtSameHeight()
@@ -321,6 +354,18 @@ public class PartidoTest
      */
     private Partido crearPartido(TipoPartido tipo, int goles)
     {
+        return crearPartido(tipo, goles,
+                new Estadisticas(3, 4, 5, 6),
+                new Estadisticas(4, 3, 4, 5));
+    }
+
+    /**
+     * Crea un partido de prueba con las estadísticas indicadas.
+     */
+    private Partido crearPartido(TipoPartido tipo, int goles,
+                                 Estadisticas estadisticas1,
+                                 Estadisticas estadisticas2)
+    {
         try {
             ConfiguracionPartido configuracion = new ConfiguracionPartido(
                     Modalidad.PvsP,
@@ -334,8 +379,8 @@ public class PartidoTest
                     configuracion,
                     crearPersonaje(),
                     crearPersonaje(),
-                    new ConfiguracionJugador("Ana", new Estadisticas(3, 4, 5, 6)),
-                    new ConfiguracionJugador("Luis", new Estadisticas(4, 3, 4, 5))
+                    new ConfiguracionJugador("Ana", estadisticas1),
+                    new ConfiguracionJugador("Luis", estadisticas2)
             );
         } catch (ExcepcionDOPOSoccer e) {
             throw new RuntimeException(e);

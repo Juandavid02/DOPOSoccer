@@ -25,16 +25,11 @@ public final class FabricaJugadores {
      * @param perfilIA perfil de la máquina, si aplica
      * @return lista con los dos jugadores
      */
-    public static List<Jugador> crear(Personaje personaje1, Personaje personaje2,
-                                      ConfiguracionJugador configuracion1,
-                                      ConfiguracionJugador configuracion2,
-                                      Cancha cancha, Modalidad modalidad,
-                                      PerfilIA perfilIA) {
+    public static List<Jugador> crear(Personaje personaje1, Personaje personaje2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2,Cancha cancha, Modalidad modalidad, PerfilIA perfilIA) {
         Jugador izquierdo = new JugadorHumano(configuracion1, personaje1,
                 crearBarra(), Lado.IZQUIERDO,
                 cancha.getAncho() / 4.0,
                 cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);
-
         Jugador derecho;
         if (modalidad == Modalidad.PvsM && perfilIA != null) {
             derecho = new JugadorMaquina(configuracion2, personaje2,

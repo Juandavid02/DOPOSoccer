@@ -2,8 +2,8 @@ package domain;
 
 /**
  * Efecto Confundido: el jugador ve balones de ilusión. No cambia nada del
- * jugador por sí mismo; el Partido revisa si lo tiene para manejar los
- * balones de ilusión.
+ * jugador por sí mismo; la vista dibuja los balones falsos mientras el
+ * efecto esté activo.
  */
 public class EfectoConfundido extends Efecto {
 

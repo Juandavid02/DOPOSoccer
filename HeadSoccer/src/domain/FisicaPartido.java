@@ -1,5 +1,6 @@
 package domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,16 +30,12 @@ public final class FisicaPartido {
         Jugador jugador2 = jugadores.get(1);
 
         // Si uno saltó por encima del otro, se permite el paso.
-        if (pasaPorEncima(jugador1, jugador2)
-                || pasaPorEncima(jugador2, jugador1)) {
+        if (pasaPorEncima(jugador1, jugador2) || pasaPorEncima(jugador2, jugador1)) {
             return;
         }
 
         for (int iteracion = 0; iteracion < 3; iteracion++) {
-            resolverCirculosJugadores(jugador1, jugador2,
-                    centroCabeza(jugador1), ParametrosJuego.RADIO_CABEZA_JUGADOR,
-                    centroCabeza(jugador2), ParametrosJuego.RADIO_CABEZA_JUGADOR,
-                    cancha);
+            resolverCirculosJugadores(jugador1, jugador2, centroCabeza(jugador1), ParametrosJuego.RADIO_CABEZA_JUGADOR, centroCabeza(jugador2), ParametrosJuego.RADIO_CABEZA_JUGADOR, cancha);
 
             resolverCirculosJugadores(jugador1, jugador2,
                     centroCabeza(jugador1), ParametrosJuego.RADIO_CABEZA_JUGADOR,
@@ -183,6 +180,42 @@ public final class FisicaPartido {
         }
 
         return true;
+    }
+
+    /**
+     * Hace que el balón rebote al chocar con la cabeza o la bota de los
+     * jugadores.
+     *
+     * @param jugadores jugadores del partido
+     * @param balon balón del partido
+     * @param cancha cancha donde se mueve el balón
+     * @return jugadores que tocaron el balón durante el instante
+     */
+    public static List<Jugador> resolverBalonJugadores(List<Jugador> jugadores,
+                                                       Balon balon,
+                                                       Cancha cancha) {
+        List<Jugador> contactos = new ArrayList<>();
+
+        for (int iteracion = 0; iteracion < 2; iteracion++) {
+            for (Jugador jugador : jugadores) {
+                // La cabeza solo choca con balones que estén a su altura;
+                // un balón rodando por el suelo no debe subir a la cabeza.
+                if (balon.getY() < jugador.getBotaY()
+                        && resolverBalonCirculo(balon, jugador, cancha,
+                                jugador.getCabezaX(), jugador.getCabezaY(),
+                                ParametrosJuego.RADIO_CABEZA_JUGADOR)) {
+                    contactos.add(jugador);
+                }
+
+                if (resolverBalonCirculo(balon, jugador, cancha,
+                        jugador.getBotaX(), jugador.getBotaY(),
+                        ParametrosJuego.RADIO_BOTA_JUGADOR)) {
+                    contactos.add(jugador);
+                }
+            }
+        }
+
+        return contactos;
     }
 
     /**

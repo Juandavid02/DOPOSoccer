@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class JuegoView extends JPanel {
 
@@ -94,6 +95,7 @@ public class JuegoView extends JPanel {
             new EnumMap<>(TipoEfecto.class);
     private long finPatadaJugador1;
     private long finPatadaJugador2;
+    private long semillaIlusion;
 
     private final JButton botonAtras;
     private final BotonSonido botonSonido;
@@ -778,10 +780,11 @@ public class JuegoView extends JPanel {
 
     /**
      * Mientras algún jugador está confundido, dibuja siete balones falsos
-     * alrededor del balón real.
+     * repartidos por la cancha y moviéndose como balones de verdad. Son solo
+     * decorativos: no existen en el dominio ni se pueden tocar.
      *
      * @param g2 contexto gráfico
-     * @param balon imagen del balón real
+     * @param balon balón real del partido
      * @param cancha cancha del partido
      * @param escala escala de dibujo del campo
      * @param campoX desplazamiento horizontal del campo
@@ -789,28 +792,83 @@ public class JuegoView extends JPanel {
      */
     private void dibujarBalonesFalsos(Graphics2D g2, Balon balon, Cancha cancha,
                                       double escala, double campoX, double campoY) {
-        List<Balon> ilusiones = partido.getBalonesIlusion();
-        if (this.balon == null || ilusiones.isEmpty()) {
+        if (this.balon == null || !hayJugadorConfundido()) {
+            semillaIlusion = 0;
             return;
+        }
+
+        if (semillaIlusion == 0) {
+            semillaIlusion = System.nanoTime();
         }
 
         double radioVisual = ParametrosJuego.RADIO_BALON_COLISION;
         int diametro = (int) (radioVisual * 2 * escala);
+        double minX = radioVisual;
+        double maxX = cancha.getAncho() - radioVisual;
+        double minY = radioVisual;
+        double maxY = cancha.getSuelo() - radioVisual;
+        double tiempo = (System.nanoTime() - semillaIlusion) / 1_000_000_000.0;
 
-        for (Balon ilusion : ilusiones) {
-            int x = (int) (campoX + ilusion.getX() * escala);
-            int y = (int) (campoY
-                    + (ilusion.getY() - (radioVisual - balon.getRadio())) * escala);
+        for (int i = 0; i < ParametrosJuego.CANTIDAD_BALONES_ILUSION; i++) {
+            Random azar = new Random(semillaIlusion + i * 31L);
+            double x0 = minX + azar.nextDouble() * (maxX - minX);
+            double y0 = minY + azar.nextDouble() * (maxY - minY);
+            double vx = (azar.nextDouble() - 0.5) * 320;
+            double vy = (azar.nextDouble() - 0.5) * 320;
+
+            // Cada balón avanza recto y rebota en los bordes de la cancha.
+            double x = rebotar(x0 + vx * tiempo, minX, maxX);
+            double y = rebotar(y0 + vy * tiempo, minY, maxY);
+
+            int px = (int) (campoX + x * escala);
+            int py = (int) (campoY
+                    + (y - (radioVisual - balon.getRadio())) * escala);
 
             // Los balones falsos son idénticos al balón real, incluida su sombra.
             g2.setColor(new Color(0, 0, 0, 70));
-            g2.fillOval(x - diametro / 2, y - diametro / 4,
+            g2.fillOval(px - diametro / 2, py - diametro / 4,
                     diametro, Math.max(4, diametro / 2));
 
             g2.drawImage(this.balon,
-                    x - diametro / 2, y - diametro / 2,
+                    px - diametro / 2, py - diametro / 2,
                     diametro, diametro, null);
         }
+    }
+
+    /**
+     * Refleja un valor dentro de un rango, como un balón que rebota entre dos
+     * paredes.
+     *
+     * @param valor posición que se quiere reflejar
+     * @param min límite inferior
+     * @param max límite superior
+     * @return posición reflejada dentro del rango
+     */
+    private static double rebotar(double valor, double min, double max) {
+        double rango = max - min;
+        if (rango <= 0) {
+            return min;
+        }
+        double periodo = 2 * rango;
+        double posicion = ((valor - min) % periodo + periodo) % periodo;
+        return min + (posicion <= rango ? posicion : periodo - posicion);
+    }
+
+    /**
+     * Indica si algún jugador está confundido y, por tanto, ve balones falsos.
+     *
+     * @return true si algún jugador tiene el efecto Confundido
+     */
+    private boolean hayJugadorConfundido() {
+        if (partido == null) {
+            return false;
+        }
+        for (Jugador jugador : partido.getJugadores()) {
+            if (jugador.estaConfundido()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
