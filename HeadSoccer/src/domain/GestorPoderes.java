@@ -35,8 +35,7 @@ public class GestorPoderes implements Serializable {
         }
 
         // Un tiro de poder activo golpea al rival (nunca a su dueño).
-        if (tiroPoder != null && tiroPoder.isActivo()
-                && tiroPoder.getDueno() != jugador) {
+        if (tiroPoder != null && tiroPoder.isActivo() && tiroPoder.getDueno() != jugador) {
             impactar(jugador);
         }
     }
@@ -80,8 +79,7 @@ public class GestorPoderes implements Serializable {
         Jugador dueno = tiroPoder.getDueno();
         Poder poder = tiroPoder.getPoder();
 
-        double dano = poder.getDanoTiro(dueno)
-                * dueno.getEstadisticas().getMultiplicadorKick();
+        double dano = poder.getDanoTiro(dueno) * dueno.getEstadisticas().getMultiplicadorKick();
         rival.recibirDanio(dano);
         rival.aplicarEfecto(poder.crearEfecto());
 

@@ -98,6 +98,10 @@ public class JuegoController {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gui.alternarSonido();
+                // El botón se queda con el foco al pulsarlo; hay que
+                // devolvérselo a la vista para que el teclado siga
+                // controlando a los jugadores.
+                view.requestFocusInWindow();
             }
         });
 

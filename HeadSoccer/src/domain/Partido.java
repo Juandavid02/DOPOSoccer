@@ -178,13 +178,11 @@ public class Partido implements Serializable {
 
         // La física detecta los contactos; el partido decide qué efecto
         // tienen sobre los poderes.
-        for (Jugador jugador : FisicaPartido.resolverBalonJugadores(
-                jugadores, balon, cancha)) {
+        for (Jugador jugador : FisicaPartido.resolverBalonJugadores(jugadores, balon, cancha)) {
             gestorPoderes.alContactarBalon(jugador, balon);
         }
 
-        FisicaPartido.resolverBalonAtrapado(jugadores.get(0), jugadores.get(1),
-                balon, cancha, dt);
+        FisicaPartido.resolverBalonAtrapado(jugadores.get(0), jugadores.get(1),balon, cancha, dt);
         ColisionesArcos.resolver(balon, cancha);
     }
 

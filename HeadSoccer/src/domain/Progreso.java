@@ -114,8 +114,7 @@ public class Progreso implements Serializable {
         if (archivo.exists() ? !archivo.canWrite() : !carpeta.canWrite()) {
             throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.SAVE_SIN_PERMISO);
         }
-        try (ObjectOutputStream salida =
-                     new ObjectOutputStream(new FileOutputStream(archivo))) {
+        try (ObjectOutputStream salida = new ObjectOutputStream(new FileOutputStream(archivo))) {
             salida.writeObject(this);
         } catch (NotSerializableException e) {
             throw new ExcepcionDOPOSoccer(
@@ -148,8 +147,7 @@ public class Progreso implements Serializable {
         if (!archivo.canRead()) {
             throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.OPEN_SIN_PERMISO);
         }
-        try (ObjectInputStream entrada =
-                     new ObjectInputStream(new FileInputStream(archivo))) {
+        try (ObjectInputStream entrada = new ObjectInputStream(new FileInputStream(archivo))) {
             Object leido = entrada.readObject();
             if (!(leido instanceof Progreso)) {
                 throw new ExcepcionDOPOSoccer(

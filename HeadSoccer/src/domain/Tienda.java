@@ -19,8 +19,7 @@ public final class Tienda {
      * @return true si el personaje está desbloqueado
      */
     public boolean estaDesbloqueadoPersonaje(String nombre, PerfilJugador perfil) {
-        return nombre != null && perfil != null
-                && perfil.estaDesbloqueadoPersonaje(nombre);
+        return nombre != null && perfil != null && perfil.estaDesbloqueadoPersonaje(nombre);
     }
 
     /**
