@@ -668,8 +668,7 @@ public abstract class Jugador implements Serializable {
             return;
         }
         int salto = estadisticas.getJump();
-        double factorSalto = 1
-                + ParametrosJuego.INCREMENTO_POR_PUNTO * (salto - 1);
+        double factorSalto = 1 + ParametrosJuego.INCREMENTO_POR_PUNTO * (salto - 1);
         velocidadY = -(ParametrosJuego.IMPULSO_SALTO_BASE * factorSalto);
         enSuelo = false;
     }
