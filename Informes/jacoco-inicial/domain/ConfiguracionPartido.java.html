@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConfiguracionPartido.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">ConfiguracionPartido.java</span></div><h1>ConfiguracionPartido.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+public class ConfiguracionPartido implements Serializable {
+    private final Modalidad modalidad;
+    private final TipoPartido tipo;
+    private final Resolucion resolucion;
+    private final int tiempo;
+    private final int goles;
+    private final PerfilIA perfilIA;
+
+    /**
+     * Crea la configuración de un partido sin perfil de IA.
+     *
+     * @param modalidad modalidad del partido
+     * @param tipo tipo de partido
+     * @param resolucion resolución de la cancha
+     * @param tiempo tiempo del partido
+     * @param goles goles necesarios para ganar
+     * @throws ExcepcionDOPOSoccer si algún dato no es válido
+     */
+    public ConfiguracionPartido(Modalidad modalidad, TipoPartido tipo, Resolucion resolucion, int tiempo, int goles)
+            throws ExcepcionDOPOSoccer {
+<span class="fc" id="L25">        this(modalidad, tipo, resolucion, tiempo, goles, null);</span>
+<span class="fc" id="L26">    }</span>
+
+    /**
+     * Crea la configuración de un partido con el perfil de IA indicado.
+     *
+     * @param modalidad modalidad del partido
+     * @param tipo tipo de partido
+     * @param resolucion resolución de la cancha
+     * @param tiempo tiempo del partido
+     * @param goles goles necesarios para ganar
+     * @param perfilIA perfil de comportamiento de la IA
+     * @throws ExcepcionDOPOSoccer si algún dato no es válido
+     */
+    public ConfiguracionPartido(Modalidad modalidad, TipoPartido tipo,
+                                Resolucion resolucion, int tiempo, int goles,
+                                PerfilIA perfilIA)
+<span class="fc" id="L42">            throws ExcepcionDOPOSoccer {</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (modalidad == null) {</span>
+<span class="fc" id="L44">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.MODALIDAD_NULA);</span>
+        }
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        if (tipo == null) {</span>
+<span class="nc" id="L47">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.TIPO_PARTIDO_NULO);</span>
+        }
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        if (resolucion == null) {</span>
+<span class="nc" id="L50">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.RESOLUCION_NULA);</span>
+        }
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (tiempo &lt;= 0) {</span>
+<span class="nc" id="L53">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.TIEMPO_INVALIDO);</span>
+        }
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (goles &lt;= 0) {</span>
+<span class="nc" id="L56">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.GOLES_INVALIDOS);</span>
+        }
+
+<span class="fc" id="L59">        this.modalidad = modalidad;</span>
+<span class="fc" id="L60">        this.tipo = tipo;</span>
+<span class="fc" id="L61">        this.resolucion = resolucion;</span>
+<span class="fc" id="L62">        this.tiempo = tiempo;</span>
+<span class="fc" id="L63">        this.goles = goles;</span>
+<span class="fc" id="L64">        this.perfilIA = perfilIA;</span>
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * Obtiene la modalidad del partido.
+     *
+     * @return modalidad del partido
+     */
+    public Modalidad getModalidad() {
+<span class="fc" id="L73">        return modalidad;</span>
+    }
+
+    /**
+     * Obtiene el tipo de partido.
+     *
+     * @return tipo de partido
+     */
+    public TipoPartido getTipo() {
+<span class="fc" id="L82">        return tipo;</span>
+    }
+
+    /**
+     * Obtiene la resolución de la cancha.
+     *
+     * @return resolución de la cancha
+     */
+    public Resolucion getResolucion() {
+<span class="fc" id="L91">        return resolucion;</span>
+    }
+
+    /**
+     * Obtiene el tiempo del partido.
+     *
+     * @return tiempo del partido
+     */
+    public int getTiempo() {
+<span class="fc" id="L100">        return tiempo;</span>
+    }
+
+    /**
+     * Obtiene los goles necesarios para ganar.
+     *
+     * @return goles necesarios para ganar
+     */
+    public int getGoles() {
+<span class="fc" id="L109">        return goles;</span>
+    }
+
+    /**
+     * Obtiene el perfil de IA del partido.
+     *
+     * @return perfil de IA
+     */
+    public PerfilIA getPerfilIA() {
+<span class="fc" id="L118">        return perfilIA;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

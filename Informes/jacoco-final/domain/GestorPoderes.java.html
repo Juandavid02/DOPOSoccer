@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GestorPoderes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">GestorPoderes.java</span></div><h1>GestorPoderes.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+/**
+ * Administra el tiro de poder activo de un partido: lo crea cuando un aura
+ * toca el balón y lo aplica al rival cuando el balón lo alcanza.
+ */
+<span class="fc" id="L9">public class GestorPoderes implements Serializable {</span>
+
+    private static final long serialVersionUID = 1L;
+
+    private TiroPoder tiroPoder;
+
+    /**
+     * Actualiza el temporizador del tiro de poder activo.
+     *
+     * @param dt tiempo transcurrido en segundos
+     */
+    public void actualizar(double dt) {
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        if (tiroPoder != null) {</span>
+<span class="fc" id="L22">            tiroPoder.actualizar(dt);</span>
+        }
+<span class="fc" id="L24">    }</span>
+
+    /**
+     * Reacciona a un contacto entre un jugador y el balón.
+     *
+     * @param jugador jugador que tocó el balón
+     * @param balon balón del partido
+     */
+    public void alContactarBalon(Jugador jugador, Balon balon) {
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (jugador.isAuraActiva()) {</span>
+<span class="fc" id="L34">            disparar(jugador, balon);</span>
+        }
+
+        // Un tiro de poder activo golpea al rival (nunca a su dueño).
+<span class="pc bpc" id="L38" title="2 of 6 branches missed.">        if (tiroPoder != null &amp;&amp; tiroPoder.isActivo() &amp;&amp; tiroPoder.getDueno() != jugador) {</span>
+<span class="fc" id="L39">            impactar(jugador);</span>
+        }
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * Devuelve el tiro de poder activo.
+     *
+     * @return tiro de poder o null si no hay ninguno
+     */
+    public TiroPoder getTiroPoder() {
+<span class="fc" id="L49">        return tiroPoder;</span>
+    }
+
+    /**
+     * Descarta el tiro de poder activo.
+     */
+    public void limpiar() {
+<span class="fc" id="L56">        tiroPoder = null;</span>
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * Consume el aura del jugador y lanza su tiro de poder.
+     */
+    private void disparar(Jugador jugador, Balon balon) {
+<span class="fc" id="L63">        Poder poder = jugador.getPersonaje().getPoder();</span>
+<span class="fc" id="L64">        jugador.consumirAura();</span>
+
+<span class="fc" id="L66">        double direccion = -1;</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (jugador.getLado() == Lado.IZQUIERDO) {</span>
+<span class="fc" id="L68">            direccion = 1;</span>
+        }
+<span class="fc" id="L70">        balon.establecerVelocidad(direccion * poder.getImpulsoX(), poder.getImpulsoY());</span>
+
+<span class="fc" id="L72">        tiroPoder = new TiroPoder(jugador, poder);</span>
+<span class="fc" id="L73">    }</span>
+
+    /**
+     * Aplica al rival el daño y el efecto del tiro de poder activo.
+     */
+    private void impactar(Jugador rival) {
+<span class="fc" id="L79">        Jugador dueno = tiroPoder.getDueno();</span>
+<span class="fc" id="L80">        Poder poder = tiroPoder.getPoder();</span>
+
+<span class="fc" id="L82">        double dano = poder.getDanoTiro(dueno) * dueno.getEstadisticas().getMultiplicadorKick();</span>
+<span class="fc" id="L83">        rival.recibirDanio(dano);</span>
+<span class="fc" id="L84">        rival.aplicarEfecto(poder.crearEfecto());</span>
+
+<span class="fc" id="L86">        tiroPoder.desactivar();</span>
+<span class="fc" id="L87">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

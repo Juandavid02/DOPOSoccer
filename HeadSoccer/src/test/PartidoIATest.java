@@ -141,4 +141,22 @@ class PartidoIATest {
         assertThrows(IllegalArgumentException.class,
                 () -> FabricaControladorIA.crear(null));
     }
+
+    /**
+     * Verifica que la IA defensiva retroceda desde su posición inicial.
+     *
+     * @throws Exception si la configuración del partido no es válida
+     */
+    @Test
+    void laIADefensivaRetrocedeHaciaSuArco() throws Exception {
+        Partido partido = crearPartido(PerfilIA.DEFENSIVA);
+        double posicionInicial = partido.getJugadores().get(1).getPosicionX();
+
+        for (int i = 0; i < 60; i++) {
+            partido.actualizar(1.0 / 60.0);
+        }
+
+        assertTrue(partido.getJugadores().get(1).getPosicionX()
+                < posicionInicial);
+    }
 }

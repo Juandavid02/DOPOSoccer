@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Vida.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Vida.java</span></div><h1>Vida.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+public class Vida implements Serializable {
+    private double actual;
+    private double maxima;
+
+    /**
+     * Crea la vida con su valor máximo.
+     *
+     * @param maxima vida máxima
+     * @throws IllegalArgumentException si la vida máxima no es mayor que cero
+     */
+<span class="fc" id="L15">    public Vida(double maxima) {</span>
+<span class="fc bfc" id="L16" title="All 2 branches covered.">        if (maxima &lt;= 0) {</span>
+<span class="fc" id="L17">            throw new IllegalArgumentException(&quot;La vida máxima debe ser mayor que cero&quot;);</span>
+        }
+<span class="fc" id="L19">        this.maxima = maxima;</span>
+<span class="fc" id="L20">        this.actual = maxima;</span>
+<span class="fc" id="L21">    }</span>
+
+    /**
+     * Obtiene la vida actual.
+     *
+     * @return vida actual
+     */
+    public double getActual() {
+<span class="fc" id="L29">        return actual;</span>
+    }
+
+    /**
+     * Obtiene la vida máxima.
+     *
+     * @return vida máxima
+     */
+    public double getMaxima() {
+<span class="fc" id="L38">        return maxima;</span>
+    }
+
+    /**
+     * Cambia la vida máxima conservando el porcentaje de vida actual. Se usa
+     * cuando un efecto modifica temporalmente las estadísticas del jugador.
+     *
+     * @param maxima nueva vida máxima
+     */
+    public void ajustarMaximaManteniendoProporcion(double maxima) {
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (maxima &lt;= 0) {</span>
+<span class="nc" id="L49">            throw new IllegalArgumentException(&quot;La vida máxima debe ser mayor que cero&quot;);</span>
+        }
+<span class="fc" id="L51">        double proporcion = 1;</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (this.maxima &gt; 0) {</span>
+<span class="fc" id="L53">            proporcion = this.actual / this.maxima;</span>
+        }
+<span class="fc" id="L55">        this.maxima = maxima;</span>
+<span class="fc" id="L56">        this.actual = Math.max(0, Math.min(maxima, maxima * proporcion));</span>
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * Reduce la vida actual por el daño recibido.
+     *
+     * @param danio daño recibido
+     * @throws IllegalArgumentException si el daño es negativo
+     */
+    public void recibirDanio(double danio) {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (danio &lt; 0) {</span>
+<span class="fc" id="L67">            throw new IllegalArgumentException(&quot;El daño no puede ser negativo&quot;);</span>
+        }
+<span class="fc" id="L69">        actual -= danio;</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (actual &lt; 0) {</span>
+<span class="fc" id="L71">            actual = 0;</span>
+        }
+<span class="fc" id="L73">    }</span>
+
+    /**
+     * Indica si la vida llegó a cero.
+     *
+     * @return true si la vida actual es cero
+     */
+    public boolean estaEnCero() {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        return actual &lt;= 0;</span>
+    }
+
+    /**
+     * Restaura la vida actual a su valor máximo.
+     */
+    public void reiniciar() {
+<span class="fc" id="L88">        actual = maxima;</span>
+<span class="fc" id="L89">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

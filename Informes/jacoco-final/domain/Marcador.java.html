@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Marcador.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Marcador.java</span></div><h1>Marcador.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+public class Marcador implements Serializable {
+    private int golesJugador1;
+    private int golesJugador2;
+
+    /**
+     * Crea un marcador en cero.
+     */
+<span class="fc" id="L12">    public Marcador() {</span>
+<span class="fc" id="L13">        this.golesJugador1 = 0;</span>
+<span class="fc" id="L14">        this.golesJugador2 = 0;</span>
+<span class="fc" id="L15">    }</span>
+
+    /**
+     * Obtiene los goles de un jugador.
+     *
+     * @param jugador número de jugador, 1 o 2
+     * @return goles del jugador indicado
+     * @throws IllegalArgumentException si el número de jugador no es 1 ni 2
+     */
+    public int getGoles(int jugador) {
+<span class="fc bfc" id="L25" title="All 4 branches covered.">        if (jugador != 1 &amp;&amp; jugador != 2) {</span>
+<span class="fc" id="L26">            throw new IllegalArgumentException(&quot;El número de jugador debe ser 1 o 2&quot;);</span>
+        }
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (jugador == 1) {</span>
+<span class="fc" id="L29">            return golesJugador1;</span>
+        } else {
+<span class="fc" id="L31">            return golesJugador2;</span>
+        }
+    }
+
+    /**
+     * Suma un gol al jugador indicado.
+     *
+     * @param jugador número de jugador, 1 o 2
+     * @throws IllegalArgumentException si el número de jugador no es 1 ni 2
+     */
+    public void sumarGol(int jugador) {
+<span class="fc bfc" id="L42" title="All 4 branches covered.">        if (jugador != 1 &amp;&amp; jugador != 2) {</span>
+<span class="fc" id="L43">            throw new IllegalArgumentException(&quot;El número de jugador debe ser 1 o 2&quot;);</span>
+        }
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (jugador == 1) {</span>
+<span class="fc" id="L46">            golesJugador1++;</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        } else if (jugador == 2) {</span>
+<span class="fc" id="L48">            golesJugador2++;</span>
+        }
+<span class="fc" id="L50">    }</span>
+
+    /**
+     * Indica si el marcador está empatado.
+     *
+     * @return true si ambos jugadores tienen los mismos goles
+     */
+    public boolean hayEmpate() {
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        return golesJugador1 == golesJugador2;</span>
+    }
+
+    /**
+     * Obtiene el número del jugador con más goles.
+     *
+     * @return 1 o 2 según el ganador, o 0 si hay empate
+     */
+    public int getGanador() {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (golesJugador1 &gt; golesJugador2) {</span>
+<span class="fc" id="L68">            return 1;</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        } else if (golesJugador2 &gt; golesJugador1) {</span>
+<span class="fc" id="L70">            return 2;</span>
+        } else {
+<span class="fc" id="L72">            return 0;</span>
+        }
+    }
+
+    /**
+     * Reinicia los goles de ambos jugadores a cero.
+     */
+    public void reiniciar(){
+<span class="fc" id="L80">        this.golesJugador1 = 0;</span>
+<span class="fc" id="L81">        this.golesJugador2 = 0;</span>
+<span class="fc" id="L82">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

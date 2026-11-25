@@ -7,7 +7,7 @@ package domain;
  * viven aquí para no quedar hardcodeados en la lógica. Las dimensiones de la
  * cancha ya no están aquí: las define Resolucion.
  */
-public class ParametrosJuego {
+public final class ParametrosJuego {
 
     // Física
     public static final double GRAVEDAD = 1200;

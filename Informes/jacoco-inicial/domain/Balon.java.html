@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Balon.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Balon.java</span></div><h1>Balon.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+public class Balon implements Serializable {
+    private double x;
+    private double y;
+    private double velocidadX;
+    private double velocidadY;
+    private double radio;
+
+    /**
+     * Crea un balón en la posición indicada y sin velocidad.
+     *
+     * @param x coordenada horizontal inicial
+     * @param y coordenada vertical inicial
+     * @param radio radio del balón
+     */
+<span class="fc" id="L18">    public Balon(double x, double y, double radio) {</span>
+<span class="fc" id="L19">        this.x = x;</span>
+<span class="fc" id="L20">        this.y = y;</span>
+<span class="fc" id="L21">        this.radio = radio;</span>
+<span class="fc" id="L22">        this.velocidadX = 0;</span>
+<span class="fc" id="L23">        this.velocidadY = 0;</span>
+<span class="fc" id="L24">    }</span>
+
+    /**
+     * Obtiene la coordenada horizontal del balón.
+     *
+     * @return coordenada horizontal
+     */
+    public double getX() {
+<span class="fc" id="L32">        return x;</span>
+    }
+
+    /**
+     * Obtiene la coordenada vertical del balón.
+     *
+     * @return coordenada vertical
+     */
+    public double getY() {
+<span class="fc" id="L41">        return y;</span>
+    }
+
+    /**
+     * Obtiene el radio del balón.
+     *
+     * @return radio del balón
+     */
+    public double getRadio() {
+<span class="fc" id="L50">        return radio;</span>
+    }
+
+    /**
+     * Obtiene la velocidad horizontal del balón.
+     *
+     * @return velocidad horizontal
+     */
+    public double getVelocidadX() {
+<span class="fc" id="L59">        return velocidadX;</span>
+    }
+
+    /**
+     * Obtiene la velocidad vertical del balón.
+     *
+     * @return velocidad vertical
+     */
+    public double getVelocidadY() {
+<span class="fc" id="L68">        return velocidadY;</span>
+    }
+
+    /**
+     * Suma un impulso a la velocidad del balón.
+     *
+     * @param impulsoX impulso horizontal
+     * @param impulsoY impulso vertical
+     */
+    public void aplicarImpulso(double impulsoX, double impulsoY) {
+<span class="fc" id="L78">        this.velocidadX += impulsoX;</span>
+<span class="fc" id="L79">        this.velocidadY += impulsoY;</span>
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Fija la velocidad del balón. Se usa al ejecutar un tiro de poder para
+     * que salga con la trayectoria exacta del poder.
+     *
+     * @param velocidadX nueva velocidad horizontal
+     * @param velocidadY nueva velocidad vertical
+     */
+    public void establecerVelocidad(double velocidadX, double velocidadY) {
+<span class="fc" id="L90">        this.velocidadX = velocidadX;</span>
+<span class="fc" id="L91">        this.velocidadY = velocidadY;</span>
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * Actualiza la posición del balón aplicando gravedad, fricción y rebotes.
+     *
+     * @param dt tiempo transcurrido
+     * @param cancha cancha donde se mueve el balón
+     */
+    public void actualizar(double dt, Cancha cancha) {
+<span class="fc" id="L101">        velocidadY += ParametrosJuego.GRAVEDAD * dt;</span>
+        // IA Generativa para que el juego no dependa de la velocidad de fotogramas y se comporte igual en cualquier máquina.
+<span class="fc" id="L103">        velocidadX *= Math.pow(ParametrosJuego.FRICCION, dt*60);</span>
+<span class="fc" id="L104">        x += velocidadX * dt;</span>
+<span class="fc" id="L105">        y += velocidadY * dt;</span>
+
+<span class="fc" id="L107">        double suelo = cancha.getSuelo();</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (y + radio &gt;= suelo) {</span>
+<span class="fc" id="L109">            y = suelo - radio;</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">            if (velocidadY &gt; 0) {</span>
+<span class="fc" id="L111">                velocidadY = -velocidadY * ParametrosJuego.REBOTE;</span>
+<span class="fc" id="L112">                velocidadX *= ParametrosJuego.PERDIDA_REBOTE;</span>
+            }
+        }
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (y - radio &lt;= 0) {</span>
+<span class="fc" id="L116">            y = radio;</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">            if (velocidadY &lt; 0) {</span>
+<span class="fc" id="L118">                velocidadY = -velocidadY * ParametrosJuego.REBOTE;</span>
+<span class="fc" id="L119">                velocidadX *= ParametrosJuego.PERDIDA_REBOTE;</span>
+            }
+        }
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (x - radio &lt;= 0) {</span>
+<span class="fc" id="L124">            x = radio;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            if (velocidadX &lt; 0) {</span>
+<span class="fc" id="L126">                velocidadX = -velocidadX * ParametrosJuego.PERDIDA_REBOTE;</span>
+            }
+        }
+
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (x + radio &gt; cancha.getAncho()) {</span>
+<span class="fc" id="L131">            x = cancha.getAncho() - radio;</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">            if (velocidadX &gt; 0) {</span>
+<span class="fc" id="L133">                velocidadX = -velocidadX * ParametrosJuego.PERDIDA_REBOTE;</span>
+            }
+        }
+<span class="fc" id="L136">    }</span>
+
+    /**
+     * Reinicia la posición del balón y detiene su movimiento.
+     *
+     * @param x nueva coordenada horizontal
+     * @param y nueva coordenada vertical
+     */
+    public void reiniciar(double x, double y) {
+<span class="fc" id="L145">        this.x = x;</span>
+<span class="fc" id="L146">        this.y = y;</span>
+<span class="fc" id="L147">        this.velocidadX = 0;</span>
+<span class="fc" id="L148">        this.velocidadY = 0;</span>
+<span class="fc" id="L149">    }</span>
+
+    /**
+     * Mueve el balón sin cambiar su velocidad. Se usa para sacarlo de un
+     * personaje cuando hay una colisión.
+     *
+     * @param x nueva posición horizontal
+     * @param y nueva posición vertical
+     */
+    public void reubicar(double x, double y) {
+<span class="fc" id="L159">        this.x = x;</span>
+<span class="fc" id="L160">        this.y = y;</span>
+<span class="fc" id="L161">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

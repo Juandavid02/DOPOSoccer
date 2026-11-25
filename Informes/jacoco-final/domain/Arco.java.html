@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Arco.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Arco.java</span></div><h1>Arco.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+public class Arco implements Serializable {
+    private final double x;
+    private final double y;
+    private final double ancho;
+    private final double alto;
+
+    /**
+     * Crea un arco en la posición indicada.
+     *
+     * @param x coordenada horizontal del arco
+     * @param y coordenada vertical del arco
+     */
+<span class="fc" id="L17">    public Arco(double x, double y) {</span>
+<span class="fc" id="L18">        this.x = x;</span>
+<span class="fc" id="L19">        this.y = y;</span>
+<span class="fc" id="L20">        this.ancho = ParametrosJuego.ANCHO_ARCO;</span>
+<span class="fc" id="L21">        this.alto = ParametrosJuego.ALTO_ARCO;</span>
+<span class="fc" id="L22">    }</span>
+
+    /**
+     * Obtiene la coordenada horizontal del arco.
+     *
+     * @return coordenada horizontal
+     */
+    public double getX() {
+<span class="fc" id="L30">        return x;</span>
+    }
+
+    /**
+     * Obtiene la coordenada vertical del arco.
+     *
+     * @return coordenada vertical
+     */
+    public double getY() {
+<span class="fc" id="L39">        return y;</span>
+    }
+
+    /**
+     * Obtiene el ancho del arco.
+     *
+     * @return ancho del arco
+     */
+    public double getAncho() {
+<span class="fc" id="L48">        return ancho;</span>
+    }
+
+    /**
+     * Obtiene el alto del arco.
+     *
+     * @return alto del arco
+     */
+    public double getAlto() {
+<span class="fc" id="L57">        return alto;</span>
+    }
+
+    /**
+     * Indica si el balón está a la altura de la boca del arco.
+     *
+     * @param yBalon coordenada vertical del balón
+     * @param radio radio del balón
+     * @return true si el balón está en la boca del arco
+     */
+    public boolean estaEnBoca(double yBalon, double radio) {
+<span class="pc bpc" id="L68" title="1 of 4 branches missed.">        return yBalon + radio &gt;= y &amp;&amp; yBalon - radio &lt;= y + alto;</span>
+    }
+
+    /**
+     * Indica si el balón está completamente dentro del arco.
+     *
+     * @param balon balón que se evalúa
+     * @return true si el balón está dentro del arco
+     */
+    public boolean estaDentro(Balon balon) {
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        return balon.getX() - balon.getRadio() &gt;= x &amp;&amp;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            balon.getX() + balon.getRadio() &lt;= x + ancho &amp;&amp;</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            balon.getY() - balon.getRadio() &gt;= y &amp;&amp;</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">            balon.getY() + balon.getRadio() &lt;= y + alto;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Partido.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Partido.java</span></div><h1>Partido.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+import java.util.List;
+
+public class Partido implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private final Modalidad modalidad;
+    private final TipoPartido tipo;
+    private final List&lt;Jugador&gt; jugadores;
+    private final Balon balon;
+    private final Cancha cancha;
+    private final Marcador marcador;
+    private EstadoPartido estado;
+    private double tiempoRestante;
+    private ResultadoPartido resultado;
+    private final Resolucion resolucion;
+    private final ReglaPartido regla;
+    private final PerfilIA perfilIA;
+    private final boolean otorgarPuntos;
+    private final double tiempoTotal;
+    private double tiempoTranscurrido;
+    private int puntosJugador1;
+    private int puntosJugador2;
+<span class="fc" id="L27">    private final GestorPoderes gestorPoderes = new GestorPoderes();</span>
+    private boolean patadaJugador1;
+    private boolean patadaJugador2;
+
+    /**
+     * Crea un partido sin perfil de IA y otorgando puntos.
+     *
+     * @param configuracion configuración del partido
+     * @param p1 personaje del jugador 1
+     * @param p2 personaje del jugador 2
+     * @param configuracion1 configuración del jugador 1
+     * @param configuracion2 configuración del jugador 2
+     */
+    public Partido(ConfiguracionPartido configuracion, Personaje p1,
+                    Personaje p2, ConfiguracionJugador configuracion1,
+                    ConfiguracionJugador configuracion2) {
+<span class="fc" id="L43">        this(configuracion, p1, p2, configuracion1, configuracion2, null, true);</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Crea un partido con un perfil de IA y otorgando puntos.
+     *
+     * @param configuracion configuración del partido
+     * @param p1 personaje del jugador 1
+     * @param p2 personaje del jugador 2
+     * @param configuracion1 configuración del jugador 1
+     * @param configuracion2 configuración del jugador 2
+     * @param perfilIA perfil de comportamiento de la máquina
+     */
+    public Partido(ConfiguracionPartido configuracion, Personaje p1, Personaje p2,
+                    ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2,
+                    PerfilIA perfilIA) {
+<span class="fc" id="L59">        this(configuracion, p1, p2, configuracion1, configuracion2, perfilIA, true);</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Crea un partido con todos sus datos.
+     *
+     * @param configuracion configuración del partido
+     * @param p1 personaje del jugador 1
+     * @param p2 personaje del jugador 2
+     * @param configuracion1 configuración del jugador 1
+     * @param configuracion2 configuración del jugador 2
+     * @param perfilIA perfil de comportamiento de la máquina
+     * @param otorgarPuntos indica si el partido reparte puntos al terminar
+     */
+    public Partido(ConfiguracionPartido configuracion, Personaje p1, Personaje p2,
+                    ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2,
+<span class="fc" id="L75">                    PerfilIA perfilIA, boolean otorgarPuntos) {</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (configuracion == null) {</span>
+<span class="nc" id="L77">            throw new IllegalArgumentException(&quot;La configuración del partido no puede ser nula&quot;);</span>
+        }
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (p1 == null) {</span>
+<span class="nc" id="L80">            throw new IllegalArgumentException(&quot;El personaje 1 no puede ser nulo&quot;);</span>
+        }
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (p2 == null) {</span>
+<span class="nc" id="L83">            throw new IllegalArgumentException(&quot;El personaje 2 no puede ser nulo&quot;);</span>
+        }
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (configuracion1 == null) {</span>
+<span class="nc" id="L86">            throw new IllegalArgumentException(&quot;La configuración del jugador 1 no puede ser nula&quot;);</span>
+        }
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (configuracion2 == null) {</span>
+<span class="nc" id="L89">            throw new IllegalArgumentException(&quot;La configuración del jugador 2 no puede ser nula&quot;);</span>
+        }
+<span class="fc" id="L91">        this.modalidad = configuracion.getModalidad();</span>
+<span class="fc" id="L92">        this.tipo = configuracion.getTipo();</span>
+<span class="fc" id="L93">        this.resolucion = configuracion.getResolucion();</span>
+        // Si el perfil de la IA viene en la configuración, se usa como
+        // respaldo para que el constructor corto también funcione en PvsM.
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (perfilIA != null) {</span>
+<span class="fc" id="L97">            this.perfilIA = perfilIA;</span>
+        } else {
+<span class="fc" id="L99">            this.perfilIA = configuracion.getPerfilIA();</span>
+        }
+<span class="pc bpc" id="L101" title="1 of 4 branches missed.">        if (modalidad == Modalidad.PvsM &amp;&amp; this.perfilIA == null) {</span>
+<span class="nc" id="L102">            throw new IllegalArgumentException(</span>
+                    &quot;En PvsM se necesita el perfil de la IA&quot;);
+        }
+<span class="fc" id="L105">        this.otorgarPuntos = otorgarPuntos;</span>
+<span class="fc" id="L106">        this.cancha = new Cancha(resolucion);</span>
+<span class="fc" id="L107">        this.jugadores = FabricaJugadores.crear(p1, p2, configuracion1,</span>
+                configuracion2, cancha, modalidad, this.perfilIA);
+<span class="fc" id="L109">        this.balon = new Balon(</span>
+<span class="fc" id="L110">                cancha.getAncho() / 2.0,</span>
+<span class="fc" id="L111">                cancha.getSuelo() - ParametrosJuego.RADIO_BALON,</span>
+                ParametrosJuego.RADIO_BALON);
+<span class="fc" id="L113">        this.marcador = new Marcador();</span>
+<span class="fc" id="L114">        this.estado = EstadoPartido.LISTO;</span>
+<span class="fc" id="L115">        this.tiempoTotal = configuracion.getTiempo() * 60.0;</span>
+<span class="fc" id="L116">        this.tiempoRestante = tiempoTotal;</span>
+<span class="fc" id="L117">        this.regla = ReglaFactory.crearRegla(configuracion);</span>
+<span class="fc" id="L118">        this.tiempoTranscurrido = 0;</span>
+<span class="fc" id="L119">    }</span>
+
+    /**
+     * Actualiza el estado del partido durante un instante.
+     *
+     * @param dt tiempo transcurrido en segundos
+     */
+    public void actualizar(double dt) {
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        if (dt &lt;= 0) {</span>
+<span class="nc" id="L128">            return;</span>
+        }
+<span class="pc bpc" id="L130" title="1 of 4 branches missed.">        if (estado == EstadoPartido.PAUSADO || estado == EstadoPartido.TERMINADO) {</span>
+<span class="fc" id="L131">            return;</span>
+        }
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (estado == EstadoPartido.LISTO) {</span>
+<span class="fc" id="L134">            estado = EstadoPartido.EN_CURSO;</span>
+        }
+
+<span class="fc" id="L137">        actualizarReloj(dt);</span>
+<span class="fc" id="L138">        actualizarEntidades(dt);</span>
+<span class="fc" id="L139">        resolverColisiones(dt);</span>
+<span class="fc" id="L140">        detectarGoles();</span>
+
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (regla.terminado(this)) {</span>
+<span class="fc" id="L143">            terminar(regla.getMotivo());</span>
+        }
+<span class="fc" id="L145">    }</span>
+
+    /**
+     * Avanza el tiempo del partido y descuenta el tiempo restante.
+     */
+    private void actualizarReloj(double dt) {
+<span class="fc" id="L151">        tiempoTranscurrido += dt;</span>
+<span class="fc bfc" id="L152" title="All 4 branches covered.">        if (tipo == TipoPartido.TIEMPO &amp;&amp; tiempoRestante &gt; 0) {</span>
+<span class="fc" id="L153">            tiempoRestante -= dt;</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">            if (tiempoRestante &lt; 0) {</span>
+<span class="nc" id="L155">                tiempoRestante = 0;</span>
+            }
+        }
+<span class="fc" id="L158">    }</span>
+
+    /**
+     * Actualiza el balón, los jugadores y el tiro de poder.
+     */
+    private void actualizarEntidades(double dt) {
+<span class="fc" id="L164">        balon.actualizar(dt, cancha);</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (Jugador jugador : jugadores) {</span>
+<span class="fc" id="L166">            jugador.actualizarControl(this, dt);</span>
+<span class="fc" id="L167">            jugador.actualizar(dt, cancha);</span>
+<span class="fc" id="L168">            jugador.getBarraPoder().actualizarBarra(dt);</span>
+<span class="fc" id="L169">        }</span>
+<span class="fc" id="L170">        gestorPoderes.actualizar(dt);</span>
+<span class="fc" id="L171">    }</span>
+
+    /**
+     * Resuelve todas las colisiones del instante.
+     */
+    private void resolverColisiones(double dt) {
+<span class="fc" id="L177">        FisicaPartido.resolverJugadores(jugadores, cancha);</span>
+
+        // La física detecta los contactos; el partido decide qué efecto
+        // tienen sobre los poderes.
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        for (Jugador jugador : FisicaPartido.resolverBalonJugadores(jugadores, balon, cancha)) {</span>
+<span class="fc" id="L182">            gestorPoderes.alContactarBalon(jugador, balon);</span>
+<span class="fc" id="L183">        }</span>
+
+<span class="fc" id="L185">        FisicaPartido.resolverBalonAtrapado(jugadores.get(0), jugadores.get(1),balon, cancha, dt);</span>
+<span class="fc" id="L186">        ColisionesArcos.resolver(balon, cancha);</span>
+<span class="fc" id="L187">    }</span>
+
+    /**
+     * Detecta si el balón entró en algún arco y actualiza el marcador.
+     */
+    private void detectarGoles() {
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        if (cancha.getArcoIzquierdo().estaDentro(balon)) {</span>
+<span class="fc" id="L194">            marcador.sumarGol(2);</span>
+            // El jugador 1 recibió el gol: su barra sube un cuarto.
+<span class="fc" id="L196">            jugador(1).getBarraPoder().sumarFraccion(</span>
+                    ParametrosJuego.FRACCION_BARRA_POR_GOL);
+<span class="fc" id="L198">            reiniciarDespuesDeGol();</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        } else if (cancha.getArcoDerecho().estaDentro(balon)) {</span>
+<span class="fc" id="L200">            marcador.sumarGol(1);</span>
+            // El jugador 2 recibió el gol: su barra sube un cuarto.
+<span class="fc" id="L202">            jugador(2).getBarraPoder().sumarFraccion(</span>
+                    ParametrosJuego.FRACCION_BARRA_POR_GOL);
+<span class="fc" id="L204">            reiniciarDespuesDeGol();</span>
+        }
+<span class="fc" id="L206">    }</span>
+
+    /**
+     * Mueve a un jugador si el partido está en juego.
+     *
+     * @param jugador número del jugador: 1 o 2
+     * @param dx desplazamiento horizontal
+     */
+    public void mover(int jugador, double dx) {
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        if (!puedeJugar()) {</span>
+<span class="fc" id="L216">            return;</span>
+        }
+<span class="fc" id="L218">        jugador(jugador).mover(dx, cancha);</span>
+<span class="fc" id="L219">    }</span>
+
+    /**
+     * Hace saltar a un jugador si el partido está en juego.
+     *
+     * @param jugador número del jugador: 1 o 2
+     */
+    public void saltar(int jugador) {
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (!puedeJugar()) {</span>
+<span class="nc" id="L228">            return;</span>
+        }
+<span class="nc" id="L230">        jugador(jugador).saltar();</span>
+<span class="nc" id="L231">    }</span>
+
+    /**
+     * Activa el aura de poder de un jugador si su barra está llena y no
+     * tiene ya un aura activa.
+     *
+     * @param jugador número del jugador: 1 o 2
+     * @return true si el aura se activó
+     */
+    public boolean activarPoder(int jugador) {
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">        if (!puedeJugar()) {</span>
+<span class="nc" id="L242">            return false;</span>
+        }
+
+<span class="fc" id="L245">        Jugador jugadorActual = jugador(jugador);</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        if (jugadorActual.isAuraActiva()) {</span>
+<span class="fc" id="L247">            return false;</span>
+        }
+<span class="fc bfc" id="L249" title="All 2 branches covered.">        if (!jugadorActual.getBarraPoder().consumir()) {</span>
+<span class="fc" id="L250">            return false;</span>
+        }
+
+<span class="fc" id="L253">        jugadorActual.activarAura();</span>
+<span class="fc" id="L254">        return true;</span>
+    }
+
+    /**
+     * Indica si un jugador tiene sus controles invertidos por el Beso de la Fea.
+     *
+     * @param jugador número del jugador: 1 o 2
+     * @return true si debe invertir sus teclas
+     */
+    public boolean tieneControlesInvertidos(int jugador) {
+<span class="fc" id="L264">        return jugador(jugador).tieneControlesInvertidos();</span>
+    }
+
+    /**
+     * Devuelve el tiro de poder activo del partido.
+     *
+     * @return tiro de poder activo o null si no hay ninguno
+     */
+    public TiroPoder getTiroPoder() {
+<span class="fc" id="L273">        return gestorPoderes.getTiroPoder();</span>
+    }
+
+    /**
+     * Ejecuta la patada de un jugador e impacta al rival si está al alcance.
+     *
+     * @param jugador número del jugador: 1 o 2
+     */
+    public void patear(int jugador) {
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">        if (!puedeJugar()) {</span>
+<span class="nc" id="L283">            return;</span>
+        }
+<span class="fc" id="L285">        Jugador pateador = jugador(jugador);</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">        if (!pateador.puedePatear()) {</span>
+<span class="nc" id="L287">            return;</span>
+        }
+<span class="pc bpc" id="L289" title="1 of 2 branches missed.">        if (jugador == 1) {</span>
+<span class="fc" id="L290">            patadaJugador1 = true;</span>
+        } else {
+<span class="nc" id="L292">            patadaJugador2 = true;</span>
+        }
+
+        // Si la patada toca el balón, solo se impulsa el balón.
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">        if (pateador.patear(balon)) {</span>
+<span class="fc" id="L297">            return;</span>
+        }
+
+        Jugador rival;
+<span class="nc bnc" id="L301" title="All 2 branches missed.">        if (jugador == 1) {</span>
+<span class="nc" id="L302">            rival = jugador(2);</span>
+        } else {
+<span class="nc" id="L304">            rival = jugador(1);</span>
+        }
+<span class="nc bnc" id="L306" title="All 2 branches missed.">        if (rivalEstaAlAlcanceDePatada(pateador, rival)) {</span>
+<span class="nc" id="L307">            rival.recibirDanio(pateador.getEstadisticas().getDanoPatada());</span>
+        }
+<span class="nc" id="L309">    }</span>
+
+    /**
+     * Indica si hubo una patada desde la última consulta y reinicia el aviso.
+     * Lo usa la presentación para animar la patada de la máquina.
+     *
+     * @param jugador número del jugador: 1 o 2
+     * @return true si el jugador pateó desde la última consulta
+     */
+    public boolean consumirPatada(int jugador) {
+<span class="nc bnc" id="L319" title="All 2 branches missed.">        if (jugador == 1) {</span>
+<span class="nc" id="L320">            boolean hubo = patadaJugador1;</span>
+<span class="nc" id="L321">            patadaJugador1 = false;</span>
+<span class="nc" id="L322">            return hubo;</span>
+        }
+<span class="nc" id="L324">        boolean hubo = patadaJugador2;</span>
+<span class="nc" id="L325">        patadaJugador2 = false;</span>
+<span class="nc" id="L326">        return hubo;</span>
+    }
+
+    /**
+     * Indica si el rival está al alcance de la bota del pateador.
+     *
+     * @param pateador jugador que patea
+     * @param rival jugador rival
+     * @return true si la patada alcanza al rival
+     */
+    private boolean rivalEstaAlAlcanceDePatada(Jugador pateador, Jugador rival) {
+<span class="nc" id="L337">        double distanciaCabeza = Math.hypot(</span>
+<span class="nc" id="L338">                pateador.getBotaX() - rival.getCabezaX(),</span>
+<span class="nc" id="L339">                pateador.getBotaY() - rival.getCabezaY());</span>
+<span class="nc" id="L340">        double distanciaBota = Math.hypot(</span>
+<span class="nc" id="L341">                pateador.getBotaX() - rival.getBotaX(),</span>
+<span class="nc" id="L342">                pateador.getBotaY() - rival.getBotaY());</span>
+
+<span class="nc" id="L344">        double alcanceCabeza = ParametrosJuego.RADIO_BOTA_JUGADOR</span>
+                + ParametrosJuego.RADIO_CABEZA_JUGADOR
+                + ParametrosJuego.TOLERANCIA_GOLPE_PATADA;
+<span class="nc" id="L347">        double alcanceBota = ParametrosJuego.RADIO_BOTA_JUGADOR * 2</span>
+                + ParametrosJuego.TOLERANCIA_GOLPE_PATADA * 2;
+
+<span class="nc bnc" id="L350" title="All 4 branches missed.">        return distanciaCabeza &lt;= alcanceCabeza || distanciaBota &lt;= alcanceBota;</span>
+    }
+
+    /**
+     * Suma un gol al marcador del jugador indicado.
+     *
+     * @param jugador número del jugador: 1 o 2
+     */
+    public void sumarGol(int jugador) {
+<span class="fc" id="L359">        marcador.sumarGol(jugador);</span>
+<span class="fc" id="L360">    }</span>
+
+    /**
+     * Reinicia el partido después de un gol.
+     */
+    public void reiniciarDespuesDeGol() {
+<span class="fc" id="L366">        gestorPoderes.limpiar();</span>
+<span class="fc" id="L367">        balon.reiniciar(cancha.getAncho() / 2.0, cancha.getAlto() / 2.0);</span>
+<span class="fc" id="L368">        jugador(1).limpiarEfectos();</span>
+<span class="fc" id="L369">        jugador(2).limpiarEfectos();</span>
+<span class="fc" id="L370">        jugador(1).reiniciar(cancha.getAncho() / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);</span>
+<span class="fc" id="L371">        jugador(2).reiniciar(cancha.getAncho() * 3.0 / 4.0, cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);</span>
+<span class="fc" id="L372">    }</span>
+
+    /**
+     * Pausa el partido si está listo o en curso.
+     */
+    public void pausar() {
+<span class="pc bpc" id="L378" title="1 of 4 branches missed.">        if (estado == EstadoPartido.LISTO || estado == EstadoPartido.EN_CURSO) {</span>
+<span class="fc" id="L379">            estado = EstadoPartido.PAUSADO;</span>
+        }
+<span class="fc" id="L381">    }</span>
+
+    /**
+     * Reanuda el partido si estaba pausado.
+     */
+    public void reanudar() {
+<span class="pc bpc" id="L387" title="1 of 2 branches missed.">        if (estado == EstadoPartido.PAUSADO) {</span>
+<span class="fc" id="L388">            estado = EstadoPartido.EN_CURSO;</span>
+        }
+<span class="fc" id="L390">    }</span>
+
+    /**
+     * Termina el partido por fin de tiempo.
+     */
+    public void terminar() {
+<span class="fc" id="L396">        terminar(MotivoFin.TIEMPO);</span>
+<span class="fc" id="L397">    }</span>
+
+    /**
+     * Termina el partido con el motivo indicado.
+     *
+     * @param motivo motivo de finalización
+     */
+    public void terminar(MotivoFin motivo) {
+<span class="pc bpc" id="L405" title="1 of 2 branches missed.">        if (motivo == null) {</span>
+<span class="nc" id="L406">            throw new IllegalArgumentException(&quot;El motivo de finalización no puede ser nulo&quot;);</span>
+        }
+<span class="pc bpc" id="L408" title="1 of 2 branches missed.">        if (estado == EstadoPartido.TERMINADO) {</span>
+<span class="nc" id="L409">            return;</span>
+        }
+<span class="fc" id="L411">        estado = EstadoPartido.TERMINADO;</span>
+<span class="fc" id="L412">        resultado = new ResultadoPartido(marcador.getGoles(1), marcador.getGoles(2), motivo, tiempoTranscurrido);</span>
+<span class="fc bfc" id="L413" title="All 2 branches covered.">        if (otorgarPuntos) {</span>
+<span class="fc" id="L414">            otorgarPuntos();</span>
+        }
+<span class="fc" id="L416">    }</span>
+
+    /**
+     * Entrega los puntos de la partida a los dos perfiles. El ganador recibe
+     * cien puntos y el perdedor veinticinco. Si hubiera empate, ambos reciben
+     * la cantidad del perdedor.
+     */
+    private void otorgarPuntos() {
+<span class="fc" id="L424">        int ganador = resultado.getGanador();</span>
+
+<span class="pc bpc" id="L426" title="1 of 2 branches missed.">        if (ganador == 1) {</span>
+<span class="fc" id="L427">            puntosJugador1 = ParametrosJuego.PUNTOS_GANADOR;</span>
+<span class="fc" id="L428">            puntosJugador2 = ParametrosJuego.PUNTOS_PERDEDOR;</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">        } else if (ganador == 2) {</span>
+<span class="nc" id="L430">            puntosJugador1 = ParametrosJuego.PUNTOS_PERDEDOR;</span>
+<span class="nc" id="L431">            puntosJugador2 = ParametrosJuego.PUNTOS_GANADOR;</span>
+        } else {
+<span class="nc" id="L433">            puntosJugador1 = ParametrosJuego.PUNTOS_PERDEDOR;</span>
+<span class="nc" id="L434">            puntosJugador2 = ParametrosJuego.PUNTOS_PERDEDOR;</span>
+        }
+
+<span class="fc" id="L437">        jugadores.get(0).getPuntos().sumar(puntosJugador1);</span>
+<span class="fc" id="L438">        jugadores.get(1).getPuntos().sumar(puntosJugador2);</span>
+<span class="fc" id="L439">    }</span>
+
+    /**
+     * Indica si el partido permite jugar en este momento.
+     *
+     * @return true si el partido está listo o en curso
+     */
+    private boolean puedeJugar() {
+<span class="fc bfc" id="L447" title="All 4 branches covered.">        return estado == EstadoPartido.LISTO || estado == EstadoPartido.EN_CURSO;</span>
+    }
+
+    /**
+     * Devuelve el jugador con el número indicado.
+     *
+     * @param numero número del jugador: 1 o 2
+     * @return jugador correspondiente
+     */
+    private Jugador jugador(int numero) {
+<span class="fc bfc" id="L457" title="All 4 branches covered.">        if (numero != 1 &amp;&amp; numero != 2) {</span>
+<span class="fc" id="L458">            throw new IllegalArgumentException(&quot;El número de jugador debe ser 1 o 2&quot;);</span>
+        }
+<span class="fc" id="L460">        return jugadores.get(numero - 1);</span>
+    }
+
+    /**
+     * Devuelve el marcador del partido.
+     *
+     * @return marcador del partido
+     */
+    public Marcador getMarcador() {
+<span class="fc" id="L469">        return marcador;</span>
+    }
+
+    /**
+     * Devuelve el estado actual del partido.
+     *
+     * @return estado del partido
+     */
+    public EstadoPartido getEstado() {
+<span class="fc" id="L478">        return estado;</span>
+    }
+
+    /**
+     * Devuelve el tipo de partido.
+     *
+     * @return tipo de partido
+     */
+    public TipoPartido getTipo() {
+<span class="nc" id="L487">        return tipo;</span>
+    }
+
+    /**
+     * Devuelve la modalidad del partido.
+     *
+     * @return modalidad del partido
+     */
+    public Modalidad getModalidad() {
+<span class="nc" id="L496">        return modalidad;</span>
+    }
+
+    /**
+     * Devuelve el balón del partido.
+     *
+     * @return balón del partido
+     */
+    public Balon getBalon() {
+<span class="fc" id="L505">        return balon;</span>
+    }
+
+    /**
+     * Devuelve la lista de jugadores del partido.
+     *
+     * @return jugadores del partido
+     */
+    public List&lt;Jugador&gt; getJugadores() {
+<span class="fc" id="L514">        return jugadores;</span>
+    }
+
+    /**
+     * Devuelve el tiempo restante del partido.
+     *
+     * @return segundos restantes
+     */
+    public double getTiempoRestante() {
+<span class="fc" id="L523">        return tiempoRestante;</span>
+    }
+
+    /**
+     * Devuelve la regla de finalización del partido.
+     *
+     * @return regla del partido
+     */
+    public ReglaPartido getRegla() {
+<span class="fc" id="L532">        return regla;</span>
+    }
+
+    /**
+     * Devuelve la cancha del partido.
+     *
+     * @return cancha del partido
+     */
+    public Cancha getCancha() {
+<span class="fc" id="L541">        return cancha;</span>
+    }
+
+    /**
+     * Devuelve el resultado del partido.
+     *
+     * @return resultado o null si aún no terminó
+     */
+    public ResultadoPartido getResultado() {
+<span class="fc" id="L550">        return resultado;</span>
+    }
+
+    /**
+     * Devuelve los puntos obtenidos por el jugador 1.
+     *
+     * @return puntos del jugador 1
+     */
+    public int getPuntosJugador1() {
+<span class="fc" id="L559">        return puntosJugador1;</span>
+    }
+
+    /**
+     * Devuelve los puntos obtenidos por el jugador 2.
+     *
+     * @return puntos del jugador 2
+     */
+    public int getPuntosJugador2() {
+<span class="fc" id="L568">        return puntosJugador2;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

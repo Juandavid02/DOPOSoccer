@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd xmlns="http://pmd.sourceforge.net/report/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pmd.sourceforge.net/report/2.0.0 https://pmd.github.io/schema/report_2_0_0.xsd" version="7.21.0" timestamp="2026-11-25T13:12:55.979">
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\Efecto.java">
+<violation beginline="90" endline="91" begincolumn="44" endcolumn="6" rule="UncommentedEmptyMethodBody" ruleset="Documentation" package="domain" class="Efecto" method="alAplicar" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#uncommentedemptymethodbody" priority="3">
+Document empty method body
+</violation>
+<violation beginline="99" endline="100" begincolumn="45" endcolumn="6" rule="UncommentedEmptyMethodBody" ruleset="Documentation" package="domain" class="Efecto" method="alTerminar" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#uncommentedemptymethodbody" priority="3">
+Document empty method body
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\GestorPoderes.java">
+<violation beginline="38" endline="38" begincolumn="58" endcolumn="89" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="domain" class="GestorPoderes" method="alContactarBalon" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\PartidaGuardada.java">
+<violation beginline="277" endline="277" begincolumn="16" endcolumn="47" rule="UseLocaleWithCaseConversions" ruleset="Error Prone" package="domain" class="PartidaGuardada" method="tieneExtension" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#uselocalewithcaseconversions" priority="3">
+When doing a String.toLowerCase()/toUpperCase() call, use a Locale
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\PartidoTorneo.java">
+<violation beginline="28" endline="28" begincolumn="13" endcolumn="31" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="domain" class="PartidoTorneo" method="PartidoTorneo" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\PerfilJugador.java">
+<violation beginline="266" endline="266" begincolumn="21" endcolumn="56" rule="UselessParentheses" ruleset="Code Style" package="domain" class="PerfilJugador" method="getMejorasCompradas" variable="total" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#uselessparentheses" priority="4">
+Useless parentheses around `estadisticas.getSpeed() - inicial`.
+</violation>
+<violation beginline="267" endline="267" begincolumn="19" endcolumn="53" rule="UselessParentheses" ruleset="Code Style" package="domain" class="PerfilJugador" method="getMejorasCompradas" variable="total" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#uselessparentheses" priority="4">
+Useless parentheses around `estadisticas.getJump() - inicial`.
+</violation>
+<violation beginline="268" endline="268" begincolumn="19" endcolumn="53" rule="UselessParentheses" ruleset="Code Style" package="domain" class="PerfilJugador" method="getMejorasCompradas" variable="total" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#uselessparentheses" priority="4">
+Useless parentheses around `estadisticas.getKick() - inicial`.
+</violation>
+<violation beginline="269" endline="269" begincolumn="19" endcolumn="57" rule="UselessParentheses" ruleset="Code Style" package="domain" class="PerfilJugador" method="getMejorasCompradas" variable="total" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#uselessparentheses" priority="4">
+Useless parentheses around `estadisticas.getSurvival() - inicial`.
+</violation>
+<violation beginline="294" endline="296" begincolumn="9" endcolumn="10" rule="SimplifyBooleanReturns" ruleset="Design" package="domain" class="PerfilJugador" method="puedeMejorar" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_design.html#simplifybooleanreturns" priority="3">
+This if statement can be replaced by `return !{condition} &amp;&amp; {elseBranch};`
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\Progreso.java">
+<violation beginline="219" endline="219" begincolumn="17" endcolumn="24" rule="MethodNamingConventions" ruleset="Code Style" package="domain" class="Progreso" method="import_" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#methodnamingconventions" priority="1">
+The instance method name 'import_' doesn't match '[a-z][a-zA-Z0-9]*'
+</violation>
+<violation beginline="532" endline="532" begincolumn="16" endcolumn="47" rule="UseLocaleWithCaseConversions" ruleset="Error Prone" package="domain" class="Progreso" method="tieneExtension" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#uselocalewithcaseconversions" priority="3">
+When doing a String.toLowerCase()/toUpperCase() call, use a Locale
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\ReglaFactory.java">
+<violation beginline="3" endline="3" begincolumn="8" endcolumn="13" rule="UseUtilityClass" ruleset="Design" package="domain" class="ReglaFactory" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_design.html#useutilityclass" priority="3">
+All methods are static. Consider adding a private no-args constructor to prevent instantiation.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\ReglaGoles.java">
+<violation beginline="25" endline="25" begincolumn="20" endcolumn="29" rule="MissingOverride" ruleset="Best Practices" package="domain" class="ReglaGoles" method="terminado" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#missingoverride" priority="3">
+The method 'terminado(Partido)' is missing an @Override annotation.
+</violation>
+<violation beginline="35" endline="35" begincolumn="22" endcolumn="31" rule="MissingOverride" ruleset="Best Practices" package="domain" class="ReglaGoles" method="getMotivo" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#missingoverride" priority="3">
+The method 'getMotivo()' is missing an @Override annotation.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\ReglaTiempo.java">
+<violation beginline="30" endline="30" begincolumn="20" endcolumn="29" rule="MissingOverride" ruleset="Best Practices" package="domain" class="ReglaTiempo" method="terminado" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#missingoverride" priority="3">
+The method 'terminado(Partido)' is missing an @Override annotation.
+</violation>
+<violation beginline="65" endline="65" begincolumn="22" endcolumn="31" rule="MissingOverride" ruleset="Best Practices" package="domain" class="ReglaTiempo" method="getMotivo" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#missingoverride" priority="3">
+The method 'getMotivo()' is missing an @Override annotation.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\Tienda.java">
+<violation beginline="61" endline="63" begincolumn="9" endcolumn="10" rule="SimplifyBooleanReturns" ruleset="Design" package="domain" class="Tienda" method="desbloquearPersonaje" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_design.html#simplifybooleanreturns" priority="3">
+This if statement can be replaced by `return !{condition} &amp;&amp; {elseBranch};`
+</violation>
+<violation beginline="79" endline="81" begincolumn="9" endcolumn="10" rule="SimplifyBooleanReturns" ruleset="Design" package="domain" class="Tienda" method="desbloquearBalon" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_design.html#simplifybooleanreturns" priority="3">
+This if statement can be replaced by `return !{condition} &amp;&amp; {elseBranch};`
+</violation>
+<violation beginline="97" endline="99" begincolumn="9" endcolumn="10" rule="SimplifyBooleanReturns" ruleset="Design" package="domain" class="Tienda" method="desbloquearEscenario" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_design.html#simplifybooleanreturns" priority="3">
+This if statement can be replaced by `return !{condition} &amp;&amp; {elseBranch};`
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\domain\Torneo.java">
+<violation beginline="142" endline="142" begincolumn="16" endcolumn="33" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="domain" class="Torneo" method="isHumanoCampeon" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="151" endline="151" begincolumn="16" endcolumn="36" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="domain" class="Torneo" method="isHumanoSubcampeon" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\BotonSonido.java">
+<violation beginline="22" endline="22" begincolumn="21" endcolumn="31" rule="UnusedPrivateField" ruleset="Best Practices" package="presentation" class="BotonSonido" variable="silenciado" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#unusedprivatefield" priority="3">
+Avoid unused private fields such as 'silenciado'.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\ConfiguracionView.java">
+<violation beginline="9" endline="9" begincolumn="1" endcolumn="39" rule="UnnecessaryImport" ruleset="Code Style" package="presentation" class="ConfiguracionView" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryimport" priority="4">
+Unused import 'java.awt.geom.RoundRectangle2D'
+</violation>
+<violation beginline="25" endline="25" begincolumn="32" endcolumn="38" rule="UnusedPrivateField" ruleset="Best Practices" package="presentation" class="ConfiguracionView" variable="DORADO" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#unusedprivatefield" priority="3">
+Avoid unused private fields such as 'DORADO'.
+</violation>
+<violation beginline="187" endline="187" begincolumn="17" endcolumn="24" rule="UnusedFormalParameter" ruleset="Best Practices" package="presentation" class="ConfiguracionView" method="crearPanelJugador" variable="jugador" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#unusedformalparameter" priority="3">
+Avoid unused method parameters such as 'jugador'.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\ConfiguracionVisualView.java">
+<violation beginline="9" endline="9" begincolumn="1" endcolumn="39" rule="UnnecessaryImport" ruleset="Code Style" package="presentation" class="ConfiguracionVisualView" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryimport" priority="4">
+Unused import 'java.awt.geom.RoundRectangle2D'
+</violation>
+<violation beginline="190" endline="190" begincolumn="30" endcolumn="39" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="ConfiguracionVisualView" method="prepararBalones" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="279" endline="279" begincolumn="36" endcolumn="53" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="ConfiguracionVisualView" method="seleccionarBalon" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="295" endline="295" begincolumn="36" endcolumn="53" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="ConfiguracionVisualView" method="seleccionarEscenario" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="383" endline="383" begincolumn="31" endcolumn="38" rule="UnusedPrivateField" ruleset="Best Practices" package="presentation" class="ConfiguracionVisualView.TarjetaVisual" variable="esBalon" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#unusedprivatefield" priority="3">
+Avoid unused private fields such as 'esBalon'.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\DOPOSoccerGUI.java">
+<violation beginline="92" endline="92" begincolumn="34" endcolumn="40" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="DOPOSoccerGUI" method="DOPOSoccerGUI" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'JFrame': 'WindowConstants::EXIT_ON_CLOSE' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="94" endline="94" begincolumn="26" endcolumn="32" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="DOPOSoccerGUI" method="DOPOSoccerGUI" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'JFrame': 'Frame::MAXIMIZED_BOTH' is already in scope because it is inherited by an enclosing type
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\GestionProgresoController.java">
+<violation beginline="218" endline="218" begincolumn="13" endcolumn="44" rule="UseLocaleWithCaseConversions" ruleset="Error Prone" package="presentation" class="GestionProgresoController" method="conExtension" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#uselocalewithcaseconversions" priority="3">
+When doing a String.toLowerCase()/toUpperCase() call, use a Locale
+</violation>
+<violation beginline="232" endline="234" begincolumn="9" endcolumn="89" rule="GuardLogStatement" ruleset="Best Practices" package="presentation" class="GestionProgresoController" method="mostrarError" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#guardlogstatement" priority="2">
+Logger calls should be surrounded by log level guards.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\GestorSonido.java">
+<violation beginline="119" endline="119" begincolumn="18" endcolumn="22" rule="CloseResource" ruleset="Error Prone" package="presentation" class="GestorSonido" method="iniciarMusicaFondo" variable="clip" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#closeresource" priority="3">
+Ensure that resources like this Clip object are closed after use
+</violation>
+<violation beginline="126" endline="126" begincolumn="28" endcolumn="47" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="GestorSonido" method="iniciarMusicaFondo" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="212" endline="212" begincolumn="14" endcolumn="18" rule="CloseResource" ruleset="Error Prone" package="presentation" class="GestorSonido" method="detenerMusicaFondo" variable="clip" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#closeresource" priority="3">
+Ensure that resources like this Clip object are closed after use
+</violation>
+<violation beginline="219" endline="221" begincolumn="15" endcolumn="14" rule="EmptyCatchBlock" ruleset="Error Prone" package="presentation" class="GestorSonido" method="detenerMusicaFondo" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#emptycatchblock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="224" endline="226" begincolumn="15" endcolumn="14" rule="EmptyCatchBlock" ruleset="Error Prone" package="presentation" class="GestorSonido" method="detenerMusicaFondo" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#emptycatchblock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="259" endline="259" begincolumn="18" endcolumn="22" rule="CloseResource" ruleset="Error Prone" package="presentation" class="GestorSonido" method="reproducirEfecto" variable="clip" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#closeresource" priority="3">
+Ensure that resources like this Clip object are closed after use
+</violation>
+<violation beginline="265" endline="265" begincolumn="63" endcolumn="83" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="GestorSonido" method="reproducirEfecto" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="269" endline="271" begincolumn="23" endcolumn="22" rule="EmptyCatchBlock" ruleset="Error Prone" package="presentation" class="GestorSonido" method="reproducirEfecto" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#emptycatchblock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="303" endline="303" begincolumn="18" endcolumn="22" rule="CloseResource" ruleset="Error Prone" package="presentation" class="GestorSonido" method="reproducirSonidoCorto" variable="clip" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#closeresource" priority="3">
+Ensure that resources like this Clip object are closed after use
+</violation>
+<violation beginline="311" endline="313" begincolumn="23" endcolumn="22" rule="EmptyCatchBlock" ruleset="Error Prone" package="presentation" class="GestorSonido" method="reproducirSonidoCorto" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#emptycatchblock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="331" endline="331" begincolumn="14" endcolumn="18" rule="CloseResource" ruleset="Error Prone" package="presentation" class="GestorSonido" method="detenerEfectoActual" variable="clip" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#closeresource" priority="3">
+Ensure that resources like this Clip object are closed after use
+</violation>
+<violation beginline="337" endline="339" begincolumn="15" endcolumn="14" rule="EmptyCatchBlock" ruleset="Error Prone" package="presentation" class="GestorSonido" method="detenerEfectoActual" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#emptycatchblock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="342" endline="344" begincolumn="15" endcolumn="14" rule="EmptyCatchBlock" ruleset="Error Prone" package="presentation" class="GestorSonido" method="detenerEfectoActual" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#emptycatchblock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="385" endline="387" begincolumn="11" endcolumn="10" rule="EmptyCatchBlock" ruleset="Error Prone" package="presentation" class="GestorSonido" method="aplicarVolumen" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#emptycatchblock" priority="3">
+Avoid empty catch blocks
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\InicioController.java">
+<violation beginline="4" endline="4" begincolumn="1" endcolumn="19" rule="UnnecessaryImport" ruleset="Code Style" package="presentation" class="InicioController" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryimport" priority="4">
+Unused import 'java.awt.*'
+</violation>
+<violation beginline="30" endline="34" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="InicioController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="41" endline="45" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="InicioController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="52" endline="56" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="InicioController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\JuegoController.java">
+<violation beginline="294" endline="294" begincolumn="34" endcolumn="58" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="JuegoController" method="iniciarDesdePartida" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="296" endline="296" begincolumn="20" endcolumn="44" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="JuegoController" method="iniciarDesdePartida" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="417" endline="422" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="JuegoController" method="keyPressed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="451" endline="455" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="JuegoController" method="keyReleased" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="750" endline="750" begincolumn="13" endcolumn="44" rule="UseLocaleWithCaseConversions" ruleset="Error Prone" package="presentation" class="JuegoController" method="conExtension" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#uselocalewithcaseconversions" priority="3">
+When doing a String.toLowerCase()/toUpperCase() call, use a Locale
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\JuegoView.java">
+<violation beginline="511" endline="511" begincolumn="16" endcolumn="26" rule="UnusedLocalVariable" ruleset="Best Practices" package="presentation" class="JuegoView" method="paintComponent" variable="anchoCampo" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#unusedlocalvariable" priority="3">
+Avoid unused local variables such as 'anchoCampo'.
+</violation>
+<violation beginline="608" endline="608" begincolumn="57" endcolumn="63" rule="UnusedFormalParameter" ruleset="Best Practices" package="presentation" class="JuegoView" method="dibujarTiroPoder" variable="cancha" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#unusedformalparameter" priority="3">
+Avoid unused method parameters such as 'cancha'.
+</violation>
+<violation beginline="616" endline="616" begincolumn="13" endcolumn="61" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="JuegoView" method="dibujarTiroPoder" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="1442" endline="1442" begincolumn="34" endcolumn="43" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="JuegoView.PanelPausa" method="PanelPausa" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="1447" endline="1447" begincolumn="33" endcolumn="42" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="JuegoView.PanelPausa" method="PanelPausa" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="1481" endline="1481" begincolumn="33" endcolumn="42" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="JuegoView.PanelPausa" method="agregarBoton" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="1618" endline="1618" begincolumn="34" endcolumn="43" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="JuegoView.PanelResultado" method="PanelResultado" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="1622" endline="1622" begincolumn="36" endcolumn="45" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="JuegoView.PanelResultado" method="PanelResultado" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="1650" endline="1650" begincolumn="35" endcolumn="44" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="JuegoView.PanelResultado" method="PanelResultado" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="1655" endline="1655" begincolumn="34" endcolumn="43" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="JuegoView.PanelResultado" method="PanelResultado" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="1703" endline="1703" begincolumn="33" endcolumn="42" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="JuegoView.PanelResultado" method="agregarBoton" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\MejorasView.java">
+<violation beginline="379" endline="379" begincolumn="33" endcolumn="72" rule="LambdaCanBeMethodReference" ruleset="Code Style" package="presentation" class="MejorasView" method="crearPanelTienda" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#lambdacanbemethodreference" priority="3">
+Lambda expression could be written as a method reference: `accionCompra::accept`
+</violation>
+<violation beginline="452" endline="452" begincolumn="40" endcolumn="57" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="MejorasView" method="seleccionarTarjeta" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="639" endline="639" begincolumn="34" endcolumn="43" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="MejorasView.PanelPrevisualizacion" method="PanelPrevisualizacion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="646" endline="646" begincolumn="34" endcolumn="43" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="MejorasView.PanelPrevisualizacion" method="PanelPrevisualizacion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="652" endline="652" begincolumn="33" endcolumn="42" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="MejorasView.PanelPrevisualizacion" method="PanelPrevisualizacion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="657" endline="657" begincolumn="34" endcolumn="43" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="MejorasView.PanelPrevisualizacion" method="PanelPrevisualizacion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="663" endline="663" begincolumn="34" endcolumn="43" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="MejorasView.PanelPrevisualizacion" method="PanelPrevisualizacion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="669" endline="669" begincolumn="33" endcolumn="42" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="MejorasView.PanelPrevisualizacion" method="PanelPrevisualizacion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\MenuController.java">
+<violation beginline="4" endline="4" begincolumn="1" endcolumn="19" rule="UnnecessaryImport" ruleset="Code Style" package="presentation" class="MenuController" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryimport" priority="4">
+Unused import 'java.awt.*'
+</violation>
+<violation beginline="30" endline="34" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="41" endline="45" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="52" endline="56" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="63" endline="67" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="74" endline="78" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="85" endline="89" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="96" endline="100" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="107" endline="111" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="118" endline="122" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="129" endline="133" begincolumn="13" endcolumn="16" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="MenuController" method="actionPerformed" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\PerfilController.java">
+<violation beginline="230" endline="230" begincolumn="17" endcolumn="34" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="PerfilController" method="nombreEnUso" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\PerfilView.java">
+<violation beginline="4" endline="4" begincolumn="1" endcolumn="31" rule="UnnecessaryImport" ruleset="Code Style" package="presentation" class="PerfilView" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryimport" priority="4">
+Unused import 'domain.ParametrosJuego'
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\RecursosImagen.java">
+<violation beginline="135" endline="139" begincolumn="5" endcolumn="8" rule="DanglingJavadoc" ruleset="Documentation" package="presentation" class="RecursosImagen" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#danglingjavadoc" priority="3">
+Javadoc comment does not belong to any class, method or field
+</violation>
+<violation beginline="169" endline="169" begincolumn="33" endcolumn="39" rule="AssignmentInOperand" ruleset="Error Prone" package="presentation" class="RecursosImagen" method="quitarFondoBlanco" variable="posicion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#assignmentinoperand" priority="3">
+Avoid assignment to cima in operand
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\RegistroErrores.java">
+<violation beginline="61" endline="61" begincolumn="9" endcolumn="63" rule="GuardLogStatement" ruleset="Best Practices" package="presentation" class="RegistroErrores" method="registrar" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#guardlogstatement" priority="2">
+Logger calls should be surrounded by log level guards.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\SeleccionPersonajeView.java">
+<violation beginline="5" endline="5" begincolumn="1" endcolumn="31" rule="UnnecessaryImport" ruleset="Code Style" package="presentation" class="SeleccionPersonajeView" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryimport" priority="4">
+Unused import 'domain.ParametrosJuego'
+</violation>
+<violation beginline="38" endline="38" begincolumn="27" endcolumn="34" rule="UnusedPrivateField" ruleset="Best Practices" package="presentation" class="SeleccionPersonajeView" variable="perfil2" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#unusedprivatefield" priority="3">
+Avoid unused private fields such as 'perfil2'.
+</violation>
+<violation beginline="461" endline="461" begincolumn="34" endcolumn="43" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="SeleccionPersonajeView.PanelLateral" method="PanelLateral" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="483" endline="483" begincolumn="38" endcolumn="47" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="SeleccionPersonajeView.PanelLateral" method="PanelLateral" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="485" endline="485" begincolumn="40" endcolumn="49" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="SeleccionPersonajeView.PanelLateral" method="PanelLateral" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="486" endline="486" begincolumn="40" endcolumn="49" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="SeleccionPersonajeView.PanelLateral" method="PanelLateral" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="487" endline="487" begincolumn="42" endcolumn="51" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="SeleccionPersonajeView.PanelLateral" method="PanelLateral" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\TarjetaOpcion.java">
+<violation beginline="38" endline="38" begincolumn="35" endcolumn="49" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TarjetaOpcion" method="TarjetaOpcion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'SwingConstants': 'CENTER' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="39" endline="39" begincolumn="33" endcolumn="47" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TarjetaOpcion" method="TarjetaOpcion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'SwingConstants': 'BOTTOM' is already in scope because it is inherited by an enclosing type
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\TorneoController.java">
+<violation beginline="209" endline="209" begincolumn="13" endcolumn="57" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="TorneoController" method="jugarOSiguiente" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\TorneoView.java">
+<violation beginline="13" endline="13" begincolumn="1" endcolumn="39" rule="UnnecessaryImport" ruleset="Code Style" package="presentation" class="TorneoView" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryimport" priority="4">
+Unused import 'java.awt.geom.RoundRectangle2D'
+</violation>
+<violation beginline="34" endline="34" begincolumn="32" endcolumn="46" rule="UnusedPrivateField" ruleset="Best Practices" package="presentation" class="TorneoView" variable="COLOR_JUGADOR1" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_bestpractices.html#unusedprivatefield" priority="3">
+Avoid unused private fields such as 'COLOR_JUGADOR1'.
+</violation>
+<violation beginline="68" endline="68" begincolumn="31" endcolumn="40" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TorneoView" method="TorneoView" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="70" endline="70" begincolumn="39" endcolumn="48" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TorneoView" method="TorneoView" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="73" endline="73" begincolumn="34" endcolumn="43" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TorneoView" method="TorneoView" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="213" endline="213" begincolumn="30" endcolumn="39" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TorneoView" method="crearInscripcion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="234" endline="234" begincolumn="29" endcolumn="38" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TorneoView" method="crearInscripcion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="241" endline="241" begincolumn="29" endcolumn="38" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TorneoView" method="crearInscripcion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="245" endline="245" begincolumn="40" endcolumn="49" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TorneoView" method="crearInscripcion" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="389" endline="389" begincolumn="49" endcolumn="72" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="TorneoView" method="crearParticipante" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="391" endline="391" begincolumn="20" endcolumn="43" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="TorneoView" method="crearParticipante" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+<violation beginline="425" endline="425" begincolumn="31" endcolumn="40" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TorneoView" method="crearCampeon" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="438" endline="438" begincolumn="30" endcolumn="39" rule="UnnecessaryFullyQualifiedName" ruleset="Code Style" package="presentation" class="TorneoView" method="crearCampeon" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_codestyle.html#unnecessaryfullyqualifiedname" priority="4">
+Unnecessary qualifier 'Component': 'CENTER_ALIGNMENT' is already in scope because it is inherited by an enclosing type
+</violation>
+<violation beginline="529" endline="529" begincolumn="41" endcolumn="71" rule="CompareObjectsWithEquals" ruleset="Error Prone" package="presentation" class="TorneoView" method="actualizarMensaje" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_errorprone.html#compareobjectswithequals" priority="3">
+Use equals() to compare object references.
+</violation>
+</file>
+<file name="C:\Users\Lenovo\Desktop\Universidad Escuela de ingenieros\4. Cuarto Semestre\DOPO\Proyectos\HeadSoccer\HeadSoccer\src\presentation\VistaBase.java">
+<violation beginline="112" endline="113" begincolumn="55" endcolumn="6" rule="UncommentedEmptyMethodBody" ruleset="Documentation" package="presentation" class="VistaBase" method="pintarEncimaDeFondo" externalInfoUrl="https://docs.pmd-code.org/pmd-doc-7.21.0/pmd_rules_java_documentation.html#uncommentedemptymethodbody" priority="3">
+Document empty method body
+</violation>
+</file>
+</pmd>

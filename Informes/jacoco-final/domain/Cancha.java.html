@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Cancha.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Cancha.java</span></div><h1>Cancha.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+/**
+ * Geometría de la cancha: dimensiones, suelo y arcos.
+ *
+ * La cancha se construye a partir de una resolución. Los arcos se ubican
+ * justo fuera de las líneas de gol, apoyados sobre el suelo.
+ */
+public class Cancha implements Serializable {
+    private final Resolucion resolucion;
+    private final double ancho;
+    private final double alto;
+    private final double suelo;
+    private final Arco arcoIzquierdo;
+    private final Arco arcoDerecho;
+
+    /**
+     * Crea la cancha a partir de la resolución indicada.
+     *
+     * @param resolucion resolución que define las dimensiones
+     */
+<span class="fc" id="L24">    public Cancha(Resolucion resolucion) {</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (resolucion == null) {</span>
+<span class="fc" id="L26">            throw new IllegalArgumentException(&quot;La resolución no puede ser nula&quot;);</span>
+        }
+
+<span class="fc" id="L29">        this.resolucion = resolucion;</span>
+<span class="fc" id="L30">        this.ancho = resolucion.getAncho();</span>
+<span class="fc" id="L31">        this.alto = resolucion.getAlto();</span>
+<span class="fc" id="L32">        this.suelo = resolucion.getSuelo();</span>
+
+<span class="fc" id="L34">        double yArco = suelo - ParametrosJuego.ALTO_ARCO;</span>
+<span class="fc" id="L35">        this.arcoIzquierdo = new Arco(0, yArco);</span>
+<span class="fc" id="L36">        this.arcoDerecho = new Arco(ancho - ParametrosJuego.ANCHO_ARCO, yArco);</span>
+<span class="fc" id="L37">    }</span>
+
+    /**
+     * Obtiene la resolución de la cancha.
+     *
+     * @return resolución
+     */
+    public Resolucion getResolucion() {
+<span class="fc" id="L45">        return resolucion;</span>
+    }
+
+    /**
+     * Obtiene el ancho de la cancha.
+     *
+     * @return ancho
+     */
+    public double getAncho() {
+<span class="fc" id="L54">        return ancho;</span>
+    }
+
+    /**
+     * Obtiene el alto de la cancha.
+     *
+     * @return alto
+     */
+    public double getAlto() {
+<span class="fc" id="L63">        return alto;</span>
+    }
+
+    /**
+     * Obtiene la coordenada del suelo de la cancha.
+     *
+     * @return coordenada del suelo
+     */
+    public double getSuelo() {
+<span class="fc" id="L72">        return suelo;</span>
+    }
+
+    /**
+     * Obtiene el arco izquierdo.
+     *
+     * @return arco izquierdo
+     */
+    public Arco getArcoIzquierdo() {
+<span class="fc" id="L81">        return arcoIzquierdo;</span>
+    }
+
+    /**
+     * Obtiene el arco derecho.
+     *
+     * @return arco derecho
+     */
+    public Arco getArcoDerecho() {
+<span class="fc" id="L90">        return arcoDerecho;</span>
+    }
+
+    /**
+     * Indica si el balón está a la altura de la boca del arco izquierdo.
+     *
+     * @param yBalon coordenada vertical del balón
+     * @param radio radio del balón
+     * @return true si el balón está en la boca del arco izquierdo
+     */
+    public boolean estaEnBocaArcoIzquierdo(double yBalon, double radio) {
+<span class="fc" id="L101">        return arcoIzquierdo.estaEnBoca(yBalon, radio);</span>
+    }
+
+    /**
+     * Indica si el balón está a la altura de la boca del arco derecho.
+     *
+     * @param yBalon coordenada vertical del balón
+     * @param radio radio del balón
+     * @return true si el balón está en la boca del arco derecho
+     */
+    public boolean estaEnBocaArcoDerecho(double yBalon, double radio) {
+<span class="fc" id="L112">        return arcoDerecho.estaEnBoca(yBalon, radio);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

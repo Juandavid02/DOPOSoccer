@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FisicaPartido.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">FisicaPartido.java</span></div><h1>FisicaPartido.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Resuelve las colisiones entre jugadores y entre el balón y los jugadores.
+ *
+ * La clase no guarda estado: recibe las entidades y la cancha en cada
+ * llamada. Así la física se puede leer y probar sin depender del estado
+ * completo de un partido.
+ */
+public final class FisicaPartido {
+
+    private static final double VELOCIDAD_SEPARACION_DISPUTA = 700;
+    private static final double TOLERANCIA_CONTACTO = 2;
+
+    private FisicaPartido() {
+    }
+
+    /**
+     * Resuelve los choques entre los dos personajes usando sus dos círculos:
+     * cabeza y bota.
+     *
+     * @param jugadores jugadores del partido
+     * @param cancha cancha donde se mueven
+     */
+    public static void resolverJugadores(List&lt;Jugador&gt; jugadores, Cancha cancha) {
+<span class="fc" id="L29">        Jugador jugador1 = jugadores.get(0);</span>
+<span class="fc" id="L30">        Jugador jugador2 = jugadores.get(1);</span>
+
+        // Si uno saltó por encima del otro, se permite el paso.
+<span class="pc bpc" id="L33" title="1 of 4 branches missed.">        if (pasaPorEncima(jugador1, jugador2) || pasaPorEncima(jugador2, jugador1)) {</span>
+<span class="fc" id="L34">            return;</span>
+        }
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        for (int iteracion = 0; iteracion &lt; 3; iteracion++) {</span>
+<span class="fc" id="L38">            resolverCirculosJugadores(jugador1, jugador2, centroCabeza(jugador1), ParametrosJuego.RADIO_CABEZA_JUGADOR, centroCabeza(jugador2), ParametrosJuego.RADIO_CABEZA_JUGADOR, cancha);</span>
+
+<span class="fc" id="L40">            resolverCirculosJugadores(jugador1, jugador2,</span>
+<span class="fc" id="L41">                    centroCabeza(jugador1), ParametrosJuego.RADIO_CABEZA_JUGADOR,</span>
+<span class="fc" id="L42">                    centroBota(jugador2), ParametrosJuego.RADIO_BOTA_JUGADOR,</span>
+                    cancha);
+
+<span class="fc" id="L45">            resolverCirculosJugadores(jugador1, jugador2,</span>
+<span class="fc" id="L46">                    centroBota(jugador1), ParametrosJuego.RADIO_BOTA_JUGADOR,</span>
+<span class="fc" id="L47">                    centroCabeza(jugador2), ParametrosJuego.RADIO_CABEZA_JUGADOR,</span>
+                    cancha);
+
+<span class="fc" id="L50">            resolverCirculosJugadores(jugador1, jugador2,</span>
+<span class="fc" id="L51">                    centroBota(jugador1), ParametrosJuego.RADIO_BOTA_JUGADOR,</span>
+<span class="fc" id="L52">                    centroBota(jugador2), ParametrosJuego.RADIO_BOTA_JUGADOR,</span>
+                    cancha);
+        }
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Indica si un jugador está lo bastante alto como para pasar por encima
+     * del otro sin chocar.
+     *
+     * @param arriba jugador que podría estar saltando por encima
+     * @param abajo jugador que quedaría debajo
+     * @return true si la bota del primero está por encima de la cabeza del segundo
+     */
+    public static boolean pasaPorEncima(Jugador arriba, Jugador abajo) {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        return arriba.getBordeInferiorBota() &lt;= abajo.getBordeSuperiorCabeza();</span>
+    }
+
+    /**
+     * Resuelve la separación entre dos círculos de dos jugadores.
+     */
+    private static void resolverCirculosJugadores(Jugador jugador1, Jugador jugador2,
+                                                  double[] circulo1, double radio1,
+                                                  double[] circulo2, double radio2,
+                                                  Cancha cancha) {
+<span class="fc" id="L76">        double dx = circulo2[0] - circulo1[0];</span>
+<span class="fc" id="L77">        double dy = circulo2[1] - circulo1[1];</span>
+<span class="fc" id="L78">        double distancia = Math.sqrt(dx * dx + dy * dy);</span>
+<span class="fc" id="L79">        double distanciaMinima = radio1 + radio2;</span>
+
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        if (distancia &gt;= distanciaMinima) {</span>
+<span class="fc" id="L82">            return;</span>
+        }
+
+        double normalX;
+        double normalY;
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (distancia &lt; 0.0001) {</span>
+<span class="nc" id="L88">            normalX = 1;</span>
+<span class="nc" id="L89">            normalY = 0;</span>
+        } else {
+<span class="fc" id="L91">            normalX = dx / distancia;</span>
+<span class="fc" id="L92">            normalY = dy / distancia;</span>
+        }
+
+<span class="fc" id="L95">        double separacion = distanciaMinima - distancia;</span>
+<span class="fc" id="L96">        jugador1.desplazar(-normalX * separacion / 2,</span>
+                -normalY * separacion / 2, cancha);
+<span class="fc" id="L98">        jugador2.desplazar(normalX * separacion / 2,</span>
+                normalY * separacion / 2, cancha);
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Resuelve el choque entre el balón y un círculo del jugador.
+     *
+     * @return true si el balón tocó el círculo
+     */
+    public static boolean resolverBalonCirculo(Balon balon, Jugador jugador,
+                                               Cancha cancha, double centroX,
+                                               double centroY, double radio) {
+<span class="fc" id="L110">        double dx = balon.getX() - centroX;</span>
+<span class="fc" id="L111">        double dy = balon.getY() - centroY;</span>
+<span class="fc" id="L112">        double distancia = Math.sqrt(dx * dx + dy * dy);</span>
+<span class="fc" id="L113">        double distanciaMinima = ParametrosJuego.RADIO_BALON_COLISION + radio;</span>
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (distancia &gt;= distanciaMinima) {</span>
+<span class="fc" id="L116">            return false;</span>
+        }
+
+        double normalX;
+        double normalY;
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (distancia &lt; 0.0001) {</span>
+<span class="fc" id="L122">            normalX = 1;</span>
+<span class="fc" id="L123">            normalY = 0;</span>
+        } else {
+<span class="fc" id="L125">            normalX = dx / distancia;</span>
+<span class="fc" id="L126">            normalY = dy / distancia;</span>
+        }
+
+<span class="fc" id="L129">        double nuevaX = centroX + normalX * distanciaMinima;</span>
+<span class="fc" id="L130">        double nuevaY = centroY + normalY * distanciaMinima;</span>
+
+        // El balón no debe salir por debajo del suelo ni por encima del
+        // techo. Si el choque lo empujaría fuera, se resuelve en horizontal.
+<span class="fc" id="L134">        double yMinimo = ParametrosJuego.RADIO_BALON;</span>
+<span class="fc" id="L135">        double yMaximo = cancha.getSuelo() - ParametrosJuego.RADIO_BALON;</span>
+<span class="fc bfc" id="L136" title="All 4 branches covered.">        if (nuevaY &lt; yMinimo || nuevaY &gt; yMaximo) {</span>
+<span class="fc" id="L137">            nuevaY = Math.max(yMinimo, Math.min(yMaximo, nuevaY));</span>
+
+<span class="fc" id="L139">            double separacionY = nuevaY - centroY;</span>
+<span class="fc" id="L140">            double cuadradoHorizontal = distanciaMinima * distanciaMinima</span>
+                    - separacionY * separacionY;
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">            if (cuadradoHorizontal &gt; 0) {</span>
+<span class="fc" id="L143">                double separacionX = Math.sqrt(cuadradoHorizontal);</span>
+<span class="fc" id="L144">                double direccion = -1;</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">                if (dx &gt;= 0) {</span>
+<span class="fc" id="L146">                    direccion = 1;</span>
+                }
+<span class="fc" id="L148">                nuevaX = centroX + direccion * separacionX;</span>
+            }
+        }
+
+<span class="fc" id="L152">        balon.reubicar(nuevaX, nuevaY);</span>
+
+<span class="fc" id="L154">        double normalFinalX = (nuevaX - centroX) / distanciaMinima;</span>
+<span class="fc" id="L155">        double normalFinalY = (nuevaY - centroY) / distanciaMinima;</span>
+
+        // Si el balón quedó apoyado en el suelo o el techo, el impulso se
+        // aplica solo en horizontal para que no se entierre ni suba.
+<span class="fc bfc" id="L159" title="All 4 branches covered.">        if (nuevaY &lt;= yMinimo + 0.001 || nuevaY &gt;= yMaximo - 0.001) {</span>
+<span class="fc" id="L160">            double longitud = Math.abs(normalFinalX);</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">            if (longitud &lt; 0.0001) {</span>
+<span class="nc" id="L162">                normalFinalX = 1;</span>
+<span class="nc" id="L163">                longitud = 1;</span>
+            }
+<span class="fc" id="L165">            normalFinalX = normalFinalX / longitud;</span>
+<span class="fc" id="L166">            normalFinalY = 0;</span>
+        }
+
+<span class="fc" id="L169">        double velocidadRelativaX = balon.getVelocidadX() - jugador.getVelocidadX();</span>
+<span class="fc" id="L170">        double velocidadRelativaY = balon.getVelocidadY() - jugador.getVelocidadY();</span>
+<span class="fc" id="L171">        double productoNormal = velocidadRelativaX * normalFinalX</span>
+                + velocidadRelativaY * normalFinalY;
+
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (productoNormal &lt; 0) {</span>
+<span class="fc" id="L175">            double impulso = -(1 + ParametrosJuego.RESTITUCION_COLISION)</span>
+                    * productoNormal;
+<span class="fc" id="L177">            balon.aplicarImpulso(impulso * normalFinalX, impulso * normalFinalY);</span>
+<span class="fc" id="L178">        } else {</span>
+<span class="fc" id="L179">            balon.aplicarImpulso(normalFinalX * 30, normalFinalY * 30);</span>
+        }
+
+<span class="fc" id="L182">        return true;</span>
+    }
+
+    /**
+     * Hace que el balón rebote al chocar con la cabeza o la bota de los
+     * jugadores.
+     *
+     * @param jugadores jugadores del partido
+     * @param balon balón del partido
+     * @param cancha cancha donde se mueve el balón
+     * @return jugadores que tocaron el balón durante el instante
+     */
+    public static List&lt;Jugador&gt; resolverBalonJugadores(List&lt;Jugador&gt; jugadores,
+                                                       Balon balon,
+                                                       Cancha cancha) {
+<span class="fc" id="L197">        List&lt;Jugador&gt; contactos = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        for (int iteracion = 0; iteracion &lt; 2; iteracion++) {</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">            for (Jugador jugador : jugadores) {</span>
+                // La cabeza solo choca con balones que estén a su altura;
+                // un balón rodando por el suelo no debe subir a la cabeza.
+<span class="fc bfc" id="L203" title="All 2 branches covered.">                if (balon.getY() &lt; jugador.getBotaY()</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">                        &amp;&amp; resolverBalonCirculo(balon, jugador, cancha,</span>
+<span class="fc" id="L205">                                jugador.getCabezaX(), jugador.getCabezaY(),</span>
+                                ParametrosJuego.RADIO_CABEZA_JUGADOR)) {
+<span class="fc" id="L207">                    contactos.add(jugador);</span>
+                }
+
+<span class="fc bfc" id="L210" title="All 2 branches covered.">                if (resolverBalonCirculo(balon, jugador, cancha,</span>
+<span class="fc" id="L211">                        jugador.getBotaX(), jugador.getBotaY(),</span>
+                        ParametrosJuego.RADIO_BOTA_JUGADOR)) {
+<span class="fc" id="L213">                    contactos.add(jugador);</span>
+                }
+<span class="fc" id="L215">            }</span>
+        }
+
+<span class="fc" id="L218">        return contactos;</span>
+    }
+
+    /**
+     * Cuando el balón queda apretado entre los dos jugadores, los separa un
+     * poco y lo sube para que no se quede pegado.
+     */
+    public static void resolverBalonAtrapado(Jugador jugador1, Jugador jugador2,
+                                             Balon balon, Cancha cancha,
+                                             double dt) {
+<span class="fc" id="L228">        Jugador izquierdo = jugador1;</span>
+<span class="fc" id="L229">        Jugador derecho = jugador2;</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">        if (izquierdo.getPosicionX() &gt; derecho.getPosicionX()) {</span>
+<span class="fc" id="L231">            izquierdo = jugador2;</span>
+<span class="fc" id="L232">            derecho = jugador1;</span>
+        }
+
+<span class="fc" id="L235">        double xIzquierdo = izquierdo.getPosicionX();</span>
+<span class="fc" id="L236">        double xDerecho = derecho.getPosicionX();</span>
+<span class="fc bfc" id="L237" title="All 4 branches covered.">        boolean entre = balon.getX() &gt; xIzquierdo &amp;&amp; balon.getX() &lt; xDerecho;</span>
+<span class="fc bfc" id="L238" title="All 6 branches covered.">        if (!entre || !balonToca(izquierdo, balon) || !balonToca(derecho, balon)) {</span>
+<span class="fc" id="L239">            return;</span>
+        }
+
+        // Los personajes se abren hasta que el balón pueda pasar entre las
+        // cabezas.
+<span class="fc" id="L244">        double separacionNecesaria = 2 * (ParametrosJuego.RADIO_CABEZA_JUGADOR</span>
+                + ParametrosJuego.RADIO_BALON_COLISION);
+<span class="fc" id="L246">        double faltante = separacionNecesaria - (xDerecho - xIzquierdo);</span>
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">        if (faltante &gt; 0) {</span>
+<span class="fc" id="L248">            double paso = Math.min(faltante / 2, VELOCIDAD_SEPARACION_DISPUTA * dt);</span>
+<span class="fc" id="L249">            izquierdo.desplazar(-paso, 0, cancha);</span>
+<span class="fc" id="L250">            derecho.desplazar(paso, 0, cancha);</span>
+        }
+
+        // El balón sale hacia arriba.
+<span class="fc bfc" id="L254" title="All 2 branches covered.">        if (balon.getVelocidadY() &gt; -ParametrosJuego.POTENCIA_LEVANTE_PATADA) {</span>
+<span class="fc" id="L255">            balon.establecerVelocidad(balon.getVelocidadX(),</span>
+                    -ParametrosJuego.POTENCIA_LEVANTE_PATADA);
+        }
+<span class="fc" id="L258">    }</span>
+
+    /**
+     * Mira si el balón está tocando la bota o la cabeza del jugador.
+     */
+    private static boolean balonToca(Jugador jugador, Balon balon) {
+<span class="fc" id="L264">        double distanciaBota = Math.hypot(balon.getX() - jugador.getBotaX(),</span>
+<span class="fc" id="L265">                balon.getY() - jugador.getBotaY());</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        if (distanciaBota &lt;= ParametrosJuego.RADIO_BALON_COLISION</span>
+                + ParametrosJuego.RADIO_BOTA_JUGADOR + TOLERANCIA_CONTACTO) {
+<span class="fc" id="L268">            return true;</span>
+        }
+<span class="fc bfc" id="L270" title="All 2 branches covered.">        if (balon.getY() &lt; jugador.getBotaY()) {</span>
+<span class="fc" id="L271">            double distanciaCabeza = Math.hypot(balon.getX() - jugador.getCabezaX(),</span>
+<span class="fc" id="L272">                    balon.getY() - jugador.getCabezaY());</span>
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">            return distanciaCabeza &lt;= ParametrosJuego.RADIO_BALON_COLISION</span>
+                    + ParametrosJuego.RADIO_CABEZA_JUGADOR + TOLERANCIA_CONTACTO;
+        }
+<span class="fc" id="L276">        return false;</span>
+    }
+
+    private static double[] centroCabeza(Jugador jugador) {
+<span class="fc" id="L280">        return new double[]{jugador.getCabezaX(), jugador.getCabezaY()};</span>
+    }
+
+    private static double[] centroBota(Jugador jugador) {
+<span class="fc" id="L284">        return new double[]{jugador.getBotaX(), jugador.getBotaY()};</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

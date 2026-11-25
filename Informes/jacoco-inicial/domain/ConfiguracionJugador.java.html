@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConfiguracionJugador.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">ConfiguracionJugador.java</span></div><h1>ConfiguracionJugador.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+public class ConfiguracionJugador implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private final String nombre;
+    private final Estadisticas estadisticas;
+    private final Puntos puntos;
+
+    /**
+     * Crea la configuración de un jugador con puntos nuevos.
+     *
+     * @param nombre nombre del jugador
+     * @param estadisticas estadísticas físicas del jugador
+     * @throws ExcepcionDOPOSoccer si el nombre o las estadísticas no son válidos
+     */
+    public ConfiguracionJugador(String nombre, Estadisticas estadisticas) throws ExcepcionDOPOSoccer {
+<span class="fc" id="L21">        this(nombre, estadisticas, new Puntos());</span>
+<span class="fc" id="L22">    }</span>
+
+    /**
+     * Crea la configuración de un jugador con los datos indicados.
+     *
+     * @param nombre nombre del jugador
+     * @param estadisticas estadísticas físicas del jugador
+     * @param puntos puntos del jugador
+     * @throws ExcepcionDOPOSoccer si algún dato no es válido
+     */
+<span class="fc" id="L32">    public ConfiguracionJugador(String nombre, Estadisticas estadisticas, Puntos puntos) throws ExcepcionDOPOSoccer {</span>
+<span class="pc bpc" id="L33" title="1 of 4 branches missed.">        if (nombre == null || nombre.trim().isEmpty()) {</span>
+<span class="fc" id="L34">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.NOMBRE_INVALIDO);</span>
+        }
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (estadisticas == null) {</span>
+<span class="nc" id="L37">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.ESTADISTICAS_NULAS);</span>
+        }
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if (puntos == null) {</span>
+<span class="nc" id="L40">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.PUNTOS_NULOS);</span>
+        }
+<span class="fc" id="L42">        this.nombre = nombre;</span>
+<span class="fc" id="L43">        this.estadisticas = estadisticas;</span>
+<span class="fc" id="L44">        this.puntos = puntos;</span>
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * Obtiene el nombre del jugador.
+     *
+     * @return nombre del jugador
+     */
+    public String getNombre() {
+<span class="fc" id="L53">        return nombre;</span>
+    }
+
+    /**
+     * Obtiene las estadísticas del jugador.
+     *
+     * @return estadísticas del jugador
+     */
+    public Estadisticas getEstadisticas() {
+<span class="fc" id="L62">        return estadisticas;</span>
+    }
+
+    /**
+     * Obtiene los puntos del jugador.
+     *
+     * @return puntos del jugador
+     */
+    public Puntos getPuntos() {
+<span class="fc" id="L71">        return puntos;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
