@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExcepcionDOPOSoccer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">ExcepcionDOPOSoccer.java</span></div><h1>ExcepcionDOPOSoccer.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Excepción propia de DOPOSoccer para errores de configuración y validación.
+ */
+public class ExcepcionDOPOSoccer extends Exception {
+        // IA generativa el serialVersionUID es necesario para la serialización de la clase, ya que hereda de Exception, que implementa Serializable. Esto asegura que la clase pueda ser serializada y deserializada correctamente, manteniendo la compatibilidad entre diferentes versiones de la clase.
+        private static final long serialVersionUID = 1L;
+
+        public static final String MODALIDAD_NULA = &quot;La modalidad no puede ser nula&quot;;
+        public static final String TIPO_PARTIDO_NULO = &quot;El tipo de partido no puede ser nulo&quot;;
+        public static final String RESOLUCION_NULA = &quot;La resolución no puede ser nula&quot;;
+        public static final String TIEMPO_INVALIDO = &quot;El tiempo debe ser mayor que cero&quot;;
+        public static final String GOLES_INVALIDOS = &quot;Los goles deben ser mayores que cero&quot;;
+
+        public static final String NOMBRE_INVALIDO = &quot;El nombre no puede ser nulo o vacío&quot;;
+        public static final String ID_INVALIDO = &quot;El id no puede ser nulo o vacío&quot;;
+        public static final String CONFIGURACION_NULA = &quot;La configuración no puede ser nula&quot;;
+        public static final String ESTADISTICAS_NULAS = &quot;Las estadísticas no pueden ser nulas&quot;;
+        public static final String PUNTOS_NULOS = &quot;Los puntos no pueden ser nulos&quot;;
+        public static final String PUNTOS_INSUFICIENTES = &quot;No hay puntos suficientes para inscribirse en el torneo&quot;;
+
+        public static final String SAVE_ARCHIVO_NULO = &quot;No se indicó el archivo donde guardar el progreso&quot;;
+        public static final String SAVE_ES_CARPETA = &quot;No se puede guardar: la ruta indicada es una carpeta&quot;;
+        public static final String SAVE_EXTENSION_INVALIDA = &quot;El archivo para guardar debe tener extensión .dat&quot;;
+        public static final String SAVE_CARPETA_NO_EXISTE = &quot;La carpeta donde se quiere guardar no existe&quot;;
+        public static final String SAVE_SIN_PERMISO = &quot;No hay permiso de escritura en el archivo o en su carpeta&quot;;
+        public static final String SAVE_NO_SERIALIZABLE = &quot;El progreso contiene datos que no se pueden guardar&quot;;
+        public static final String SAVE_ERROR = &quot;Ocurrió un error al guardar el progreso&quot;;
+
+        public static final String OPEN_ARCHIVO_NULO = &quot;No se indicó el archivo que se quiere abrir&quot;;
+        public static final String OPEN_ES_CARPETA = &quot;No se puede abrir: la ruta indicada es una carpeta&quot;;
+        public static final String OPEN_NO_EXISTE = &quot;El archivo que se quiere abrir no existe&quot;;
+        public static final String OPEN_EXTENSION_INVALIDA = &quot;El archivo para abrir debe tener extensión .dat&quot;;
+        public static final String OPEN_SIN_PERMISO = &quot;No hay permiso de lectura en el archivo&quot;;
+        public static final String OPEN_NO_ES_PROGRESO =&quot;El archivo no contiene un progreso de DOPOSoccer&quot;;
+        public static final String OPEN_VERSION_INCOMPATIBLE =&quot;El archivo fue guardado con una versión incompatible&quot;;
+        public static final String OPEN_CLASE_DESCONOCIDA = &quot;El archivo contiene clases que esta versión no reconoce&quot;;
+        public static final String OPEN_ERROR = &quot;Ocurrió un error al abrir el progreso&quot;;
+
+        public static final String EXPORT_ARCHIVO_NULO = &quot;No se indicó el archivo donde exportar el progreso&quot;;
+        public static final String EXPORT_ES_CARPETA = &quot;No se puede exportar: la ruta indicada es una carpeta&quot;;
+        public static final String EXPORT_EXTENSION_INVALIDA = &quot;El archivo para exportar debe tener extensión .txt&quot;;
+        public static final String EXPORT_CARPETA_NO_EXISTE = &quot;La carpeta donde se quiere exportar no existe&quot;;
+        public static final String EXPORT_SIN_PERMISO = &quot;No hay permiso de escritura en el archivo o en su carpeta&quot;;
+        public static final String EXPORT_ERROR = &quot;Ocurrió un error al exportar el progreso&quot;;
+
+        public static final String IMPORT_ARCHIVO_NULO = &quot;No se indicó el archivo que se quiere importar&quot;;
+        public static final String IMPORT_ES_CARPETA = &quot;No se puede importar: la ruta indicada es una carpeta&quot;;
+        public static final String IMPORT_NO_EXISTE = &quot;El archivo que se quiere importar no existe&quot;;
+        public static final String IMPORT_EXTENSION_INVALIDA = &quot;El archivo para importar debe tener extensión .txt&quot;;
+        public static final String IMPORT_SIN_PERMISO = &quot;No hay permiso de lectura en el archivo&quot;;
+        public static final String IMPORT_ERROR = &quot;Ocurrió un error al importar el progreso&quot;;
+
+        public static final String PARTIDA_INVALIDA = &quot;La partida guardada no tiene todos los datos necesarios&quot;;
+        public static final String PARTIDA_SAVE_ARCHIVO_NULO = &quot;No se indicó el archivo donde guardar la partida&quot;;
+        public static final String PARTIDA_SAVE_ES_CARPETA = &quot;No se puede guardar la partida: la ruta indicada es una carpeta&quot;;
+        public static final String PARTIDA_SAVE_EXTENSION_INVALIDA = &quot;La partida debe guardarse con extensión .dat&quot;;
+        public static final String PARTIDA_SAVE_CARPETA_NO_EXISTE = &quot;La carpeta donde se quiere guardar la partida no existe&quot;;
+        public static final String PARTIDA_SAVE_SIN_PERMISO = &quot;No hay permiso de escritura en el archivo o en su carpeta&quot;;
+        public static final String PARTIDA_SAVE_NO_SERIALIZABLE = &quot;La partida contiene datos que no se pueden guardar&quot;;
+        public static final String PARTIDA_SAVE_ERROR = &quot;Ocurrió un error al guardar la partida&quot;;
+
+        public static final String PARTIDA_OPEN_ARCHIVO_NULO = &quot;No se indicó el archivo de la partida que se quiere abrir&quot;;
+        public static final String PARTIDA_OPEN_ES_CARPETA = &quot;No se puede abrir la partida: la ruta indicada es una carpeta&quot;;
+        public static final String PARTIDA_OPEN_NO_EXISTE = &quot;El archivo de la partida no existe&quot;;
+        public static final String PARTIDA_OPEN_EXTENSION_INVALIDA = &quot;La partida debe tener extensión .dat&quot;;
+        public static final String PARTIDA_OPEN_SIN_PERMISO = &quot;No hay permiso de lectura en el archivo de la partida&quot;;
+        public static final String PARTIDA_OPEN_NO_ES_PARTIDA = &quot;El archivo no contiene una partida de DOPOSoccer&quot;;
+        public static final String PARTIDA_OPEN_VERSION_INCOMPATIBLE = &quot;La partida fue guardada con una versión incompatible&quot;;
+        public static final String PARTIDA_OPEN_CLASE_DESCONOCIDA = &quot;La partida contiene clases que esta versión no reconoce&quot;;
+        public static final String PARTIDA_OPEN_ERROR = &quot;Ocurrió un error al abrir la partida&quot;;
+
+        /**
+         * Crea la excepción con el mensaje indicado.
+         *
+         * @param mensaje mensaje de la excepción
+         */
+        public ExcepcionDOPOSoccer(String mensaje) {
+<span class="fc" id="L80">                super(mensaje);</span>
+<span class="fc" id="L81">        }</span>
+
+        /**
+         * Crea la excepción con el mensaje y la causa indicados.
+         *
+         * @param mensaje mensaje de la excepción
+         * @param causa causa original del error
+         */
+        public ExcepcionDOPOSoccer(String mensaje, Throwable causa) {
+<span class="fc" id="L90">                super(mensaje, causa);</span>
+<span class="fc" id="L91">        }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

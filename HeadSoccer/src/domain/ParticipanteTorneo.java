@@ -4,7 +4,7 @@ package domain;
  * Participante de un torneo: el perfil humano con su personaje o una máquina
  * con su perfil de comportamiento y sus estadísticas.
  */
-public class ParticipanteTorneo {
+public final class ParticipanteTorneo {
 
     private final PerfilJugador perfilHumano;
     private final PerfilIA perfilIA;

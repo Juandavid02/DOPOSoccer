@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FabricaJugadores.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">FabricaJugadores.java</span></div><h1>FabricaJugadores.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.util.List;
+
+/**
+ * Crea los dos jugadores de un partido y sus barras de poder.
+ *
+ * Concentra la decisión entre jugador humano y jugador máquina para que
+ * Partido no tenga que conocer esos detalles de construcción.
+ */
+public final class FabricaJugadores {
+
+    private FabricaJugadores() {
+    }
+
+    /**
+     * Crea el jugador de la izquierda y el de la derecha.
+     *
+     * @param personaje1 personaje del jugador 1
+     * @param personaje2 personaje del jugador 2
+     * @param configuracion1 configuración del jugador 1
+     * @param configuracion2 configuración del jugador 2
+     * @param cancha cancha donde jugarán
+     * @param modalidad modalidad del partido
+     * @param perfilIA perfil de la máquina, si aplica
+     * @return lista con los dos jugadores
+     */
+    public static List&lt;Jugador&gt; crear(Personaje personaje1, Personaje personaje2, ConfiguracionJugador configuracion1, ConfiguracionJugador configuracion2,Cancha cancha, Modalidad modalidad, PerfilIA perfilIA) {
+<span class="fc" id="L29">        Jugador izquierdo = new JugadorHumano(configuracion1, personaje1,</span>
+<span class="fc" id="L30">                crearBarra(), Lado.IZQUIERDO,</span>
+<span class="fc" id="L31">                cancha.getAncho() / 4.0,</span>
+<span class="fc" id="L32">                cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);</span>
+        Jugador derecho;
+<span class="pc bpc" id="L34" title="1 of 4 branches missed.">        if (modalidad == Modalidad.PvsM &amp;&amp; perfilIA != null) {</span>
+<span class="fc" id="L35">            derecho = new JugadorMaquina(configuracion2, personaje2,</span>
+<span class="fc" id="L36">                    crearBarra(), Lado.DERECHO,</span>
+<span class="fc" id="L37">                    cancha.getAncho() * 3.0 / 4.0,</span>
+<span class="fc" id="L38">                    cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR,</span>
+                    perfilIA);
+        } else {
+<span class="fc" id="L41">            derecho = new JugadorHumano(configuracion2, personaje2,</span>
+<span class="fc" id="L42">                    crearBarra(), Lado.DERECHO,</span>
+<span class="fc" id="L43">                    cancha.getAncho() * 3.0 / 4.0,</span>
+<span class="fc" id="L44">                    cancha.getSuelo() - ParametrosJuego.RADIO_JUGADOR);</span>
+        }
+
+<span class="fc" id="L47">        return List.of(izquierdo, derecho);</span>
+    }
+
+    private static BarraPoder crearBarra() {
+<span class="fc" id="L51">        return new BarraPoder(ParametrosJuego.CAPACIDAD_BARRA_PODER,</span>
+                ParametrosJuego.RECARGA_BARRA_PODER);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

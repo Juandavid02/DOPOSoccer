@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Torneo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Torneo.java</span></div><h1>Torneo.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.util.Random;
+
+/**
+ * Torneo de eliminación directa con cuatro participantes: el humano y tres
+ * máquinas.
+ *
+ * La inscripción se cobra al crear el torneo y los premios se entregan
+ * una sola vez al finalizar. Los partidos del torneo no reparten puntos por
+ * sí mismos.
+ */
+public class Torneo {
+
+    private final PerfilJugador perfilHumano;
+    private final ParticipanteTorneo humano;
+    private final PartidoTorneo semifinal1;
+    private final PartidoTorneo semifinal2;
+
+    private PartidoTorneo finalTorneo;
+    private ParticipanteTorneo campeon;
+    private ParticipanteTorneo subcampeon;
+    private boolean premiosEntregados;
+
+    /**
+     * Crea el torneo y descuenta la inscripción del perfil humano.
+     *
+     * @param perfil perfil que paga la inscripción
+     * @param humano participante humano
+     * @param ia1 primer rival de la semifinal 1
+     * @param ia2 primer rival de la semifinal 2
+     * @param ia3 segundo rival de la semifinal 2
+     * @throws ExcepcionDOPOSoccer si no hay puntos suficientes
+     */
+    public Torneo(PerfilJugador perfil, ParticipanteTorneo humano,
+                  ParticipanteTorneo ia1, ParticipanteTorneo ia2,
+                  ParticipanteTorneo ia3) throws ExcepcionDOPOSoccer {
+<span class="fc" id="L38">        this(perfil, humano, ia1, ia2, ia3, true);</span>
+<span class="fc" id="L39">    }</span>
+
+    /**
+     * Crea el torneo con todos sus participantes.
+     *
+     * @param perfil perfil que paga la inscripción
+     * @param humano participante humano
+     * @param ia1 primer rival de la semifinal 1
+     * @param ia2 primer rival de la semifinal 2
+     * @param ia3 segundo rival de la semifinal 2
+     * @param cobrarInscripcion indica si se descuenta la inscripción
+     * @throws ExcepcionDOPOSoccer si no hay puntos suficientes
+     */
+    public Torneo(PerfilJugador perfil, ParticipanteTorneo humano,
+                  ParticipanteTorneo ia1, ParticipanteTorneo ia2,
+                  ParticipanteTorneo ia3, boolean cobrarInscripcion)
+<span class="fc" id="L55">            throws ExcepcionDOPOSoccer {</span>
+<span class="pc bpc" id="L56" title="5 of 10 branches missed.">        if (perfil == null || humano == null || ia1 == null</span>
+                || ia2 == null || ia3 == null) {
+<span class="nc" id="L58">            throw new IllegalArgumentException(</span>
+                    &quot;Los participantes del torneo no pueden ser nulos&quot;);
+        }
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (cobrarInscripcion</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">                &amp;&amp; !perfil.getPuntos().gastar(ParametrosJuego.COSTO_TORNEO)) {</span>
+<span class="fc" id="L63">            throw new ExcepcionDOPOSoccer(</span>
+                    ExcepcionDOPOSoccer.PUNTOS_INSUFICIENTES);
+        }
+
+<span class="fc" id="L67">        this.perfilHumano = perfil;</span>
+<span class="fc" id="L68">        this.humano = humano;</span>
+<span class="fc" id="L69">        this.semifinal1 = new PartidoTorneo(humano, ia1);</span>
+<span class="fc" id="L70">        this.semifinal2 = new PartidoTorneo(ia2, ia3);</span>
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Devuelve el perfil del jugador humano.
+     *
+     * @return perfil humano
+     */
+    public PerfilJugador getPerfilHumano() {
+<span class="nc" id="L79">        return perfilHumano;</span>
+    }
+
+    /**
+     * Devuelve el participante humano.
+     *
+     * @return participante humano
+     */
+    public ParticipanteTorneo getHumano() {
+<span class="nc" id="L88">        return humano;</span>
+    }
+
+    /**
+     * Devuelve la primera semifinal del torneo.
+     *
+     * @return primera semifinal
+     */
+    public PartidoTorneo getSemifinal1() {
+<span class="nc" id="L97">        return semifinal1;</span>
+    }
+
+    /**
+     * Devuelve la segunda semifinal del torneo.
+     *
+     * @return segunda semifinal
+     */
+    public PartidoTorneo getSemifinal2() {
+<span class="nc" id="L106">        return semifinal2;</span>
+    }
+
+    /**
+     * Devuelve la final del torneo.
+     *
+     * @return final o null si aún no se preparó
+     */
+    public PartidoTorneo getFinal() {
+<span class="fc" id="L115">        return finalTorneo;</span>
+    }
+
+    /**
+     * Devuelve el campeón del torneo.
+     *
+     * @return campeón o null si el torneo no terminó
+     */
+    public ParticipanteTorneo getCampeon() {
+<span class="nc" id="L124">        return campeon;</span>
+    }
+
+    /**
+     * Indica si el torneo ya terminó.
+     *
+     * @return true si la final ya fue jugada
+     */
+    public boolean isTerminado() {
+<span class="nc bnc" id="L133" title="All 4 branches missed.">        return finalTorneo != null &amp;&amp; finalTorneo.isJugado();</span>
+    }
+
+    /**
+     * Indica si el humano es el campeón.
+     *
+     * @return true si el humano ganó el torneo
+     */
+    public boolean isHumanoCampeon() {
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        return campeon == humano;</span>
+    }
+
+    /**
+     * Indica si el humano es el subcampeón.
+     *
+     * @return true si el humano perdió la final
+     */
+    public boolean isHumanoSubcampeon() {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        return subcampeon == humano;</span>
+    }
+
+    /**
+     * Indica si el humano fue eliminado del torneo.
+     *
+     * @return true si el humano ya no puede seguir jugando
+     */
+    public boolean isHumanoEliminado() {
+<span class="fc" id="L160">        return humano.isEliminado();</span>
+    }
+
+    /**
+     * Premio en puntos que le corresponde al humano según el estado actual.
+     *
+     * @return 500 si es campeón, 150 si es subcampeón, 0 en otro caso
+     */
+    public int getPremioHumano() {
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (isHumanoCampeon()) {</span>
+<span class="fc" id="L170">            return ParametrosJuego.PREMIO_CAMPEON_TORNEO;</span>
+        }
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (isHumanoSubcampeon()) {</span>
+<span class="fc" id="L173">            return ParametrosJuego.PREMIO_SUBCAMPEON_TORNEO;</span>
+        }
+<span class="fc" id="L175">        return 0;</span>
+    }
+
+    /**
+     * Devuelve el partido que le toca jugar al humano, o null si ya no tiene
+     * partidos pendientes.
+     *
+     * @return semifinal 1, final o null
+     */
+    public PartidoTorneo getSiguientePartidoHumano() {
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        if (!semifinal1.isJugado()) {</span>
+<span class="fc" id="L186">            return semifinal1;</span>
+        }
+<span class="pc bpc" id="L188" title="3 of 6 branches missed.">        if (!humano.isEliminado() &amp;&amp; semifinal2.isJugado()</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">                &amp;&amp; finalTorneo != null &amp;&amp; !finalTorneo.isJugado()) {</span>
+<span class="fc" id="L190">            return finalTorneo;</span>
+        }
+<span class="nc" id="L192">        return null;</span>
+    }
+
+    /**
+     * Registra el resultado del partido actual del humano y avanza la llave.
+     *
+     * @param golesHumano goles del humano
+     * @param golesRival goles de la máquina
+     * @param random generador para simular los partidos de IA
+     * @return true si había un partido pendiente y se registró
+     */
+    public boolean registrarResultadoHumano(int golesHumano, int golesRival,
+                                            Random random) {
+<span class="fc" id="L205">        PartidoTorneo partido = getSiguientePartidoHumano();</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        if (partido == null) {</span>
+<span class="nc" id="L207">            return false;</span>
+        }
+        int golesPrimero;
+        int golesSegundo;
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">        if (partido.getPrimero().isHumano()) {</span>
+<span class="fc" id="L212">            golesPrimero = golesHumano;</span>
+<span class="fc" id="L213">            golesSegundo = golesRival;</span>
+        } else {
+<span class="nc" id="L215">            golesPrimero = golesRival;</span>
+<span class="nc" id="L216">            golesSegundo = golesHumano;</span>
+        }
+<span class="fc" id="L218">        partido.registrar(golesPrimero, golesSegundo);</span>
+<span class="fc" id="L219">        simularPendientes(random);</span>
+<span class="fc" id="L220">        return true;</span>
+    }
+
+    /**
+     * Simula la otra semifinal si hace falta y, cuando el humano ya está
+     * eliminado, también simula la final para completar la llave.
+     *
+     * @param random generador de resultados
+     */
+    public void simularPendientes(Random random) {
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">        if (random == null) {</span>
+<span class="nc" id="L231">            random = new Random();</span>
+        }
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        if (!semifinal2.isJugado()) {</span>
+<span class="fc" id="L234">            simular(semifinal2, random);</span>
+        }
+<span class="fc" id="L236">        prepararFinal();</span>
+
+<span class="pc bpc" id="L238" title="1 of 4 branches missed.">        if (finalTorneo != null &amp;&amp; !finalTorneo.isJugado()</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">                &amp;&amp; humano.isEliminado()) {</span>
+<span class="fc" id="L240">            simular(finalTorneo, random);</span>
+        }
+<span class="fc" id="L242">        finalizar();</span>
+<span class="fc" id="L243">    }</span>
+
+    /**
+     * Prepara la final cuando ambas semifinales ya se jugaron.
+     */
+    private void prepararFinal() {
+<span class="pc bpc" id="L249" title="1 of 4 branches missed.">        if (finalTorneo != null || !semifinal1.isJugado()</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">                || !semifinal2.isJugado()) {</span>
+<span class="fc" id="L251">            return;</span>
+        }
+
+<span class="fc" id="L254">        ParticipanteTorneo primero = semifinal1.getGanador();</span>
+<span class="fc" id="L255">        ParticipanteTorneo segundo = semifinal2.getGanador();</span>
+
+        // Las IAs mejoran al avanzar de ronda; el humano no.
+<span class="fc" id="L258">        primero.mejorar();</span>
+<span class="fc" id="L259">        segundo.mejorar();</span>
+
+<span class="fc" id="L261">        finalTorneo = new PartidoTorneo(primero, segundo);</span>
+<span class="fc" id="L262">    }</span>
+
+    /**
+     * Simula un partido del torneo y registra su resultado.
+     *
+     * @param partido partido a simular
+     * @param random generador de resultados
+     */
+    private void simular(PartidoTorneo partido, Random random) {
+<span class="fc" id="L271">        int[] goles = simularGoles(partido.getPrimero(),</span>
+<span class="fc" id="L272">                partido.getSegundo(), random);</span>
+<span class="fc" id="L273">        partido.registrar(goles[0], goles[1]);</span>
+<span class="fc" id="L274">    }</span>
+
+    /**
+     * Genera un marcador aleatorio entre dos participantes.
+     *
+     * @param primero primer participante
+     * @param segundo segundo participante
+     * @param random generador de resultados
+     * @return goles del primero y del segundo
+     */
+    private int[] simularGoles(ParticipanteTorneo primero,
+                               ParticipanteTorneo segundo,
+                               Random random) {
+<span class="fc" id="L287">        int fuerzaPrimero = fuerza(primero);</span>
+<span class="fc" id="L288">        int fuerzaSegundo = fuerza(segundo);</span>
+<span class="fc" id="L289">        double probabilidadPrimero = (double) fuerzaPrimero</span>
+                / (fuerzaPrimero + fuerzaSegundo);
+
+<span class="fc" id="L292">        int golesPrimero = random.nextInt(4);</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">        if (random.nextDouble() &lt; probabilidadPrimero) {</span>
+<span class="fc" id="L294">            golesPrimero++;</span>
+        }
+<span class="fc" id="L296">        int golesSegundo = random.nextInt(4);</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">        if (random.nextDouble() &lt; 1 - probabilidadPrimero) {</span>
+<span class="fc" id="L298">            golesSegundo++;</span>
+        }
+
+<span class="fc bfc" id="L301" title="All 2 branches covered.">        while (golesPrimero == golesSegundo) {</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">            if (random.nextDouble() &lt; probabilidadPrimero) {</span>
+<span class="fc" id="L303">                golesPrimero++;</span>
+            } else {
+<span class="nc" id="L305">                golesSegundo++;</span>
+            }
+        }
+<span class="fc" id="L308">        return new int[]{golesPrimero, golesSegundo};</span>
+    }
+
+    /**
+     * Calcula la fuerza total de un participante.
+     *
+     * @param participante participante consultado
+     * @return suma de sus estadísticas
+     */
+    private static int fuerza(ParticipanteTorneo participante) {
+<span class="fc" id="L318">        Estadisticas estadisticas = participante.getEstadisticas();</span>
+<span class="fc" id="L319">        return estadisticas.getSpeed() + estadisticas.getJump()</span>
+<span class="fc" id="L320">                + estadisticas.getKick() + estadisticas.getSurvival();</span>
+    }
+
+    /**
+     * Entrega los premios al finalizar el torneo.
+     */
+    private void finalizar() {
+<span class="pc bpc" id="L327" title="2 of 4 branches missed.">        if (premiosEntregados || finalTorneo == null</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">                || !finalTorneo.isJugado()) {</span>
+<span class="fc" id="L329">            return;</span>
+        }
+<span class="fc" id="L331">        premiosEntregados = true;</span>
+<span class="fc" id="L332">        campeon = finalTorneo.getGanador();</span>
+<span class="fc" id="L333">        subcampeon = finalTorneo.getPerdedor();</span>
+
+<span class="fc bfc" id="L335" title="All 2 branches covered.">        if (isHumanoCampeon()) {</span>
+<span class="fc" id="L336">            perfilHumano.getPuntos().sumar(</span>
+                    ParametrosJuego.PREMIO_CAMPEON_TORNEO);
+<span class="fc bfc" id="L338" title="All 2 branches covered.">        } else if (isHumanoSubcampeon()) {</span>
+<span class="fc" id="L339">            perfilHumano.getPuntos().sumar(</span>
+                    ParametrosJuego.PREMIO_SUBCAMPEON_TORNEO);
+        }
+<span class="fc" id="L342">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

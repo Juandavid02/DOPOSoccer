@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PerfilJugador.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">PerfilJugador.java</span></div><h1>PerfilJugador.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+/**
+ * Perfil de una persona. No tiene lado fijo ni personaje: en una partida
+ * puede ocupar cualquiera de los dos lados y el personaje se elige después.
+ *
+ * Cada perfil guarda sus propios personajes, balones y escenarios
+ * desbloqueados. Lo que compra un perfil en la tienda no lo desbloquea para
+ * los demás perfiles.
+ */
+public class PerfilJugador implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /** Personajes disponibles para todo perfil nuevo. */
+<span class="fc" id="L23">    private static final List&lt;String&gt; PERSONAJES_INICIALES = List.of(</span>
+            &quot;Betty la fea&quot;,
+            &quot;El Chavo del Ocho&quot;,
+            &quot;Goku&quot;,
+            &quot;Bob Esponja&quot;);
+
+    /** Balones disponibles para todo perfil nuevo. */
+<span class="fc" id="L30">    private static final List&lt;String&gt; BALONES_INICIALES = List.of(</span>
+            &quot;Mario&quot;,
+            &quot;Betty&quot;);
+
+    /** Escenarios disponibles para todo perfil nuevo. */
+<span class="fc" id="L35">    private static final List&lt;String&gt; ESCENARIOS_INICIALES = List.of(</span>
+            &quot;Fondo de Bikini&quot;,
+            &quot;Tenkaichi Budokai&quot;,
+            &quot;Vecindad del Chavo&quot;);
+
+    private final String id;
+    private String nombre;
+    private ConfiguracionJugador configuracion;
+<span class="fc" id="L43">    private final Set&lt;String&gt; personajesDesbloqueados =</span>
+            new HashSet&lt;&gt;(PERSONAJES_INICIALES);
+<span class="fc" id="L45">    private final Set&lt;String&gt; balonesDesbloqueados =</span>
+            new HashSet&lt;&gt;(BALONES_INICIALES);
+<span class="fc" id="L47">    private final Set&lt;String&gt; escenariosDesbloqueados =</span>
+            new HashSet&lt;&gt;(ESCENARIOS_INICIALES);
+
+    /**
+     * Crea un perfil nuevo con estadísticas iniciales y cero puntos.
+     *
+     * @param nombre el nombre del perfil
+     * @throws ExcepcionDOPOSoccer si el nombre no es válido
+     */
+    public PerfilJugador(String nombre) throws ExcepcionDOPOSoccer {
+<span class="fc" id="L57">        this(UUID.randomUUID().toString(), nombre, estadisticasIniciales(nombre));</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * Crea un perfil con todos sus datos.
+     *
+     * @param id identificador único del perfil
+     * @param nombre nombre del perfil
+     * @param configuracion configuración con estadísticas y puntos
+     * @throws ExcepcionDOPOSoccer si algún dato no es válido
+     */
+    public PerfilJugador(String id, String nombre, ConfiguracionJugador configuracion)
+<span class="fc" id="L69">            throws ExcepcionDOPOSoccer {</span>
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">        if (id == null || id.trim().isEmpty()) {</span>
+<span class="nc" id="L71">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.ID_INVALIDO);</span>
+        }
+<span class="fc" id="L73">        validarNombre(nombre);</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (configuracion == null) {</span>
+<span class="nc" id="L75">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.CONFIGURACION_NULA);</span>
+        }
+<span class="fc" id="L77">        this.id = id;</span>
+<span class="fc" id="L78">        this.nombre = nombre;</span>
+<span class="fc" id="L79">        this.configuracion = configuracion;</span>
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Crea la configuración inicial de un perfil con estadísticas base.
+     *
+     * @param nombre nombre del perfil
+     * @return configuración inicial del perfil
+     * @throws ExcepcionDOPOSoccer si el nombre no es válido
+     */
+    private static ConfiguracionJugador estadisticasIniciales(String nombre)
+            throws ExcepcionDOPOSoccer {
+<span class="fc" id="L91">        validarNombre(nombre);</span>
+<span class="fc" id="L92">        int inicial = ParametrosJuego.ESTADISTICA_INICIAL;</span>
+<span class="fc" id="L93">        Estadisticas estadisticas = new Estadisticas(</span>
+                inicial, inicial, inicial, inicial);
+<span class="fc" id="L95">        return new ConfiguracionJugador(nombre, estadisticas);</span>
+    }
+
+    /**
+     * Comprueba que el nombre del perfil sea válido.
+     *
+     * @param nombre nombre a validar
+     * @throws ExcepcionDOPOSoccer si el nombre no es válido
+     */
+    private static void validarNombre(String nombre) throws ExcepcionDOPOSoccer {
+<span class="pc bpc" id="L105" title="1 of 4 branches missed.">        if (nombre == null || nombre.trim().isEmpty()) {</span>
+<span class="fc" id="L106">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.NOMBRE_INVALIDO);</span>
+        }
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Devuelve el identificador del perfil.
+     *
+     * @return identificador único
+     */
+    public String getId() {
+<span class="fc" id="L116">        return id;</span>
+    }
+
+    /**
+     * Devuelve el nombre del perfil.
+     *
+     * @return nombre del perfil
+     */
+    public String getNombre() {
+<span class="fc" id="L125">        return nombre;</span>
+    }
+
+    /**
+     * Cambia el nombre del perfil conservando sus estadísticas y puntos.
+     *
+     * @param nombre el nuevo nombre
+     * @throws ExcepcionDOPOSoccer si el nombre no es válido
+     */
+    public void setNombre(String nombre) throws ExcepcionDOPOSoccer {
+<span class="nc" id="L135">        validarNombre(nombre);</span>
+<span class="nc" id="L136">        this.nombre = nombre;</span>
+<span class="nc" id="L137">        this.configuracion = new ConfiguracionJugador(</span>
+                nombre,
+<span class="nc" id="L139">                configuracion.getEstadisticas(),</span>
+<span class="nc" id="L140">                configuracion.getPuntos());</span>
+<span class="nc" id="L141">    }</span>
+
+    /**
+     * Devuelve la configuración del perfil.
+     *
+     * @return configuración con estadísticas y puntos
+     */
+    public ConfiguracionJugador getConfiguracion() {
+<span class="fc" id="L149">        return configuracion;</span>
+    }
+
+    /**
+     * Devuelve las estadísticas del perfil.
+     *
+     * @return estadísticas del perfil
+     */
+    public Estadisticas getEstadisticas() {
+<span class="fc" id="L158">        return configuracion.getEstadisticas();</span>
+    }
+
+    /**
+     * Devuelve los puntos del perfil.
+     *
+     * @return puntos acumulados
+     */
+    public Puntos getPuntos() {
+<span class="fc" id="L167">        return configuracion.getPuntos();</span>
+    }
+
+    /**
+     * Indica si este perfil desbloqueó un personaje.
+     *
+     * @param nombre nombre del personaje
+     * @return true si el perfil puede usar ese personaje
+     */
+    public boolean estaDesbloqueadoPersonaje(String nombre) {
+<span class="pc bpc" id="L177" title="1 of 4 branches missed.">        return nombre != null &amp;&amp; personajesDesbloqueados.contains(nombre);</span>
+    }
+
+    /**
+     * Indica si este perfil desbloqueó un balón.
+     *
+     * @param nombre nombre del balón
+     * @return true si el perfil puede usar ese balón
+     */
+    public boolean estaDesbloqueadoBalon(String nombre) {
+<span class="pc bpc" id="L187" title="2 of 4 branches missed.">        return nombre != null &amp;&amp; balonesDesbloqueados.contains(nombre);</span>
+    }
+
+    /**
+     * Indica si este perfil desbloqueó un escenario.
+     *
+     * @param nombre nombre del escenario
+     * @return true si el perfil puede usar ese escenario
+     */
+    public boolean estaDesbloqueadoEscenario(String nombre) {
+<span class="pc bpc" id="L197" title="2 of 4 branches missed.">        return nombre != null &amp;&amp; escenariosDesbloqueados.contains(nombre);</span>
+    }
+
+    /**
+     * Marca un personaje como desbloqueado para este perfil.
+     *
+     * @param nombre nombre del personaje
+     * @return true si el personaje no estaba desbloqueado
+     */
+    public boolean desbloquearPersonaje(String nombre) {
+<span class="pc bpc" id="L207" title="1 of 4 branches missed.">        return nombre != null &amp;&amp; personajesDesbloqueados.add(nombre);</span>
+    }
+
+    /**
+     * Marca un balón como desbloqueado para este perfil.
+     *
+     * @param nombre nombre del balón
+     * @return true si el balón no estaba desbloqueado
+     */
+    public boolean desbloquearBalon(String nombre) {
+<span class="pc bpc" id="L217" title="1 of 4 branches missed.">        return nombre != null &amp;&amp; balonesDesbloqueados.add(nombre);</span>
+    }
+
+    /**
+     * Marca un escenario como desbloqueado para este perfil.
+     *
+     * @param nombre nombre del escenario
+     * @return true si el escenario no estaba desbloqueado
+     */
+    public boolean desbloquearEscenario(String nombre) {
+<span class="pc bpc" id="L227" title="1 of 4 branches missed.">        return nombre != null &amp;&amp; escenariosDesbloqueados.add(nombre);</span>
+    }
+
+    /**
+     * Devuelve los personajes desbloqueados del perfil.
+     *
+     * @return conjunto de personajes desbloqueados
+     */
+    public Set&lt;String&gt; getPersonajesDesbloqueados() {
+<span class="fc" id="L236">        return Collections.unmodifiableSet(personajesDesbloqueados);</span>
+    }
+
+    /**
+     * Devuelve los balones desbloqueados del perfil.
+     *
+     * @return conjunto de balones desbloqueados
+     */
+    public Set&lt;String&gt; getBalonesDesbloqueados() {
+<span class="fc" id="L245">        return Collections.unmodifiableSet(balonesDesbloqueados);</span>
+    }
+
+    /**
+     * Devuelve los escenarios desbloqueados del perfil.
+     *
+     * @return conjunto de escenarios desbloqueados
+     */
+    public Set&lt;String&gt; getEscenariosDesbloqueados() {
+<span class="fc" id="L254">        return Collections.unmodifiableSet(escenariosDesbloqueados);</span>
+    }
+
+    /**
+     * Calcula cuántas mejoras se han comprado, tomando como base las
+     * estadísticas iniciales.
+     *
+     * @return cantidad de puntos de estadística mejorados
+     */
+    public int getMejorasCompradas() {
+<span class="nc" id="L264">        Estadisticas estadisticas = configuracion.getEstadisticas();</span>
+<span class="nc" id="L265">        int inicial = ParametrosJuego.ESTADISTICA_INICIAL;</span>
+<span class="nc" id="L266">        int total = (estadisticas.getSpeed() - inicial)</span>
+<span class="nc" id="L267">                + (estadisticas.getJump() - inicial)</span>
+<span class="nc" id="L268">                + (estadisticas.getKick() - inicial)</span>
+<span class="nc" id="L269">                + (estadisticas.getSurvival() - inicial);</span>
+<span class="nc" id="L270">        return Math.max(0, total);</span>
+    }
+
+    /**
+     * Costo de la siguiente mejora. El precio se duplica después de cada
+     * compra: 500, 1000, 2000, 4000...
+     *
+     * @return costo en puntos
+     */
+    public int getCostoSiguienteMejora() {
+<span class="nc" id="L280">        long costo = ParametrosJuego.COSTO_MEJORA_INICIAL;</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        for (int i = 0; i &lt; getMejorasCompradas(); i++) {</span>
+<span class="nc" id="L282">            costo *= ParametrosJuego.FACTOR_COSTO_MEJORA;</span>
+        }
+<span class="nc" id="L284">        return (int) Math.min(Integer.MAX_VALUE, costo);</span>
+    }
+
+    /**
+     * Indica si una estadística todavía puede subir.
+     *
+     * @param tipo estadística consultada
+     * @return true si está por debajo del máximo
+     */
+    public boolean puedeMejorar(TipoEstadistica tipo) {
+<span class="nc bnc" id="L294" title="All 2 branches missed.">        if (tipo == null) {</span>
+<span class="nc" id="L295">            return false;</span>
+        }
+<span class="nc bnc" id="L297" title="All 2 branches missed.">        return tipo.getValor(configuracion.getEstadisticas())</span>
+                &lt; ParametrosJuego.MAX_ESTADISTICA;
+    }
+
+    /**
+     * Compra un punto de mejora para una estadística y descuenta los puntos
+     * del perfil.
+     *
+     * @param tipo estadística que se mejora
+     * @return true si la compra se realizó
+     * @throws ExcepcionDOPOSoccer si no se puede crear la nueva configuración
+     */
+    public boolean mejorar(TipoEstadistica tipo) throws ExcepcionDOPOSoccer {
+<span class="nc bnc" id="L310" title="All 2 branches missed.">        if (!puedeMejorar(tipo)) {</span>
+<span class="nc" id="L311">            return false;</span>
+        }
+
+<span class="nc" id="L314">        int costo = getCostoSiguienteMejora();</span>
+<span class="nc bnc" id="L315" title="All 2 branches missed.">        if (!configuracion.getPuntos().gastar(costo)) {</span>
+<span class="nc" id="L316">            return false;</span>
+        }
+
+<span class="nc" id="L319">        Estadisticas actuales = configuracion.getEstadisticas();</span>
+<span class="nc" id="L320">        int speed = actuales.getSpeed();</span>
+<span class="nc" id="L321">        int jump = actuales.getJump();</span>
+<span class="nc" id="L322">        int kick = actuales.getKick();</span>
+<span class="nc" id="L323">        int survival = actuales.getSurvival();</span>
+
+<span class="nc bnc" id="L325" title="All 5 branches missed.">        switch (tipo) {</span>
+            case VELOCIDAD:
+<span class="nc" id="L327">                speed++;</span>
+<span class="nc" id="L328">                break;</span>
+            case SALTO:
+<span class="nc" id="L330">                jump++;</span>
+<span class="nc" id="L331">                break;</span>
+            case PATADA:
+<span class="nc" id="L333">                kick++;</span>
+<span class="nc" id="L334">                break;</span>
+            case SUPERVIVENCIA:
+<span class="nc" id="L336">                survival++;</span>
+<span class="nc" id="L337">                break;</span>
+            default:
+<span class="nc" id="L339">                throw new IllegalStateException(&quot;Estadística desconocida: &quot; + tipo);</span>
+        }
+
+<span class="nc" id="L342">        configuracion = new ConfiguracionJugador(</span>
+                nombre,
+                new Estadisticas(speed, jump, kick, survival),
+<span class="nc" id="L345">                configuracion.getPuntos());</span>
+<span class="nc" id="L346">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

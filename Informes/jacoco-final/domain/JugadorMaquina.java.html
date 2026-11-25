@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JugadorMaquina.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">JugadorMaquina.java</span></div><h1>JugadorMaquina.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Jugador concreto controlado por la máquina. Delega sus decisiones en un
+ * ControladorIA según el perfil elegido.
+ */
+public class JugadorMaquina extends Jugador {
+
+    private final ControladorIA controlador;
+
+    /**
+     * Crea un jugador controlado por la máquina con el perfil indicado.
+     *
+     * @param configuracion configuración del jugador
+     * @param personaje personaje elegido
+     * @param barraPoder barra de poder del jugador
+     * @param lado lado de la cancha que defiende
+     * @param posicionX posición inicial en el eje X
+     * @param posicionY posición inicial en el eje YQQ
+     * @param perfil perfil de inteligencia artificial
+     */
+    public JugadorMaquina(ConfiguracionJugador configuracion, Personaje personaje,  BarraPoder barraPoder, Lado lado, double posicionX, double posicionY, PerfilIA perfil) {
+<span class="fc" id="L23">        super(configuracion, personaje, barraPoder, lado, posicionX, posicionY);</span>
+<span class="fc" id="L24">        this.controlador = FabricaControladorIA.crear(perfil);</span>
+<span class="fc" id="L25">    }</span>
+
+    /**
+     * Actualiza el control del jugador delegando en su controlador de IA.
+     *
+     * @param partido partido en curso
+     * @param dt tiempo transcurrido
+     */
+    @Override
+    public void actualizarControl(Partido partido, double dt) {
+<span class="fc" id="L35">        controlador.actualizar(partido, this, dt);</span>
+<span class="fc" id="L36">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -3,7 +3,7 @@ package domain;
 import java.util.List;
 
 
-public class CatalogoPersonajes {
+public final class CatalogoPersonajes {
     /**
      * Constructor privado para evitar instancias del catálogo.
      */

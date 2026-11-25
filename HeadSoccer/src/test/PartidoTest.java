@@ -350,6 +350,143 @@ public class PartidoTest
     }
 
     /**
+     * El aviso de patada se consume una sola vez.
+     */
+    @Test
+    public void shouldConsumeKickNotificationOnce()
+    {
+        partido.actualizar(0.016);
+        assertFalse(partido.consumirPatada(1));
+
+        Jugador jugador1 = partido.getJugadores().get(0);
+        partido.getBalon().reiniciar(jugador1.getPosicionX() + 10,
+                jugador1.getPosicionY());
+        partido.patear(1);
+
+        assertTrue(partido.consumirPatada(1));
+        assertFalse(partido.consumirPatada(1));
+        assertFalse(partido.consumirPatada(2));
+    }
+
+    /**
+     * Una patada sin balón daña al rival si está al alcance.
+     */
+    @Test
+    public void shouldDamageRivalWhenKickReachesIt()
+    {
+        partido.actualizar(0.016);
+        Jugador jugador1 = partido.getJugadores().get(0);
+        Jugador jugador2 = partido.getJugadores().get(1);
+        partido.getBalon().reiniciar(400, 400);
+
+        double suelo = partido.getCancha().getSuelo()
+                - ParametrosJuego.RADIO_JUGADOR;
+        jugador1.reiniciar(600, suelo);
+        jugador2.reiniciar(640, suelo);
+        double vidaAntes = jugador2.getVida().getActual();
+
+        partido.patear(1);
+
+        assertTrue(jugador2.getVida().getActual() < vidaAntes);
+    }
+
+    /**
+     * Una patada sin balón no daña al rival si está lejos.
+     */
+    @Test
+    public void shouldNotDamageRivalWhenKickDoesNotReachIt()
+    {
+        partido.actualizar(0.016);
+        Jugador jugador1 = partido.getJugadores().get(0);
+        Jugador jugador2 = partido.getJugadores().get(1);
+        partido.getBalon().reiniciar(400, 400);
+
+        double suelo = partido.getCancha().getSuelo()
+                - ParametrosJuego.RADIO_JUGADOR;
+        jugador1.reiniciar(600, suelo);
+        jugador2.reiniciar(900, suelo);
+        double vidaAntes = jugador2.getVida().getActual();
+
+        partido.patear(1);
+
+        assertEquals(vidaAntes, jugador2.getVida().getActual(), 0.0001);
+    }
+
+    /**
+     * Un partido pausado no registra patadas.
+     */
+    @Test
+    public void shouldNotRegisterKickWhenPaused()
+    {
+        partido.pausar();
+        partido.patear(1);
+
+        assertFalse(partido.consumirPatada(1));
+    }
+
+    /**
+     * Un jugador aturdido no puede registrar una patada.
+     */
+    @Test
+    public void shouldNotRegisterKickWhenStunned()
+    {
+        partido.actualizar(0.016);
+        partido.getJugadores().get(0).aturdir();
+
+        partido.patear(1);
+
+        assertFalse(partido.consumirPatada(1));
+    }
+
+    /**
+     * El ganador recibe cien puntos y el perdedor veinticinco.
+     */
+    @Test
+    public void shouldAwardPointsToWinnerAndLoser()
+    {
+        partido.sumarGol(1);
+        partido.terminar(MotivoFin.TIEMPO);
+
+        assertEquals(ParametrosJuego.PUNTOS_GANADOR,
+                partido.getPuntosJugador1());
+        assertEquals(ParametrosJuego.PUNTOS_PERDEDOR,
+                partido.getPuntosJugador2());
+        assertEquals(ParametrosJuego.PUNTOS_GANADOR,
+                partido.getJugadores().get(0).getPuntos().getTotal());
+        assertEquals(ParametrosJuego.PUNTOS_PERDEDOR,
+                partido.getJugadores().get(1).getPuntos().getTotal());
+    }
+
+    /**
+     * El ganador del lado derecho también recibe los cien puntos.
+     */
+    @Test
+    public void shouldAwardPointsWhenPlayerTwoWins()
+    {
+        partido.sumarGol(2);
+        partido.terminar(MotivoFin.GOLES);
+
+        assertEquals(ParametrosJuego.PUNTOS_PERDEDOR,
+                partido.getPuntosJugador1());
+        assertEquals(ParametrosJuego.PUNTOS_GANADOR,
+                partido.getPuntosJugador2());
+    }
+
+    /**
+     * En un empate ambos reciben los puntos del perdedor.
+     */
+    @Test
+    public void shouldAwardLoserPointsWhenDraw()
+    {
+        partido.terminar(MotivoFin.TIEMPO);
+
+        assertEquals(ParametrosJuego.PUNTOS_PERDEDOR,
+                partido.getPuntosJugador1());
+        assertEquals(ParametrosJuego.PUNTOS_PERDEDOR,
+                partido.getPuntosJugador2());
+    }
+
+    /**
      * Crea un partido de prueba con el tipo y los goles indicados.
      */
     private Partido crearPartido(TipoPartido tipo, int goles)

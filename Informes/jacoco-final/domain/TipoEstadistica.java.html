@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TipoEstadistica.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">TipoEstadistica.java</span></div><h1>TipoEstadistica.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Estadísticas que se pueden mejorar con puntos.
+ */
+<span class="fc" id="L6">public enum TipoEstadistica {</span>
+<span class="fc" id="L7">    VELOCIDAD(&quot;Velocidad&quot;),</span>
+<span class="fc" id="L8">    SALTO(&quot;Salto&quot;),</span>
+<span class="fc" id="L9">    PATADA(&quot;Patada&quot;),</span>
+<span class="fc" id="L10">    SUPERVIVENCIA(&quot;Supervivencia&quot;);</span>
+
+    private final String etiqueta;
+
+    /**
+     * Crea la estadística con su etiqueta.
+     *
+     * @param etiqueta nombre legible de la estadística
+     */
+<span class="fc" id="L19">    TipoEstadistica(String etiqueta) {</span>
+<span class="fc" id="L20">        this.etiqueta = etiqueta;</span>
+<span class="fc" id="L21">    }</span>
+
+    /**
+     * Obtiene la etiqueta de la estadística.
+     *
+     * @return nombre legible de la estadística
+     */
+    public String getEtiqueta() {
+<span class="fc" id="L29">        return etiqueta;</span>
+    }
+
+    /**
+     * Devuelve el valor actual de esta estadística.
+     *
+     * @param estadisticas estadísticas del jugador
+     * @return valor entre 1 y 10
+     */
+    public int getValor(Estadisticas estadisticas) {
+<span class="pc bpc" id="L39" title="1 of 5 branches missed.">        switch (this) {</span>
+            case VELOCIDAD:
+<span class="fc" id="L41">                return estadisticas.getSpeed();</span>
+            case SALTO:
+<span class="fc" id="L43">                return estadisticas.getJump();</span>
+            case PATADA:
+<span class="fc" id="L45">                return estadisticas.getKick();</span>
+            case SUPERVIVENCIA:
+<span class="fc" id="L47">                return estadisticas.getSurvival();</span>
+            default:
+<span class="nc" id="L49">                throw new IllegalStateException(&quot;Estadística desconocida: &quot; + this);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

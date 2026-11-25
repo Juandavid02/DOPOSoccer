@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Personaje.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Personaje.java</span></div><h1>Personaje.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+public class Personaje implements Serializable {
+    private final String nombre;
+    private final String pais;
+    private final Poder poder;
+
+    /**
+     * Crea un personaje con nombre, país y poder.
+     *
+     * @param nombre nombre del personaje
+     * @param pais país del personaje
+     * @param poder poder del personaje
+     */
+<span class="fc" id="L17">    public Personaje(String nombre, String pais, Poder poder) {</span>
+<span class="fc bfc" id="L18" title="All 4 branches covered.">        if (nombre == null || nombre.trim().isEmpty()) {</span>
+<span class="fc" id="L19">            throw new IllegalArgumentException(&quot;El nombre no puede ser nulo o vacío&quot;);</span>
+        }
+<span class="fc bfc" id="L21" title="All 4 branches covered.">        if (pais == null || pais.trim().isEmpty()) {</span>
+<span class="fc" id="L22">            throw new IllegalArgumentException(&quot;El país no puede ser nulo o vacío&quot;);</span>
+        }
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (poder == null) {</span>
+<span class="fc" id="L25">            throw new IllegalArgumentException(&quot;El poder no puede ser nulo&quot;);</span>
+        }
+<span class="fc" id="L27">        this.nombre = nombre;</span>
+<span class="fc" id="L28">        this.pais = pais;</span>
+<span class="fc" id="L29">        this.poder = poder;</span>
+<span class="fc" id="L30">    }</span>
+
+    /**
+     * Obtiene el nombre del personaje.
+     *
+     * @return nombre del personaje
+     */
+    public String getNombre() {
+<span class="fc" id="L38">        return nombre;</span>
+    }
+
+    /**
+     * Obtiene el país del personaje.
+     *
+     * @return país del personaje
+     */
+    public String getPais() {
+<span class="fc" id="L47">        return pais;</span>
+    }
+
+    /**
+     * Obtiene el poder del personaje.
+     *
+     * @return poder del personaje
+     */
+    public Poder getPoder() {
+<span class="fc" id="L56">        return poder;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

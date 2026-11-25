@@ -289,4 +289,48 @@ public class PartidaGuardadaTest {
                 error.getMessage());
         assertFalse(archivo.exists());
     }
+
+    @Test
+    public void guardarRechazaArchivoNuloCarpetaYDestinoInexistente()
+            throws Exception {
+        PerfilJugador perfil = crearPerfil("id-1", "Ana", 100);
+        Partido partido = crearPartido(perfil, perfil);
+        PartidaGuardada guardada = new PartidaGuardada(
+                partido, crearConfiguracion(),
+                crearPersonaje("Ana"), crearPersonaje("Luis"),
+                perfil, perfil, null,
+                "escenario.png", "balon.png", true);
+
+        ExcepcionDOPOSoccer nulo = assertThrows(
+                ExcepcionDOPOSoccer.class,
+                () -> guardada.saveAs(null));
+        assertEquals(ExcepcionDOPOSoccer.PARTIDA_SAVE_ARCHIVO_NULO,
+                nulo.getMessage());
+
+        ExcepcionDOPOSoccer carpeta = assertThrows(
+                ExcepcionDOPOSoccer.class,
+                () -> guardada.saveAs(temporal.toFile()));
+        assertEquals(ExcepcionDOPOSoccer.PARTIDA_SAVE_ES_CARPETA,
+                carpeta.getMessage());
+
+        File sinCarpeta = temporal.resolve("noexiste")
+                .resolve("partida.dat").toFile();
+        ExcepcionDOPOSoccer destino = assertThrows(
+                ExcepcionDOPOSoccer.class,
+                () -> guardada.saveAs(sinCarpeta));
+        assertEquals(ExcepcionDOPOSoccer.PARTIDA_SAVE_CARPETA_NO_EXISTE,
+                destino.getMessage());
+    }
+
+    @Test
+    public void abrirRechazaUnArchivoQueNoExiste() {
+        File archivo = temporal.resolve("noexiste.dat").toFile();
+
+        ExcepcionDOPOSoccer error = assertThrows(
+                ExcepcionDOPOSoccer.class,
+                () -> PartidaGuardada.open(archivo));
+
+        assertEquals(ExcepcionDOPOSoccer.PARTIDA_OPEN_NO_EXISTE,
+                error.getMessage());
+    }
 }

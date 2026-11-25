@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReglaTiempo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">ReglaTiempo.java</span></div><h1>ReglaTiempo.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Regla de victoria por tiempo.
+ * El partido dura los minutos configurados. Si al terminar hay empate, se
+ * activa el gol de oro: el primero que anote gana.
+ */
+public class ReglaTiempo implements ReglaPartido {
+    private boolean enGolDeOro;
+    private int golesJugador1AlIniciarGolDeOro;
+    private int golesJugador2AlIniciarGolDeOro;
+    private MotivoFin motivo;
+
+    /**
+     * Crea la regla de tiempo sin gol de oro activo.
+     */
+<span class="fc" id="L17">    public ReglaTiempo() {</span>
+<span class="fc" id="L18">        this.enGolDeOro = false;</span>
+<span class="fc" id="L19">        this.golesJugador1AlIniciarGolDeOro = 0;</span>
+<span class="fc" id="L20">        this.golesJugador2AlIniciarGolDeOro = 0;</span>
+<span class="fc" id="L21">        this.motivo = null;</span>
+<span class="fc" id="L22">    }</span>
+
+    /**
+     * Indica si el partido ya terminó según la regla de tiempo.
+     *
+     * @param partido partido que se está evaluando
+     * @return true si el partido terminó
+     */
+    public boolean terminado(Partido partido) {
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if (partido.getTiempoRestante() &gt; 0) {</span>
+<span class="fc" id="L32">            return false;</span>
+        }
+
+<span class="fc" id="L35">        Marcador marcador = partido.getMarcador();</span>
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (enGolDeOro) {</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">            boolean huboGol = marcador.getGoles(1)</span>
+                    != golesJugador1AlIniciarGolDeOro
+<span class="pc bnc" id="L40" title="All 2 branches missed.">                    || marcador.getGoles(2)</span>
+                    != golesJugador2AlIniciarGolDeOro;
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">            if (huboGol) {</span>
+<span class="fc" id="L43">                motivo = MotivoFin.GOL_DE_ORO;</span>
+<span class="fc" id="L44">                return true;</span>
+            }
+<span class="nc" id="L46">            return false;</span>
+        }
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (!marcador.hayEmpate()) {</span>
+<span class="fc" id="L50">            motivo = MotivoFin.TIEMPO;</span>
+<span class="fc" id="L51">            return true;</span>
+        }
+
+<span class="fc" id="L54">        enGolDeOro = true;</span>
+<span class="fc" id="L55">        golesJugador1AlIniciarGolDeOro = marcador.getGoles(1);</span>
+<span class="fc" id="L56">        golesJugador2AlIniciarGolDeOro = marcador.getGoles(2);</span>
+<span class="fc" id="L57">        return false;</span>
+    }
+
+    /**
+     * Devuelve el motivo por el cual terminó el partido.
+     *
+     * @return TIEMPO o GOL_DE_ORO, o null si todavía no terminó
+     */
+    public MotivoFin getMotivo() {
+<span class="fc" id="L66">        return motivo;</span>
+    }
+
+    /**
+     * Indica si el partido está en gol de oro.
+     *
+     * @return true si ya se activó el gol de oro
+     */
+    public boolean estaEnGolDeOro() {
+<span class="fc" id="L75">        return enGolDeOro;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

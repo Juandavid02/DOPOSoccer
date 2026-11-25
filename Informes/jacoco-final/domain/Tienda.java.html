@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tienda.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Tienda.java</span></div><h1>Tienda.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Precios y compras de la tienda. El estado de lo desbloqueado pertenece a
+ * cada perfil: un personaje comprado por un perfil no queda disponible para
+ * los demás.
+ */
+<span class="fc" id="L8">public final class Tienda {</span>
+
+    public static final int PRECIO_PERSONAJE = 500;
+    public static final int PRECIO_BALON = 300;
+    public static final int PRECIO_ESCENARIO = 400;
+
+    /**
+     * Indica si un personaje está desbloqueado para el perfil.
+     *
+     * @param nombre nombre del personaje
+     * @param perfil perfil del jugador
+     * @return true si el personaje está desbloqueado
+     */
+    public boolean estaDesbloqueadoPersonaje(String nombre, PerfilJugador perfil) {
+<span class="nc bnc" id="L22" title="All 6 branches missed.">        return nombre != null &amp;&amp; perfil != null &amp;&amp; perfil.estaDesbloqueadoPersonaje(nombre);</span>
+    }
+
+    /**
+     * Indica si un balón está desbloqueado para el perfil.
+     *
+     * @param nombre nombre del balón
+     * @param perfil perfil del jugador
+     * @return true si el balón está desbloqueado
+     */
+    public boolean estaDesbloqueadoBalon(String nombre, PerfilJugador perfil) {
+<span class="nc bnc" id="L33" title="All 4 branches missed.">        return nombre != null &amp;&amp; perfil != null</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">                &amp;&amp; perfil.estaDesbloqueadoBalon(nombre);</span>
+    }
+
+    /**
+     * Indica si un escenario está desbloqueado para el perfil.
+     *
+     * @param nombre nombre del escenario
+     * @param perfil perfil del jugador
+     * @return true si el escenario está desbloqueado
+     */
+    public boolean estaDesbloqueadoEscenario(String nombre, PerfilJugador perfil) {
+<span class="nc bnc" id="L45" title="All 4 branches missed.">        return nombre != null &amp;&amp; perfil != null</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">                &amp;&amp; perfil.estaDesbloqueadoEscenario(nombre);</span>
+    }
+
+    /**
+     * Compra un personaje para el perfil si tiene puntos suficientes.
+     *
+     * @param nombre nombre del personaje
+     * @param perfil perfil que paga la compra
+     * @return true si la compra se realizó
+     */
+    public boolean desbloquearPersonaje(String nombre, PerfilJugador perfil) {
+<span class="fc bfc" id="L57" title="All 4 branches covered.">        if (nombre == null || perfil == null</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                || perfil.estaDesbloqueadoPersonaje(nombre)) {</span>
+<span class="fc" id="L59">            return false;</span>
+        }
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (!perfil.getPuntos().gastar(PRECIO_PERSONAJE)) {</span>
+<span class="fc" id="L62">            return false;</span>
+        }
+<span class="fc" id="L64">        return perfil.desbloquearPersonaje(nombre);</span>
+    }
+
+    /**
+     * Compra un balón para el perfil si tiene puntos suficientes.
+     *
+     * @param nombre nombre del balón
+     * @param perfil perfil que paga la compra
+     * @return true si la compra se realizó
+     */
+    public boolean desbloquearBalon(String nombre, PerfilJugador perfil) {
+<span class="fc bfc" id="L75" title="All 4 branches covered.">        if (nombre == null || perfil == null</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">                || perfil.estaDesbloqueadoBalon(nombre)) {</span>
+<span class="fc" id="L77">            return false;</span>
+        }
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (!perfil.getPuntos().gastar(PRECIO_BALON)) {</span>
+<span class="nc" id="L80">            return false;</span>
+        }
+<span class="fc" id="L82">        return perfil.desbloquearBalon(nombre);</span>
+    }
+
+    /**
+     * Compra un escenario para el perfil si tiene puntos suficientes.
+     *
+     * @param nombre nombre del escenario
+     * @param perfil perfil que paga la compra
+     * @return true si la compra se realizó
+     */
+    public boolean desbloquearEscenario(String nombre, PerfilJugador perfil) {
+<span class="fc bfc" id="L93" title="All 4 branches covered.">        if (nombre == null || perfil == null</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">                || perfil.estaDesbloqueadoEscenario(nombre)) {</span>
+<span class="fc" id="L95">            return false;</span>
+        }
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (!perfil.getPuntos().gastar(PRECIO_ESCENARIO)) {</span>
+<span class="nc" id="L98">            return false;</span>
+        }
+<span class="fc" id="L100">        return perfil.desbloquearEscenario(nombre);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

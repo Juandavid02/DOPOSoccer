@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Progreso.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Progreso.java</span></div><h1>Progreso.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.InvalidClassException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Serializable;
+import java.io.StreamCorruptedException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Progreso de DOPOSoccer: los perfiles con sus puntos, estadísticas y
+ * desbloqueos. Ofrece las cuatro operaciones básicas de archivos del
+ * laboratorio: guardar como, abrir, exportar como e importar.
+ *
+ * Guardar y abrir usan un archivo binario .dat (serialización del objeto).
+ * Exportar e importar usan un archivo de texto .txt con una línea por ítem,
+ * igual que el laboratorio: el tipo del dato y sus campos separados por &quot;;&quot;.
+ */
+public class Progreso implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final String EXTENSION_DAT = &quot;.dat&quot;;
+    private static final String EXTENSION_TXT = &quot;.txt&quot;;
+    private static final String CABECERA = &quot;DOPOSOCCER;1&quot;;
+
+    private static final String PERFIL = &quot;PERFIL&quot;;
+    private static final String DESBLOQUEO = &quot;DESBLOQUEO&quot;;
+    private static final String PERSONAJE = &quot;PERSONAJE&quot;;
+    private static final String BALON = &quot;BALON&quot;;
+    private static final String ESCENARIO = &quot;ESCENARIO&quot;;
+
+    private final List&lt;PerfilJugador&gt; perfiles;
+
+    /**
+     * Crea un progreso vacío.
+     */
+<span class="fc" id="L54">    public Progreso() {</span>
+<span class="fc" id="L55">        this.perfiles = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Crea un progreso con los perfiles indicados.
+     *
+     * @param perfiles perfiles que forman el progreso
+     * @throws IllegalArgumentException si la lista es nula
+     */
+<span class="fc" id="L64">    public Progreso(List&lt;PerfilJugador&gt; perfiles) {</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (perfiles == null) {</span>
+<span class="nc" id="L66">            throw new IllegalArgumentException(&quot;La lista de perfiles no puede ser nula&quot;);</span>
+        }
+<span class="fc" id="L68">        this.perfiles = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        for (PerfilJugador perfil : perfiles) {</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">            if (perfil != null) {</span>
+<span class="fc" id="L71">                this.perfiles.add(perfil);</span>
+            }
+<span class="fc" id="L73">        }</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * Devuelve los perfiles del progreso.
+     *
+     * @return lista de perfiles sin posibilidad de modificación
+     */
+    public List&lt;PerfilJugador&gt; getPerfiles() {
+<span class="fc" id="L82">        return Collections.unmodifiableList(perfiles);</span>
+    }
+
+    /**
+     * Devuelve cuántos perfiles tiene el progreso.
+     *
+     * @return cantidad de perfiles
+     */
+    public int cantidadPerfiles() {
+<span class="fc" id="L91">        return perfiles.size();</span>
+    }
+
+    /**
+     * Guarda el progreso completo en un archivo binario .dat.
+     *
+     * @param archivo archivo donde se guarda
+     * @throws ExcepcionDOPOSoccer si el archivo es inválido o falla la escritura
+     */
+    public void saveAs(File archivo) throws ExcepcionDOPOSoccer {
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (archivo == null) {</span>
+<span class="fc" id="L102">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.SAVE_ARCHIVO_NULO);</span>
+        }
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (archivo.isDirectory()) {</span>
+<span class="fc" id="L105">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.SAVE_ES_CARPETA);</span>
+        }
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (!tieneExtension(archivo, EXTENSION_DAT)) {</span>
+<span class="fc" id="L108">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.SAVE_EXTENSION_INVALIDA);</span>
+        }
+<span class="fc" id="L110">        File carpeta = archivo.getAbsoluteFile().getParentFile();</span>
+<span class="pc bpc" id="L111" title="1 of 4 branches missed.">        if (carpeta == null || !carpeta.isDirectory()) {</span>
+<span class="fc" id="L112">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.SAVE_CARPETA_NO_EXISTE);</span>
+        }
+<span class="pc bpc" id="L114" title="4 of 6 branches missed.">        if (archivo.exists() ? !archivo.canWrite() : !carpeta.canWrite()) {</span>
+<span class="nc" id="L115">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.SAVE_SIN_PERMISO);</span>
+        }
+<span class="fc" id="L117">        try (ObjectOutputStream salida = new ObjectOutputStream(new FileOutputStream(archivo))) {</span>
+<span class="fc" id="L118">            salida.writeObject(this);</span>
+<span class="nc" id="L119">        } catch (NotSerializableException e) {</span>
+<span class="nc" id="L120">            throw new ExcepcionDOPOSoccer(</span>
+                    ExcepcionDOPOSoccer.SAVE_NO_SERIALIZABLE, e);
+<span class="nc" id="L122">        } catch (IOException e) {</span>
+<span class="nc" id="L123">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.SAVE_ERROR, e);</span>
+<span class="fc" id="L124">        }</span>
+<span class="fc" id="L125">    }</span>
+
+    /**
+     * Abre un progreso guardado en un archivo binario .dat.
+     *
+     * @param archivo archivo que se quiere leer
+     * @return progreso leído del archivo
+     * @throws ExcepcionDOPOSoccer si el archivo es inválido o falla la lectura
+     */
+    public Progreso open(File archivo) throws ExcepcionDOPOSoccer {
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">        if (archivo == null) {</span>
+<span class="nc" id="L136">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.OPEN_ARCHIVO_NULO);</span>
+        }
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        if (archivo.isDirectory()) {</span>
+<span class="nc" id="L139">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.OPEN_ES_CARPETA);</span>
+        }
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (!archivo.exists()) {</span>
+<span class="fc" id="L142">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.OPEN_NO_EXISTE);</span>
+        }
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        if (!tieneExtension(archivo, EXTENSION_DAT)) {</span>
+<span class="fc" id="L145">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.OPEN_EXTENSION_INVALIDA);</span>
+        }
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (!archivo.canRead()) {</span>
+<span class="nc" id="L148">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.OPEN_SIN_PERMISO);</span>
+        }
+<span class="fc" id="L150">        try (ObjectInputStream entrada = new ObjectInputStream(new FileInputStream(archivo))) {</span>
+<span class="fc" id="L151">            Object leido = entrada.readObject();</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">            if (!(leido instanceof Progreso)) {</span>
+<span class="fc" id="L153">                throw new ExcepcionDOPOSoccer(</span>
+                        ExcepcionDOPOSoccer.OPEN_NO_ES_PROGRESO);
+            }
+<span class="fc" id="L156">            return (Progreso) leido;</span>
+<span class="nc" id="L157">        } catch (InvalidClassException e) {</span>
+<span class="nc" id="L158">            throw new ExcepcionDOPOSoccer(</span>
+                    ExcepcionDOPOSoccer.OPEN_VERSION_INCOMPATIBLE, e);
+<span class="nc" id="L160">        } catch (StreamCorruptedException | EOFException e) {</span>
+<span class="nc" id="L161">            throw new ExcepcionDOPOSoccer(</span>
+                    ExcepcionDOPOSoccer.OPEN_NO_ES_PROGRESO, e);
+<span class="nc" id="L163">        } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L164">            throw new ExcepcionDOPOSoccer(</span>
+                    ExcepcionDOPOSoccer.OPEN_CLASE_DESCONOCIDA, e);
+<span class="nc" id="L166">        } catch (IOException e) {</span>
+<span class="nc" id="L167">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.OPEN_ERROR, e);</span>
+        }
+    }
+
+    /**
+     * Exporta el progreso a un archivo de texto .txt.
+     * Escribe una línea por perfil y una línea por cada desbloqueo.
+     *
+     * @param archivo archivo donde se exporta
+     * @throws ExcepcionDOPOSoccer si el archivo es inválido o falla la escritura
+     */
+    public void exportAs(File archivo) throws ExcepcionDOPOSoccer {
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        if (archivo == null) {</span>
+<span class="fc" id="L180">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.EXPORT_ARCHIVO_NULO);</span>
+        }
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">        if (archivo.isDirectory()) {</span>
+<span class="nc" id="L183">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.EXPORT_ES_CARPETA);</span>
+        }
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        if (!tieneExtension(archivo, EXTENSION_TXT)) {</span>
+<span class="fc" id="L186">            throw new ExcepcionDOPOSoccer(</span>
+                    ExcepcionDOPOSoccer.EXPORT_EXTENSION_INVALIDA);
+        }
+<span class="fc" id="L189">        File carpeta = archivo.getAbsoluteFile().getParentFile();</span>
+<span class="pc bpc" id="L190" title="2 of 4 branches missed.">        if (carpeta == null || !carpeta.isDirectory()) {</span>
+<span class="nc" id="L191">            throw new ExcepcionDOPOSoccer(</span>
+                    ExcepcionDOPOSoccer.EXPORT_CARPETA_NO_EXISTE);
+        }
+<span class="pc bpc" id="L194" title="4 of 6 branches missed.">        if (archivo.exists() ? !archivo.canWrite() : !carpeta.canWrite()) {</span>
+<span class="nc" id="L195">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.EXPORT_SIN_PERMISO);</span>
+        }
+<span class="fc" id="L197">        try (BufferedWriter escritor = new BufferedWriter(</span>
+                new OutputStreamWriter(
+                        new FileOutputStream(archivo), StandardCharsets.UTF_8))) {
+<span class="fc" id="L200">            escritor.write(CABECERA);</span>
+<span class="fc" id="L201">            escritor.newLine();</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            for (PerfilJugador perfil : perfiles) {</span>
+<span class="fc" id="L203">                escribirPerfil(escritor, perfil);</span>
+<span class="fc" id="L204">                escribirDesbloqueos(escritor, perfil);</span>
+<span class="fc" id="L205">            }</span>
+<span class="nc" id="L206">        } catch (IOException e) {</span>
+<span class="nc" id="L207">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.EXPORT_ERROR, e);</span>
+<span class="fc" id="L208">        }</span>
+<span class="fc" id="L209">    }</span>
+
+    /**
+     * Importa perfiles desde un archivo de texto .txt.
+     * Si alguna línea tiene errores, informa la línea, la palabra y la causa,
+     * y no modifica el progreso actual.
+     *
+     * @param archivo archivo que se quiere importar
+     * @throws ExcepcionDOPOSoccer si el archivo es inválido o alguna línea falla
+     */
+    public void import_(File archivo) throws ExcepcionDOPOSoccer {
+<span class="fc bfc" id="L220" title="All 2 branches covered.">        if (archivo == null) {</span>
+<span class="fc" id="L221">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.IMPORT_ARCHIVO_NULO);</span>
+        }
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">        if (archivo.isDirectory()) {</span>
+<span class="nc" id="L224">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.IMPORT_ES_CARPETA);</span>
+        }
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        if (!archivo.exists()) {</span>
+<span class="fc" id="L227">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.IMPORT_NO_EXISTE);</span>
+        }
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (!tieneExtension(archivo, EXTENSION_TXT)) {</span>
+<span class="fc" id="L230">            throw new ExcepcionDOPOSoccer(</span>
+                    ExcepcionDOPOSoccer.IMPORT_EXTENSION_INVALIDA);
+        }
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        if (!archivo.canRead()) {</span>
+<span class="nc" id="L234">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.IMPORT_SIN_PERMISO);</span>
+        }
+
+<span class="fc" id="L237">        List&lt;PerfilJugador&gt; nuevos = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L238">        Map&lt;String, PerfilJugador&gt; porId = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L239">        List&lt;String[]&gt; desbloqueos = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L240">        List&lt;String&gt; errores = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L241">        boolean cabeceraLeida = false;</span>
+
+<span class="fc" id="L243">        try (BufferedReader lector = new BufferedReader(</span>
+                new InputStreamReader(
+                        new FileInputStream(archivo), StandardCharsets.UTF_8))) {
+            String linea;
+<span class="fc" id="L247">            int numero = 0;</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">            while ((linea = lector.readLine()) != null) {</span>
+<span class="fc" id="L249">                numero++;</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">                if (linea.trim().isEmpty()) {</span>
+<span class="nc" id="L251">                    continue;</span>
+                }
+<span class="fc" id="L253">                String[] campos = dividir(linea);</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">                if (!cabeceraLeida) {</span>
+<span class="fc" id="L255">                    cabeceraLeida = true;</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">                    if (campos.length != 2</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">                            || !&quot;DOPOSOCCER&quot;.equals(campos[0])</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">                            || !&quot;1&quot;.equals(campos[1])) {</span>
+<span class="fc" id="L259">                        errores.add(error(numero, campos[0],</span>
+                                &quot;se esperaba la cabecera &quot; + CABECERA));
+<span class="fc" id="L261">                        continue;</span>
+                    }
+                    continue;
+                }
+<span class="fc" id="L265">                String tipo = campos[0];</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">                if (PERFIL.equals(tipo)) {</span>
+<span class="fc" id="L267">                    agregarPerfil(campos, numero, nuevos, porId, errores);</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">                } else if (DESBLOQUEO.equals(tipo)) {</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">                    if (campos.length != 4) {</span>
+<span class="nc" id="L270">                        errores.add(error(numero, tipo,</span>
+                                &quot;se esperaban 4 campos y se encontraron &quot;
+                                        + campos.length));
+                    } else {
+<span class="fc" id="L274">                        desbloqueos.add(new String[] {</span>
+<span class="fc" id="L275">                                String.valueOf(numero), campos[1],</span>
+                                campos[2], campos[3] });
+                    }
+                } else {
+<span class="nc" id="L279">                    errores.add(error(numero, tipo,</span>
+                            &quot;tipo de línea desconocido&quot;));
+                }
+<span class="fc" id="L282">            }</span>
+<span class="nc" id="L283">        } catch (IOException e) {</span>
+<span class="nc" id="L284">            throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.IMPORT_ERROR, e);</span>
+<span class="fc" id="L285">        }</span>
+
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">        if (!cabeceraLeida) {</span>
+<span class="nc" id="L288">            errores.add(&quot;Línea 1: \&quot;\&quot; - el archivo está vacío o no tiene la cabecera &quot;</span>
+                    + CABECERA);
+        }
+
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        for (String[] desbloqueo : desbloqueos) {</span>
+<span class="fc" id="L293">            agregarDesbloqueo(desbloqueo, porId, errores);</span>
+<span class="fc" id="L294">        }</span>
+
+<span class="fc bfc" id="L296" title="All 2 branches covered.">        if (!errores.isEmpty()) {</span>
+<span class="fc" id="L297">            throw new ExcepcionDOPOSoccer(mensajeErrores(errores));</span>
+        }
+
+<span class="fc" id="L300">        perfiles.clear();</span>
+<span class="fc" id="L301">        perfiles.addAll(nuevos);</span>
+<span class="fc" id="L302">    }</span>
+
+    /**
+     * Escribe un perfil en el archivo de texto.
+     *
+     * @param escritor archivo de salida
+     * @param perfil perfil que se escribe
+     * @throws IOException si falla la escritura
+     */
+    private void escribirPerfil(BufferedWriter escritor, PerfilJugador perfil)
+            throws IOException {
+<span class="fc" id="L313">        Estadisticas estadisticas = perfil.getEstadisticas();</span>
+<span class="fc" id="L314">        escritor.write(PERFIL</span>
+<span class="fc" id="L315">                + &quot;;&quot; + escapar(perfil.getId())</span>
+<span class="fc" id="L316">                + &quot;;&quot; + escapar(perfil.getNombre())</span>
+<span class="fc" id="L317">                + &quot;;&quot; + perfil.getPuntos().getTotal()</span>
+<span class="fc" id="L318">                + &quot;;&quot; + estadisticas.getSpeed()</span>
+<span class="fc" id="L319">                + &quot;;&quot; + estadisticas.getJump()</span>
+<span class="fc" id="L320">                + &quot;;&quot; + estadisticas.getKick()</span>
+<span class="fc" id="L321">                + &quot;;&quot; + estadisticas.getSurvival());</span>
+<span class="fc" id="L322">        escritor.newLine();</span>
+<span class="fc" id="L323">    }</span>
+
+    /**
+     * Escribe los desbloqueos de un perfil en el archivo de texto.
+     *
+     * @param escritor archivo de salida
+     * @param perfil perfil del que se escriben los desbloqueos
+     * @throws IOException si falla la escritura
+     */
+    private void escribirDesbloqueos(BufferedWriter escritor,
+                                     PerfilJugador perfil) throws IOException {
+<span class="fc" id="L334">        escribirDesbloqueos(escritor, perfil, PERSONAJE,</span>
+<span class="fc" id="L335">                perfil.getPersonajesDesbloqueados());</span>
+<span class="fc" id="L336">        escribirDesbloqueos(escritor, perfil, BALON,</span>
+<span class="fc" id="L337">                perfil.getBalonesDesbloqueados());</span>
+<span class="fc" id="L338">        escribirDesbloqueos(escritor, perfil, ESCENARIO,</span>
+<span class="fc" id="L339">                perfil.getEscenariosDesbloqueados());</span>
+<span class="fc" id="L340">    }</span>
+
+    /**
+     * Escribe un conjunto de desbloqueos del perfil.
+     *
+     * @param escritor archivo de salida
+     * @param perfil perfil dueño de los desbloqueos
+     * @param tipo tipo de desbloqueo
+     * @param nombres nombres desbloqueados
+     * @throws IOException si falla la escritura
+     */
+    private void escribirDesbloqueos(BufferedWriter escritor, PerfilJugador perfil,
+                                     String tipo, Set&lt;String&gt; nombres)
+            throws IOException {
+<span class="fc" id="L354">        List&lt;String&gt; ordenados = new ArrayList&lt;&gt;(nombres);</span>
+<span class="fc" id="L355">        Collections.sort(ordenados);</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">        for (String nombre : ordenados) {</span>
+<span class="fc" id="L357">            escritor.write(DESBLOQUEO</span>
+<span class="fc" id="L358">                    + &quot;;&quot; + escapar(perfil.getId())</span>
+                    + &quot;;&quot; + tipo
+<span class="fc" id="L360">                    + &quot;;&quot; + escapar(nombre));</span>
+<span class="fc" id="L361">            escritor.newLine();</span>
+<span class="fc" id="L362">        }</span>
+<span class="fc" id="L363">    }</span>
+
+    /**
+     * Crea un perfil a partir de una línea del archivo y lo agrega a la lista
+     * temporal. Si la línea tiene errores, los acumula en la lista de errores.
+     *
+     * @param campos campos de la línea
+     * @param numero número de línea del archivo
+     * @param nuevos perfiles que se van a importar
+     * @param porId perfiles temporales indexados por id
+     * @param errores errores encontrados
+     */
+    private void agregarPerfil(String[] campos, int numero,
+                               List&lt;PerfilJugador&gt; nuevos,
+                               Map&lt;String, PerfilJugador&gt; porId,
+                               List&lt;String&gt; errores) {
+<span class="fc bfc" id="L379" title="All 2 branches covered.">        if (campos.length != 8) {</span>
+<span class="fc" id="L380">            errores.add(error(numero, PERFIL,</span>
+                    &quot;se esperaban 8 campos y se encontraron &quot; + campos.length));
+<span class="fc" id="L382">            return;</span>
+        }
+
+<span class="fc" id="L385">        String id = campos[1].trim();</span>
+<span class="fc" id="L386">        String nombre = campos[2].trim();</span>
+<span class="fc bfc" id="L387" title="All 2 branches covered.">        if (id.isEmpty()) {</span>
+<span class="fc" id="L388">            errores.add(error(numero, &quot;id&quot;, &quot;no puede estar vacío&quot;));</span>
+<span class="fc" id="L389">            return;</span>
+        }
+<span class="fc bfc" id="L391" title="All 2 branches covered.">        if (nombre.isEmpty()) {</span>
+<span class="fc" id="L392">            errores.add(error(numero, &quot;nombre&quot;, &quot;no puede estar vacío&quot;));</span>
+<span class="fc" id="L393">            return;</span>
+        }
+<span class="fc bfc" id="L395" title="All 2 branches covered.">        if (porId.containsKey(id)) {</span>
+<span class="fc" id="L396">            errores.add(error(numero, id, &quot;el id del perfil está repetido&quot;));</span>
+<span class="fc" id="L397">            return;</span>
+        }
+
+<span class="fc" id="L400">        Integer puntos = entero(campos[3], &quot;puntos&quot;, numero, errores);</span>
+<span class="fc" id="L401">        Integer speed = entero(campos[4], &quot;speed&quot;, numero, errores);</span>
+<span class="fc" id="L402">        Integer jump = entero(campos[5], &quot;jump&quot;, numero, errores);</span>
+<span class="fc" id="L403">        Integer kick = entero(campos[6], &quot;kick&quot;, numero, errores);</span>
+<span class="fc" id="L404">        Integer survival = entero(campos[7], &quot;survival&quot;, numero, errores);</span>
+<span class="pc bpc" id="L405" title="4 of 10 branches missed.">        if (puntos == null || speed == null || jump == null</span>
+                || kick == null || survival == null) {
+<span class="fc" id="L407">            return;</span>
+        }
+<span class="pc bpc" id="L409" title="1 of 2 branches missed.">        if (puntos &lt; 0) {</span>
+<span class="nc" id="L410">            errores.add(error(numero, &quot;puntos&quot;, &quot;no puede ser negativo&quot;));</span>
+<span class="nc" id="L411">            return;</span>
+        }
+
+        try {
+<span class="fc" id="L415">            Estadisticas estadisticas =</span>
+<span class="fc" id="L416">                    new Estadisticas(speed, jump, kick, survival);</span>
+<span class="fc" id="L417">            Puntos puntosPerfil = new Puntos();</span>
+<span class="fc" id="L418">            puntosPerfil.sumar(puntos);</span>
+<span class="fc" id="L419">            ConfiguracionJugador configuracion =</span>
+                    new ConfiguracionJugador(nombre, estadisticas, puntosPerfil);
+<span class="fc" id="L421">            PerfilJugador perfil =</span>
+                    new PerfilJugador(id, nombre, configuracion);
+<span class="fc" id="L423">            nuevos.add(perfil);</span>
+<span class="fc" id="L424">            porId.put(id, perfil);</span>
+<span class="fc" id="L425">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L426">            errores.add(error(numero, &quot;estadísticas&quot;, e.getMessage()));</span>
+<span class="nc" id="L427">        } catch (ExcepcionDOPOSoccer e) {</span>
+<span class="nc" id="L428">            errores.add(error(numero, &quot;perfil&quot;, e.getMessage()));</span>
+<span class="fc" id="L429">        }</span>
+<span class="fc" id="L430">    }</span>
+
+    /**
+     * Aplica un desbloqueo a un perfil ya leído. Si hay un error, lo acumula.
+     *
+     * @param desbloqueo datos {número de línea, id del perfil, tipo, nombre}
+     * @param porId perfiles temporales indexados por id
+     * @param errores errores encontrados
+     */
+    private void agregarDesbloqueo(String[] desbloqueo,
+                                   Map&lt;String, PerfilJugador&gt; porId,
+                                   List&lt;String&gt; errores) {
+<span class="fc" id="L442">        int numero = Integer.parseInt(desbloqueo[0]);</span>
+<span class="fc" id="L443">        String idPerfil = desbloqueo[1].trim();</span>
+<span class="fc" id="L444">        String tipo = desbloqueo[2].trim();</span>
+<span class="fc" id="L445">        String nombre = desbloqueo[3].trim();</span>
+
+<span class="fc" id="L447">        PerfilJugador perfil = porId.get(idPerfil);</span>
+<span class="fc bfc" id="L448" title="All 2 branches covered.">        if (perfil == null) {</span>
+<span class="fc" id="L449">            errores.add(error(numero, idPerfil,</span>
+                    &quot;no existe un perfil con ese id&quot;));
+<span class="fc" id="L451">            return;</span>
+        }
+<span class="pc bpc" id="L453" title="1 of 2 branches missed.">        if (nombre.isEmpty()) {</span>
+<span class="nc" id="L454">            errores.add(error(numero, &quot;nombre&quot;, &quot;no puede estar vacío&quot;));</span>
+<span class="nc" id="L455">            return;</span>
+        }
+
+<span class="fc bfc" id="L458" title="All 4 branches covered.">        switch (tipo) {</span>
+            case PERSONAJE:
+<span class="fc" id="L460">                perfil.desbloquearPersonaje(nombre);</span>
+<span class="fc" id="L461">                break;</span>
+            case BALON:
+<span class="fc" id="L463">                perfil.desbloquearBalon(nombre);</span>
+<span class="fc" id="L464">                break;</span>
+            case ESCENARIO:
+<span class="fc" id="L466">                perfil.desbloquearEscenario(nombre);</span>
+<span class="fc" id="L467">                break;</span>
+            default:
+<span class="fc" id="L469">                errores.add(error(numero, tipo,</span>
+                        &quot;el tipo debe ser PERSONAJE, BALON o ESCENARIO&quot;));
+        }
+<span class="fc" id="L472">    }</span>
+
+    /**
+     * Convierte un campo de texto en un entero. Si no es un número, acumula
+     * el error y devuelve null.
+     *
+     * @param valor texto que se convierte
+     * @param etiqueta nombre del campo
+     * @param numero número de línea
+     * @param errores errores encontrados
+     * @return el número, o null si el campo no era válido
+     */
+    private Integer entero(String valor, String etiqueta, int numero,
+                           List&lt;String&gt; errores) {
+        try {
+<span class="fc" id="L487">            return Integer.valueOf(valor.trim());</span>
+<span class="fc" id="L488">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L489">            errores.add(error(numero, etiqueta,</span>
+                    &quot;se esperaba un número entero&quot;));
+<span class="fc" id="L491">            return null;</span>
+        }
+    }
+
+    /**
+     * Construye el mensaje que reúne todos los errores de la importación.
+     *
+     * @param errores errores encontrados
+     * @return mensaje con el detalle de cada error
+     */
+    private String mensajeErrores(List&lt;String&gt; errores) {
+<span class="fc bfc" id="L502" title="All 2 branches covered.">        String titulo = errores.size() == 1</span>
+<span class="fc" id="L503">                ? &quot;Se encontró 1 error en el archivo:&quot;</span>
+<span class="fc" id="L504">                : &quot;Se encontraron &quot; + errores.size() + &quot; errores en el archivo:&quot;;</span>
+<span class="fc" id="L505">        StringBuilder mensaje = new StringBuilder(titulo);</span>
+<span class="fc bfc" id="L506" title="All 2 branches covered.">        for (String error : errores) {</span>
+<span class="fc" id="L507">            mensaje.append('\n').append(error);</span>
+<span class="fc" id="L508">        }</span>
+<span class="fc" id="L509">        return mensaje.toString();</span>
+    }
+
+    /**
+     * Construye el detalle de un error con línea, palabra y causa.
+     *
+     * @param numero número de línea
+     * @param palabra palabra o campo con el error
+     * @param causa explicación del error
+     * @return detalle del error
+     */
+    private String error(int numero, String palabra, String causa) {
+<span class="fc" id="L521">        return &quot;Línea &quot; + numero + &quot;: \&quot;&quot; + palabra + &quot;\&quot; - &quot; + causa;</span>
+    }
+
+    /**
+     * Indica si un archivo tiene la extensión indicada.
+     *
+     * @param archivo archivo que se revisa
+     * @param extension extensión esperada, con punto
+     * @return true si el nombre termina con la extensión
+     */
+    private boolean tieneExtension(File archivo, String extension) {
+<span class="fc" id="L532">        return archivo.getName().toLowerCase().endsWith(extension);</span>
+    }
+
+    /**
+     * Escapa un texto para que pueda guardarse en una línea separada por &quot;;&quot;.
+     *
+     * @param valor texto original
+     * @return texto escapado
+     */
+    private String escapar(String valor) {
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">        if (valor == null) {</span>
+<span class="nc" id="L543">            return &quot;&quot;;</span>
+        }
+<span class="fc" id="L545">        return valor.replace(&quot;\\&quot;, &quot;\\\\&quot;)</span>
+<span class="fc" id="L546">                .replace(&quot;;&quot;, &quot;\\;&quot;)</span>
+<span class="fc" id="L547">                .replace(&quot;\n&quot;, &quot;\\n&quot;)</span>
+<span class="fc" id="L548">                .replace(&quot;\r&quot;, &quot;\\r&quot;);</span>
+    }
+
+    /**
+     * Divide una línea por &quot;;&quot; respetando los caracteres escapados.
+     *
+     * @param linea línea del archivo
+     * @return campos de la línea
+     */
+    private String[] dividir(String linea) {
+<span class="fc" id="L558">        List&lt;String&gt; campos = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L559">        StringBuilder actual = new StringBuilder();</span>
+<span class="fc" id="L560">        boolean escapado = false;</span>
+<span class="fc bfc" id="L561" title="All 2 branches covered.">        for (int i = 0; i &lt; linea.length(); i++) {</span>
+<span class="fc" id="L562">            char caracter = linea.charAt(i);</span>
+<span class="fc bfc" id="L563" title="All 2 branches covered.">            if (escapado) {</span>
+<span class="pc bpc" id="L564" title="1 of 2 branches missed.">                if (caracter == 'n') {</span>
+<span class="nc" id="L565">                    actual.append('\n');</span>
+<span class="pc bpc" id="L566" title="1 of 2 branches missed.">                } else if (caracter == 'r') {</span>
+<span class="nc" id="L567">                    actual.append('\r');</span>
+                } else {
+<span class="fc" id="L569">                    actual.append(caracter);</span>
+                }
+<span class="fc" id="L571">                escapado = false;</span>
+<span class="fc bfc" id="L572" title="All 2 branches covered.">            } else if (caracter == '\\') {</span>
+<span class="fc" id="L573">                escapado = true;</span>
+<span class="fc bfc" id="L574" title="All 2 branches covered.">            } else if (caracter == ';') {</span>
+<span class="fc" id="L575">                campos.add(actual.toString());</span>
+<span class="fc" id="L576">                actual.setLength(0);</span>
+            } else {
+<span class="fc" id="L578">                actual.append(caracter);</span>
+            }
+        }
+<span class="pc bpc" id="L581" title="1 of 2 branches missed.">        if (escapado) {</span>
+<span class="nc" id="L582">            actual.append('\\');</span>
+        }
+<span class="fc" id="L584">        campos.add(actual.toString());</span>
+<span class="fc" id="L585">        return campos.toArray(new String[0]);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

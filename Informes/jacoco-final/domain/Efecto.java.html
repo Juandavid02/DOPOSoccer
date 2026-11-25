@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Efecto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Efecto.java</span></div><h1>Efecto.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+/**
+ * Efecto temporal que sufre un jugador después de recibir un tiro de poder.
+ * Cada efecto concreto (Empuje, Barril, etc.) sabe qué le hace al jugador
+ * cuando empieza, mientras dura y cuando termina.
+ */
+public abstract class Efecto implements Serializable {
+
+    private final TipoEfecto tipo;
+    private double tiempoRestante;
+
+    /**
+     * Crea un efecto del tipo indicado con la duración dada.
+     *
+     * @param tipo tipo de efecto
+     * @param duracion duración del efecto en segundos
+     */
+<span class="fc" id="L21">    protected Efecto(TipoEfecto tipo, double duracion) {</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        if (tipo == null) {</span>
+<span class="nc" id="L23">            throw new IllegalArgumentException(&quot;El tipo de efecto no puede ser nulo&quot;);</span>
+        }
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">        if (duracion &lt;= 0) {</span>
+<span class="nc" id="L26">            throw new IllegalArgumentException(&quot;La duración del efecto debe ser mayor que cero&quot;);</span>
+        }
+<span class="fc" id="L28">        this.tipo = tipo;</span>
+<span class="fc" id="L29">        this.tiempoRestante = duracion;</span>
+<span class="fc" id="L30">    }</span>
+
+    /**
+     * Obtiene el tipo de efecto.
+     *
+     * @return tipo de efecto
+     */
+    public TipoEfecto getTipo() {
+<span class="fc" id="L38">        return tipo;</span>
+    }
+
+    /**
+     * Obtiene el tiempo restante del efecto.
+     *
+     * @return tiempo restante en segundos
+     */
+    public double getTiempoRestante() {
+<span class="fc" id="L47">        return tiempoRestante;</span>
+    }
+
+    /**
+     * Reinicia el temporizador del efecto con una nueva duración.
+     *
+     * @param duracion nueva duración en segundos
+     */
+    public void renovar(double duracion) {
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (duracion &lt;= 0) {</span>
+<span class="fc" id="L57">            throw new IllegalArgumentException(&quot;La duración debe ser mayor que cero&quot;);</span>
+        }
+<span class="nc" id="L59">        tiempoRestante = duracion;</span>
+<span class="nc" id="L60">    }</span>
+
+    /**
+     * Descuenta el tiempo transcurrido del efecto.
+     *
+     * @param dt tiempo transcurrido
+     */
+    public void actualizar(double dt) {
+        // Un dt no positivo no representa tiempo transcurrido.
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (dt &lt;= 0) {</span>
+<span class="nc" id="L70">            return;</span>
+        }
+<span class="fc" id="L72">        tiempoRestante = Math.max(0, tiempoRestante - dt);</span>
+<span class="fc" id="L73">    }</span>
+
+    /**
+     * Indica si el efecto ya terminó.
+     *
+     * @return true si el efecto terminó
+     */
+    public boolean terminado() {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        return tiempoRestante &lt;= 0;</span>
+    }
+
+    /**
+     * Se llama cuando el efecto le llega al jugador. Por defecto no hace
+     * nada; los efectos que cambian algo al empezar lo sobrescriben.
+     *
+     * @param jugador jugador que recibe el efecto
+     */
+    public void alAplicar(Jugador jugador) {
+<span class="fc" id="L91">    }</span>
+
+    /**
+     * Se llama cuando el efecto se acaba (o se borra por un gol). Por
+     * defecto no hace nada; sirve para devolver al jugador a la normalidad.
+     *
+     * @param jugador jugador que tenía el efecto
+     */
+    public void alTerminar(Jugador jugador) {
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Indica si este efecto le impide moverse al jugador.
+     *
+     * @return true si bloquea el movimiento
+     */
+    public boolean bloqueaMovimiento() {
+<span class="nc" id="L108">        return false;</span>
+    }
+
+    /**
+     * Indica si este efecto le impide saltar al jugador.
+     *
+     * @return true si bloquea el salto
+     */
+    public boolean bloqueaSalto() {
+<span class="nc" id="L117">        return false;</span>
+    }
+
+    /**
+     * Indica si este efecto le impide patear al jugador.
+     *
+     * @return true si bloquea la patada
+     */
+    public boolean bloqueaPatada() {
+<span class="nc" id="L126">        return false;</span>
+    }
+
+    /**
+     * Indica si este efecto invierte los controles del jugador.
+     *
+     * @return true si los controles quedan invertidos
+     */
+    public boolean invierteControles() {
+<span class="nc" id="L135">        return false;</span>
+    }
+
+    /**
+     * Indica si este efecto hace que el jugador vea balones falsos.
+     *
+     * @return true si el efecto confunde al jugador
+     */
+    public boolean confunde() {
+<span class="nc" id="L144">        return false;</span>
+    }
+
+    /**
+     * Devuelve cuánto frena este efecto al jugador. 1 es velocidad normal.
+     *
+     * @return factor que multiplica la velocidad normal
+     */
+    public double getMultiplicadorVelocidad() {
+<span class="nc" id="L153">        return 1.0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

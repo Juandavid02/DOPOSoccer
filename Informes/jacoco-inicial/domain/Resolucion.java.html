@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Resolucion.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Resolucion.java</span></div><h1>Resolucion.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Resoluciones de cancha disponibles en DOPOSoccer.
+ *
+ * Cada resolución define el ancho, el alto y la altura del suelo (la línea
+ * donde apoyan los jugadores y el balón). Se mantiene un margen inferior de
+ * 20 píxeles, igual que en la resolución base de 1280×720.
+ */
+<span class="fc" id="L10">public enum Resolucion {</span>
+<span class="fc" id="L11">    R1280x720(1280, 720, 700),</span>
+<span class="fc" id="L12">    R1600x900(1600, 900, 880),</span>
+<span class="fc" id="L13">    R1920x1080(1920, 1080, 1060);</span>
+
+    private final double ancho;
+    private final double alto;
+    private final double suelo;
+
+    /**
+     * Crea una resolución con sus dimensiones.
+     *
+     * @param ancho ancho de la cancha
+     * @param alto alto de la cancha
+     * @param suelo altura de la línea del suelo
+     */
+<span class="fc" id="L26">    Resolucion(double ancho, double alto, double suelo) {</span>
+<span class="fc" id="L27">        this.ancho = ancho;</span>
+<span class="fc" id="L28">        this.alto = alto;</span>
+<span class="fc" id="L29">        this.suelo = suelo;</span>
+<span class="fc" id="L30">    }</span>
+
+    /**
+     * Obtiene el ancho de la cancha.
+     *
+     * @return ancho en píxeles
+     */
+    public double getAncho() {
+<span class="fc" id="L38">        return ancho;</span>
+    }
+
+    /**
+     * Obtiene el alto de la cancha.
+     *
+     * @return alto en píxeles
+     */
+    public double getAlto() {
+<span class="fc" id="L47">        return alto;</span>
+    }
+
+    /**
+     * Obtiene la altura de la línea del suelo.
+     *
+     * @return altura del suelo en píxeles
+     */
+    public double getSuelo() {
+<span class="fc" id="L56">        return suelo;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

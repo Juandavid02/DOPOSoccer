@@ -14,6 +14,7 @@
 
 # Salida de Maven y Gradle (por si se agregan más adelante)
 /target/
+/HeadSoccer/target/
 /build/
 /.gradle/
 

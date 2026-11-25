@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReglaGoles.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">ReglaGoles.java</span></div><h1>ReglaGoles.java</h1><pre class="source lang-java linenums">package domain;
+
+public class ReglaGoles implements ReglaPartido {
+    private final int golesParaGanar;
+
+    /**
+     * Crea la regla de victoria por cantidad de goles.
+     *
+     * @param golesParaGanar goles necesarios para ganar
+     * @throws IllegalArgumentException si el número de goles no es mayor que cero
+     */
+<span class="fc" id="L12">    public ReglaGoles(int golesParaGanar) {</span>
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        if (golesParaGanar &lt;= 0) {</span>
+<span class="fc" id="L14">            throw new IllegalArgumentException(&quot;El número de goles para ganar debe ser mayor que cero&quot;);</span>
+        }
+<span class="fc" id="L16">        this.golesParaGanar = golesParaGanar;</span>
+<span class="fc" id="L17">    }</span>
+
+    /**
+     * Indica si el partido terminó según la cantidad de goles.
+     *
+     * @param partido partido que se está evaluando
+     * @return true si algún jugador alcanzó los goles para ganar
+     */
+    public boolean terminado(Partido partido) {
+<span class="fc" id="L26">        Marcador marcador = partido.getMarcador();</span>
+<span class="fc bfc" id="L27" title="All 4 branches covered.">        return marcador.getGoles(1) &gt;= golesParaGanar || marcador.getGoles(2) &gt;= golesParaGanar;</span>
+    }
+
+    /**
+     * Devuelve el motivo por el cual terminó el partido.
+     *
+     * @return motivo de fin por goles
+     */
+    public MotivoFin getMotivo() {
+<span class="fc" id="L36">        return MotivoFin.GOLES;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

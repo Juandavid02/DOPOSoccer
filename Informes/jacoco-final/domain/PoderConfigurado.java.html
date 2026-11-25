@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PoderConfigurado.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">PoderConfigurado.java</span></div><h1>PoderConfigurado.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Poder configurable del juego.
+ *
+ * Concentra los datos que comparten todos los poderes (nombre, duración,
+ * daño del tiro e impulsos del balón) y crea el efecto que corresponde al
+ * tipo configurado. Los poderes del juego se obtienen con los métodos de
+ * fábrica de esta clase.
+ */
+public final class PoderConfigurado implements Poder {
+
+    private final String nombre;
+    private final double duracion;
+    private final double danoTiro;
+    private final double impulsoX;
+    private final double impulsoY;
+    private final TipoEfecto tipoEfecto;
+
+    /**
+     * Crea un poder con sus datos y el efecto que aplica.
+     *
+     * @param nombre nombre del poder
+     * @param duracion duración del poder en segundos
+     * @param danoTiro daño que produce el tiro
+     * @param impulsoX impulso horizontal del balón
+     * @param impulsoY impulso vertical del balón
+     * @param tipoEfecto efecto que aplica al rival
+     */
+    public PoderConfigurado(String nombre, double duracion, double danoTiro,
+                            double impulsoX, double impulsoY,
+<span class="fc" id="L32">                            TipoEfecto tipoEfecto) {</span>
+<span class="pc bpc" id="L33" title="2 of 4 branches missed.">        if (nombre == null || nombre.isBlank()) {</span>
+<span class="nc" id="L34">            throw new IllegalArgumentException(&quot;El nombre del poder no puede estar vacío&quot;);</span>
+        }
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (duracion &lt;= 0) {</span>
+<span class="nc" id="L37">            throw new IllegalArgumentException(&quot;La duración del poder debe ser positiva&quot;);</span>
+        }
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if (danoTiro &lt; 0) {</span>
+<span class="nc" id="L40">            throw new IllegalArgumentException(&quot;El daño del tiro no puede ser negativo&quot;);</span>
+        }
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (tipoEfecto == null) {</span>
+<span class="nc" id="L43">            throw new IllegalArgumentException(&quot;El tipo de efecto no puede ser nulo&quot;);</span>
+        }
+<span class="fc" id="L45">        this.nombre = nombre;</span>
+<span class="fc" id="L46">        this.duracion = duracion;</span>
+<span class="fc" id="L47">        this.danoTiro = danoTiro;</span>
+<span class="fc" id="L48">        this.impulsoX = impulsoX;</span>
+<span class="fc" id="L49">        this.impulsoY = impulsoY;</span>
+<span class="fc" id="L50">        this.tipoEfecto = tipoEfecto;</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Obtiene el nombre del poder.
+     *
+     * @return nombre del poder
+     */
+    @Override
+    public String getNombre() {
+<span class="fc" id="L60">        return nombre;</span>
+    }
+
+    /**
+     * Obtiene la duración del poder.
+     *
+     * @return duración en segundos
+     */
+    @Override
+    public double getDuracion() {
+<span class="fc" id="L70">        return duracion;</span>
+    }
+
+    /**
+     * Obtiene el daño del tiro del poder.
+     *
+     * @param jugador jugador que ejecuta el tiro
+     * @return daño del tiro
+     */
+    @Override
+    public double getDanoTiro(Jugador jugador) {
+<span class="fc" id="L81">        return danoTiro;</span>
+    }
+
+    /**
+     * Crea el efecto que aplica el poder al rival.
+     *
+     * @return efecto nuevo con la duración del poder
+     */
+    @Override
+    public Efecto crearEfecto() {
+<span class="pc bpc" id="L91" title="1 of 7 branches missed.">        switch (tipoEfecto) {</span>
+            case EMPUJE:
+<span class="fc" id="L93">                return new EfectoEmpuje(duracion);</span>
+            case ELECTROCUTADO:
+<span class="fc" id="L95">                return new EfectoElectrocutado(duracion);</span>
+            case INCONSCIENTE:
+<span class="fc" id="L97">                return new EfectoInconsciente(duracion);</span>
+            case CONFUNDIDO:
+<span class="fc" id="L99">                return new EfectoConfundido(duracion);</span>
+            case CONTROLES_INVERTIDOS:
+<span class="fc" id="L101">                return new EfectoControlesInvertidos(duracion);</span>
+            case BARRIL:
+<span class="fc" id="L103">                return new EfectoBarril(duracion);</span>
+            default:
+<span class="nc" id="L105">                throw new IllegalStateException(</span>
+                        &quot;Tipo de efecto desconocido: &quot; + tipoEfecto);
+        }
+    }
+
+    /**
+     * Obtiene el impulso horizontal del balón.
+     *
+     * @return impulso horizontal
+     */
+    @Override
+    public double getImpulsoX() {
+<span class="fc" id="L117">        return impulsoX;</span>
+    }
+
+    /**
+     * Obtiene el impulso vertical del balón.
+     *
+     * @return impulso vertical
+     */
+    @Override
+    public double getImpulsoY() {
+<span class="fc" id="L127">        return impulsoY;</span>
+    }
+
+    /**
+     * Poder Aura Azul: empuja al rival hacia su propio arco.
+     *
+     * @return poder configurado
+     */
+    public static Poder auraAzul() {
+<span class="fc" id="L136">        return new PoderConfigurado(&quot;Aura Azul&quot;, 1.5, 40.0,</span>
+                1350, -100, TipoEfecto.EMPUJE);
+    }
+
+    /**
+     * Poder Rayo: electrocuta al rival y lo frena.
+     *
+     * @return poder configurado
+     */
+    public static Poder rayo() {
+<span class="fc" id="L146">        return new PoderConfigurado(&quot;Rayo&quot;, 3.0, 60.0,</span>
+                1450, -120, TipoEfecto.ELECTROCUTADO);
+    }
+
+    /**
+     * Poder Tornado: deja inconsciente al rival.
+     *
+     * @return poder configurado
+     */
+    public static Poder tornado() {
+<span class="fc" id="L156">        return new PoderConfigurado(&quot;Tornado&quot;, 3.0, 40.0,</span>
+                1000, -350, TipoEfecto.INCONSCIENTE);
+    }
+
+    /**
+     * Poder Ilusión: confunde al rival con balones falsos.
+     *
+     * @return poder configurado
+     */
+    public static Poder ilusion() {
+<span class="fc" id="L166">        return new PoderConfigurado(&quot;Ilusión&quot;, 2.5, 30.0,</span>
+                1200, -180, TipoEfecto.CONFUNDIDO);
+    }
+
+    /**
+     * Poder Beso de la Fea: invierte los controles del rival.
+     *
+     * @return poder configurado
+     */
+    public static Poder besoDeLaFea() {
+<span class="fc" id="L176">        return new PoderConfigurado(&quot;Beso de la Fea&quot;, 2.5, 30.0,</span>
+                1250, -150, TipoEfecto.CONTROLES_INVERTIDOS);
+    }
+
+    /**
+     * Poder Barril: devuelve al rival a sus estadísticas iniciales.
+     *
+     * @return poder configurado
+     */
+    public static Poder barril() {
+<span class="fc" id="L186">        return new PoderConfigurado(&quot;Barril&quot;, 5.0, 35.0,</span>
+                1050, -220, TipoEfecto.BARRIL);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

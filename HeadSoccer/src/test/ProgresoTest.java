@@ -316,4 +316,26 @@ public class ProgresoTest {
         assertTrue(error.getMessage().contains("cabecera"),
                 error.getMessage());
     }
+
+    @Test
+    public void importarInformaCamposFaltantesVaciosYFueraDeRango()
+            throws Exception {
+        File archivo = escribirTexto("campos.txt",
+                "DOPOSOCCER;1",
+                "PERFIL;id-1;Ana;100;1;1;1",
+                "PERFIL;;Luis;100;1;1;1;1",
+                "PERFIL;id-3;;100;1;1;1;1",
+                "PERFIL;id-4;Pedro;100;0;11;1;1");
+
+        ExcepcionDOPOSoccer error = assertThrows(
+                ExcepcionDOPOSoccer.class,
+                () -> new Progreso().import_(archivo));
+
+        String mensaje = error.getMessage();
+        assertTrue(mensaje.contains("8 campos"), mensaje);
+        assertTrue(mensaje.contains("\"id\""), mensaje);
+        assertTrue(mensaje.contains("\"nombre\""), mensaje);
+        assertTrue(mensaje.contains("speed"), mensaje);
+        assertTrue(mensaje.contains("debe estar entre 1 y 10"), mensaje);
+    }
 }

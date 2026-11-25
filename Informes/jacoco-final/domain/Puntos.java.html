@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Puntos.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">Puntos.java</span></div><h1>Puntos.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+public class Puntos implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private int total;
+
+    /**
+     * Crea un contador de puntos en cero.
+     */
+<span class="fc" id="L14">    public Puntos() {</span>
+<span class="fc" id="L15">        this.total = 0;</span>
+<span class="fc" id="L16">    }</span>
+
+    /**
+     * Obtiene el total de puntos acumulados.
+     *
+     * @return total de puntos
+     */
+    public int getTotal() {
+<span class="fc" id="L24">        return total;</span>
+    }
+
+    /**
+     * Suma puntos al total.
+     *
+     * @param puntos puntos a sumar
+     * @throws IllegalArgumentException si los puntos son negativos
+     */
+    public void sumar(int puntos) {
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if (puntos &lt; 0) {</span>
+<span class="nc" id="L35">            throw new IllegalArgumentException(&quot;No se pueden sumar puntos negativos&quot;);</span>
+        }
+<span class="fc" id="L37">        this.total += puntos;</span>
+<span class="fc" id="L38">    }</span>
+
+    /**
+     * Indica si hay puntos suficientes para pagar un costo.
+     *
+     * @param costo costo a pagar
+     * @return true si se puede pagar
+     * @throws IllegalArgumentException si el costo es negativo
+     */
+    public boolean puedePagar(int costo) {
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (costo &lt; 0) {</span>
+<span class="nc" id="L49">            throw new IllegalArgumentException(&quot;El costo no puede ser negativo&quot;);</span>
+        }
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        return total &gt;= costo;</span>
+    }
+
+    /**
+     * Gasta puntos del total si hay suficientes.
+     *
+     * @param costo costo a gastar
+     * @return true si se realizó el gasto
+     */
+    public boolean gastar(int costo) {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (!puedePagar(costo)) {</span>
+<span class="fc" id="L62">            return false;</span>
+        }
+<span class="fc" id="L64">        this.total -= costo;</span>
+<span class="fc" id="L65">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

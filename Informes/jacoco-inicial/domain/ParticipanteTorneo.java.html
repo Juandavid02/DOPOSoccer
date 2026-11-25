@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParticipanteTorneo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">ParticipanteTorneo.java</span></div><h1>ParticipanteTorneo.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Participante de un torneo: el perfil humano con su personaje o una máquina
+ * con su perfil de comportamiento y sus estadísticas.
+ */
+public final class ParticipanteTorneo {
+
+    private final PerfilJugador perfilHumano;
+    private final PerfilIA perfilIA;
+    private final Personaje personaje;
+    private Estadisticas estadisticas;
+    private boolean eliminado;
+
+    /**
+     * Crea un participante de torneo con todos sus datos.
+     *
+     * @param perfilHumano perfil humano o null si es máquina
+     * @param perfilIA perfil de IA o null si es humano
+     * @param personaje personaje del participante
+     * @param estadisticas estadísticas iniciales
+     */
+    private ParticipanteTorneo(PerfilJugador perfilHumano,
+                               PerfilIA perfilIA,
+                               Personaje personaje,
+<span class="fc" id="L26">                               Estadisticas estadisticas) {</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (personaje == null) {</span>
+<span class="nc" id="L28">            throw new IllegalArgumentException(&quot;El personaje no puede ser nulo&quot;);</span>
+        }
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        if (estadisticas == null) {</span>
+<span class="nc" id="L31">            throw new IllegalArgumentException(&quot;Las estadísticas no pueden ser nulas&quot;);</span>
+        }
+<span class="fc" id="L33">        this.perfilHumano = perfilHumano;</span>
+<span class="fc" id="L34">        this.perfilIA = perfilIA;</span>
+<span class="fc" id="L35">        this.personaje = personaje;</span>
+<span class="fc" id="L36">        this.estadisticas = estadisticas.copiar();</span>
+<span class="fc" id="L37">    }</span>
+
+    /**
+     * Crea un participante humano.
+     *
+     * @param perfil perfil del jugador humano
+     * @param personaje personaje elegido
+     * @return participante humano
+     */
+    public static ParticipanteTorneo humano(PerfilJugador perfil,
+                                            Personaje personaje) {
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (perfil == null) {</span>
+<span class="nc" id="L49">            throw new IllegalArgumentException(&quot;El perfil humano no puede ser nulo&quot;);</span>
+        }
+<span class="fc" id="L51">        return new ParticipanteTorneo(perfil, null, personaje,</span>
+<span class="fc" id="L52">                perfil.getEstadisticas());</span>
+    }
+
+    /**
+     * Crea un participante controlado por la máquina.
+     *
+     * @param perfil perfil de comportamiento de la IA
+     * @param personaje personaje elegido
+     * @return participante máquina
+     */
+    public static ParticipanteTorneo maquina(PerfilIA perfil,
+                                             Personaje personaje) {
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (perfil == null) {</span>
+<span class="nc" id="L65">            throw new IllegalArgumentException(&quot;El perfil de IA no puede ser nulo&quot;);</span>
+        }
+<span class="fc" id="L67">        return new ParticipanteTorneo(null, perfil, personaje,</span>
+<span class="fc" id="L68">                estadisticasBase(perfil));</span>
+    }
+
+    /**
+     * Devuelve las estadísticas base de un perfil de IA.
+     *
+     * @param perfil perfil de IA
+     * @return estadísticas base del perfil
+     */
+    private static Estadisticas estadisticasBase(PerfilIA perfil) {
+        int valor;
+<span class="pc bpc" id="L79" title="2 of 5 branches missed.">        switch (perfil) {</span>
+            case TORPE:
+<span class="fc" id="L81">                valor = ParametrosJuego.ESTADISTICAS_IA_TORPE;</span>
+<span class="fc" id="L82">                break;</span>
+            case OFENSIVA:
+<span class="fc" id="L84">                valor = ParametrosJuego.ESTADISTICAS_IA_OFENSIVA;</span>
+<span class="fc" id="L85">                break;</span>
+            case DEFENSIVA:
+<span class="nc" id="L87">                valor = ParametrosJuego.ESTADISTICAS_IA_DEFENSIVA;</span>
+<span class="nc" id="L88">                break;</span>
+            case EXPERTA:
+<span class="fc" id="L90">                valor = ParametrosJuego.ESTADISTICAS_IA_EXPERTA;</span>
+<span class="fc" id="L91">                break;</span>
+            default:
+<span class="nc" id="L93">                valor = ParametrosJuego.ESTADISTICA_INICIAL;</span>
+                break;
+        }
+<span class="fc" id="L96">        return new Estadisticas(valor, valor, valor, valor);</span>
+    }
+
+    /**
+     * Indica si el participante es humano.
+     *
+     * @return true si es humano
+     */
+    public boolean isHumano() {
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        return perfilHumano != null;</span>
+    }
+
+    /**
+     * Devuelve el nombre visible del participante.
+     *
+     * @return nombre del participante
+     */
+    public String getNombre() {
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (isHumano()) {</span>
+<span class="nc" id="L115">            return perfilHumano.getNombre();</span>
+        }
+<span class="nc" id="L117">        return &quot;IA · &quot; + perfilIA.name();</span>
+    }
+
+    /**
+     * Devuelve el perfil de IA del participante.
+     *
+     * @return perfil de IA o null si es humano
+     */
+    public PerfilIA getPerfilIA() {
+<span class="nc" id="L126">        return perfilIA;</span>
+    }
+
+    /**
+     * Devuelve el personaje del participante.
+     *
+     * @return personaje elegido
+     */
+    public Personaje getPersonaje() {
+<span class="nc" id="L135">        return personaje;</span>
+    }
+
+    /**
+     * Devuelve una copia de las estadísticas del participante.
+     *
+     * @return estadísticas del participante
+     */
+    public Estadisticas getEstadisticas() {
+<span class="fc" id="L144">        return estadisticas.copiar();</span>
+    }
+
+    /**
+     * Suma la mejora de ronda a todas las estadísticas de una IA. El humano
+     * no se mejora automáticamente.
+     */
+    public void mejorar() {
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if (isHumano()) {</span>
+<span class="fc" id="L153">            return;</span>
+        }
+<span class="fc" id="L155">        int maximo = ParametrosJuego.MAX_ESTADISTICA;</span>
+<span class="fc" id="L156">        int mejora = ParametrosJuego.MEJORA_IA_TORNEO;</span>
+<span class="fc" id="L157">        estadisticas = new Estadisticas(</span>
+<span class="fc" id="L158">                Math.min(maximo, estadisticas.getSpeed() + mejora),</span>
+<span class="fc" id="L159">                Math.min(maximo, estadisticas.getJump() + mejora),</span>
+<span class="fc" id="L160">                Math.min(maximo, estadisticas.getKick() + mejora),</span>
+<span class="fc" id="L161">                Math.min(maximo, estadisticas.getSurvival() + mejora));</span>
+<span class="fc" id="L162">    }</span>
+
+    /**
+     * Indica si el participante está eliminado.
+     *
+     * @return true si fue eliminado
+     */
+    public boolean isEliminado() {
+<span class="fc" id="L170">        return eliminado;</span>
+    }
+
+    /**
+     * Marca al participante como eliminado.
+     */
+    public void eliminar() {
+<span class="fc" id="L177">        this.eliminado = true;</span>
+<span class="fc" id="L178">    }</span>
+
+    /**
+     * Configuración de IA para el partido, o null si el participante es
+     * humano.
+     *
+     * @return configuración de máquina
+     */
+    public ConfiguracionIA crearConfiguracionIA() {
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (isHumano()) {</span>
+<span class="nc" id="L188">            return null;</span>
+        }
+<span class="nc" id="L190">        return new ConfiguracionIA(perfilIA, estadisticas);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

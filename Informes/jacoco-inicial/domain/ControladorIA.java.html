@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ControladorIA.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">ControladorIA.java</span></div><h1>ControladorIA.java</h1><pre class="source lang-java linenums">package domain;
+
+import java.io.Serializable;
+
+/**
+ * Base de los controladores de la máquina.
+ *
+ * Define el flujo común de actualización y deja en cada subclase la
+ * decisión concreta según el perfil de IA. Aplica el patrón Template
+ * Method.
+ */
+<span class="fc" id="L12">public abstract class ControladorIA implements Serializable {</span>
+
+    /** Tiempo que debe esperar la IA antes de volver a saltar. */
+    protected double tiempoSalto;
+
+    /**
+     * Actualiza las decisiones de la máquina para este instante.
+     *
+     * @param partido partido en curso
+     * @param yo jugador controlado por la IA
+     * @param dt tiempo transcurrido desde la última actualización
+     */
+    public final void actualizar(Partido partido, Jugador yo, double dt) {
+<span class="pc bpc" id="L25" title="2 of 4 branches missed.">        if (dt &lt;= 0 || yo.isAturdido()) {</span>
+<span class="nc" id="L26">            return;</span>
+        }
+
+<span class="fc" id="L29">        tiempoSalto -= dt;</span>
+<span class="fc" id="L30">        decidir(partido, yo, dt);</span>
+<span class="fc" id="L31">    }</span>
+
+    /**
+     * Decide y ejecuta las acciones de la máquina para este instante.
+     *
+     * @param partido partido en curso
+     * @param yo jugador controlado por la IA
+     * @param dt tiempo transcurrido desde la última actualización
+     */
+    protected abstract void decidir(Partido partido, Jugador yo, double dt);
+
+    /**
+     * Mueve al jugador en la dirección indicada a su velocidad actual.
+     *
+     * @param partido partido en curso
+     * @param yo jugador controlado por la IA
+     * @param direccion dirección del movimiento
+     * @param dt tiempo transcurrido desde la última actualización
+     */
+    protected void mover(Partido partido, Jugador yo, double direccion, double dt) {
+<span class="fc" id="L51">        double velocidad = ParametrosJuego.VELOCIDAD_BASE_JUGADOR</span>
+<span class="fc" id="L52">                * yo.getEstadisticas().getFactorVelocidad()</span>
+<span class="fc" id="L53">                * yo.getMultiplicadorVelocidad();</span>
+<span class="fc" id="L54">        partido.mover(numero(partido, yo), direccion * velocidad * dt);</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Indica si el jugador está cerca del balón.
+     *
+     * @param yo jugador controlado por la IA
+     * @param balon balón del partido
+     * @return true si el balón está dentro del alcance
+     */
+    protected static boolean cercaDelBalon(Jugador yo, Balon balon) {
+<span class="fc" id="L65">        double dx = Math.abs(balon.getX() - yo.getPosicionX());</span>
+<span class="fc" id="L66">        double dy = Math.abs(balon.getY() - yo.getPosicionY());</span>
+<span class="pc bpc" id="L67" title="3 of 4 branches missed.">        return dx &lt;= ParametrosJuego.ALCANCE_PATADA + 15 &amp;&amp; dy &lt;= 95;</span>
+    }
+
+    /**
+     * Devuelve el número del jugador dentro del partido.
+     *
+     * @param partido partido en curso
+     * @param jugador jugador consultado
+     * @return número del jugador: 1 o 2
+     */
+    protected static int numero(Partido partido, Jugador jugador) {
+<span class="fc" id="L78">        return partido.getJugadores().indexOf(jugador) + 1;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

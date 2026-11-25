@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ColisionesArcos.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">ColisionesArcos.java</span></div><h1>ColisionesArcos.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Resuelve los rebotes del balón contra los arcos: la rampa invisible sobre
+ * cada arco y el travesaño.
+ *
+ * No guarda estado; recibe el balón y la cancha en cada llamada.
+ */
+public final class ColisionesArcos {
+
+    private ColisionesArcos() {
+    }
+
+    /**
+     * Hace rebotar el balón contra las rampas y los travesaños de los arcos.
+     *
+     * @param balon balón del partido
+     * @param cancha cancha con los arcos
+     */
+    public static void resolver(Balon balon, Cancha cancha) {
+<span class="fc" id="L21">        resolverRampa(balon, cancha.getArcoIzquierdo(), true);</span>
+<span class="fc" id="L22">        resolverRampa(balon, cancha.getArcoDerecho(), false);</span>
+<span class="fc" id="L23">        resolverTravesano(balon, cancha.getArcoIzquierdo());</span>
+<span class="fc" id="L24">        resolverTravesano(balon, cancha.getArcoDerecho());</span>
+<span class="fc" id="L25">    }</span>
+
+    /**
+     * Maneja el choque del balón con la rampa invisible encima del arco.
+     * Si cae fuerte rebota; si cae despacio se resbala hacia la cancha.
+     */
+    private static void resolverRampa(Balon balon, Arco arco, boolean arcoIzquierdo) {
+<span class="fc" id="L32">        double radio = ParametrosJuego.RADIO_BALON_COLISION;</span>
+<span class="fc" id="L33">        double desfase = ParametrosJuego.RADIO_BALON_COLISION - ParametrosJuego.RADIO_BALON;</span>
+<span class="fc" id="L34">        double centroX = balon.getX();</span>
+<span class="fc" id="L35">        double centroY = balon.getY() - desfase;</span>
+
+        // Extremo alto (contra la pared) y extremo bajo (hacia la cancha).
+        double altoX;
+        double bajoX;
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (arcoIzquierdo) {</span>
+<span class="fc" id="L41">            altoX = arco.getX();</span>
+<span class="fc" id="L42">            bajoX = arco.getX() + arco.getAncho();</span>
+        } else {
+<span class="fc" id="L44">            altoX = arco.getX() + arco.getAncho();</span>
+<span class="fc" id="L45">            bajoX = arco.getX();</span>
+        }
+<span class="fc" id="L47">        double altoY = arco.getY() - ParametrosJuego.ALTO_RAMPA_ARCO;</span>
+<span class="fc" id="L48">        double bajoY = arco.getY();</span>
+
+<span class="fc" id="L50">        double ladoX = bajoX - altoX;</span>
+<span class="fc" id="L51">        double ladoY = bajoY - altoY;</span>
+<span class="fc" id="L52">        double longitud = Math.sqrt(ladoX * ladoX + ladoY * ladoY);</span>
+<span class="fc" id="L53">        double ux = ladoX / longitud;</span>
+<span class="fc" id="L54">        double uy = ladoY / longitud;</span>
+
+        // Normal de la rampa apuntando hacia arriba.
+<span class="fc" id="L57">        double normalRampaX = uy;</span>
+<span class="fc" id="L58">        double normalRampaY = -ux;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (normalRampaY &gt; 0) {</span>
+<span class="fc" id="L60">            normalRampaX = -normalRampaX;</span>
+<span class="fc" id="L61">            normalRampaY = -normalRampaY;</span>
+        }
+
+        // Solo se choca por encima de la rampa; desde dentro del arco manda
+        // el travesaño.
+<span class="fc" id="L66">        double lado = (centroX - altoX) * normalRampaX + (centroY - altoY) * normalRampaY;</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (lado &lt;= 0) {</span>
+<span class="fc" id="L68">            return;</span>
+        }
+
+<span class="fc" id="L71">        double t = ((centroX - altoX) * ux + (centroY - altoY) * uy) / longitud;</span>
+<span class="fc" id="L72">        t = Math.max(0, Math.min(1, t));</span>
+<span class="fc" id="L73">        double puntoX = altoX + t * ladoX;</span>
+<span class="fc" id="L74">        double puntoY = altoY + t * ladoY;</span>
+
+<span class="fc" id="L76">        double dx = centroX - puntoX;</span>
+<span class="fc" id="L77">        double dy = centroY - puntoY;</span>
+<span class="fc" id="L78">        double distancia = Math.sqrt(dx * dx + dy * dy);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (distancia &gt;= radio) {</span>
+<span class="fc" id="L80">            return;</span>
+        }
+
+<span class="fc" id="L83">        double normalX = normalRampaX;</span>
+<span class="fc" id="L84">        double normalY = normalRampaY;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (distancia &gt; 0.0001) {</span>
+<span class="fc" id="L86">            normalX = dx / distancia;</span>
+<span class="fc" id="L87">            normalY = dy / distancia;</span>
+        }
+
+<span class="fc" id="L90">        balon.reubicar(puntoX + normalX * radio,</span>
+                puntoY + normalY * radio + desfase);
+
+<span class="fc" id="L93">        double velocidadNormal = balon.getVelocidadX() * normalX</span>
+<span class="fc" id="L94">                + balon.getVelocidadY() * normalY;</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (velocidadNormal &gt;= 0) {</span>
+<span class="fc" id="L96">            return;</span>
+        }
+
+<span class="fc" id="L99">        double restitucion = ParametrosJuego.REBOTE;</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (-velocidadNormal &lt; ParametrosJuego.UMBRAL_REBOTE_RAMPA) {</span>
+            // Sin rebote: solo se quita la parte que entra en la rampa y el
+            // resto de la velocidad lo hace resbalar.
+<span class="fc" id="L103">            restitucion = 0;</span>
+        }
+<span class="fc" id="L105">        double impulso = -(1 + restitucion) * velocidadNormal;</span>
+<span class="fc" id="L106">        balon.aplicarImpulso(impulso * normalX, impulso * normalY);</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * Resuelve el choque del balón con el travesaño de un arco.
+     */
+    private static void resolverTravesano(Balon balon, Arco arco) {
+<span class="fc" id="L113">        double radio = ParametrosJuego.RADIO_BALON_COLISION;</span>
+<span class="fc" id="L114">        double centroVisualY = balon.getY()</span>
+                - (ParametrosJuego.RADIO_BALON_COLISION - ParametrosJuego.RADIO_BALON);
+
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        boolean dentroX = balon.getX() + radio &gt; arco.getX()</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">                &amp;&amp; balon.getX() - radio &lt; arco.getX() + arco.getAncho();</span>
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (!dentroX) {</span>
+<span class="fc" id="L121">            return;</span>
+        }
+
+<span class="fc" id="L124">        double bordeSuperior = arco.getY();</span>
+
+        // Balón cayendo sobre la parte superior de la red.
+<span class="pc bpc" id="L127" title="1 of 8 branches missed.">        if (balon.getVelocidadY() &gt; 0</span>
+                &amp;&amp; centroVisualY &gt;= bordeSuperior
+                &amp;&amp; centroVisualY + radio &gt;= bordeSuperior
+                &amp;&amp; centroVisualY - radio &lt; bordeSuperior) {
+<span class="fc" id="L131">            double nuevoCentroVisual = bordeSuperior - radio;</span>
+<span class="fc" id="L132">            balon.reubicar(balon.getX(),</span>
+                    nuevoCentroVisual
+                            + (ParametrosJuego.RADIO_BALON_COLISION
+                            - ParametrosJuego.RADIO_BALON));
+<span class="fc" id="L136">            balon.aplicarImpulso(0,</span>
+<span class="fc" id="L137">                    -balon.getVelocidadY() * (1 + ParametrosJuego.REBOTE));</span>
+<span class="fc" id="L138">            return;</span>
+        }
+
+        // Balón subiendo desde dentro del arco.
+<span class="pc bpc" id="L142" title="1 of 6 branches missed.">        if (balon.getVelocidadY() &lt; 0</span>
+                &amp;&amp; centroVisualY - radio &lt;= bordeSuperior
+                &amp;&amp; centroVisualY + radio &gt; bordeSuperior) {
+<span class="fc" id="L145">            double nuevoCentroVisual = bordeSuperior + radio;</span>
+<span class="fc" id="L146">            balon.reubicar(balon.getX(),</span>
+                    nuevoCentroVisual
+                            + (ParametrosJuego.RADIO_BALON_COLISION
+                            - ParametrosJuego.RADIO_BALON));
+<span class="fc" id="L150">            balon.aplicarImpulso(0,</span>
+<span class="fc" id="L151">                    -balon.getVelocidadY() * (1 + ParametrosJuego.REBOTE));</span>
+        }
+<span class="fc" id="L153">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

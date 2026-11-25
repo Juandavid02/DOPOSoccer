@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EfectoInconsciente.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HeadSoccer</a> &gt; <a href="index.source.html" class="el_package">domain</a> &gt; <span class="el_source">EfectoInconsciente.java</span></div><h1>EfectoInconsciente.java</h1><pre class="source lang-java linenums">package domain;
+
+/**
+ * Efecto Inconsciente: el jugador sale volando y no puede moverse, saltar
+ * ni patear mientras dure.
+ */
+public class EfectoInconsciente extends Efecto {
+
+    /**
+     * Crea el efecto Inconsciente.
+     *
+     * @param duracion duración del efecto en segundos
+     */
+    public EfectoInconsciente(double duracion) {
+<span class="fc" id="L15">        super(TipoEfecto.INCONSCIENTE, duracion);</span>
+<span class="fc" id="L16">    }</span>
+
+    /**
+     * Deja al jugador quieto en horizontal y lo lanza hacia arriba.
+     *
+     * @param jugador jugador que queda inconsciente
+     */
+    @Override
+    public void alAplicar(Jugador jugador) {
+<span class="fc" id="L25">        jugador.impulsar(0, -ParametrosJuego.IMPULSO_INCONSCIENTE);</span>
+<span class="fc" id="L26">    }</span>
+
+    /**
+     * Frena el movimiento horizontal cuando se despierta.
+     *
+     * @param jugador jugador que tenía el efecto
+     */
+    @Override
+    public void alTerminar(Jugador jugador) {
+<span class="nc" id="L35">        jugador.detenerHorizontal();</span>
+<span class="nc" id="L36">    }</span>
+
+    @Override
+    public boolean bloqueaMovimiento() {
+<span class="nc" id="L40">        return true;</span>
+    }
+
+    @Override
+    public boolean bloqueaSalto() {
+<span class="nc" id="L45">        return true;</span>
+    }
+
+    @Override
+    public boolean bloqueaPatada() {
+<span class="nc" id="L50">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
