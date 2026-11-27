@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 public class Puntos implements Serializable {
 
+    /**
+     * Serial version UID para la serialización.
+     */
+    // IA generativa para poder dejar la huella del .dad 
     private static final long serialVersionUID = 1L;
 
     private int total;

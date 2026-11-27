@@ -25,7 +25,6 @@ public abstract class ControladorIA implements Serializable {
         if (dt <= 0 || yo.isAturdido()) {
             return;
         }
-
         tiempoSalto -= dt;
         decidir(partido, yo, dt);
     }
@@ -48,9 +47,7 @@ public abstract class ControladorIA implements Serializable {
      * @param dt tiempo transcurrido desde la última actualización
      */
     protected void mover(Partido partido, Jugador yo, double direccion, double dt) {
-        double velocidad = ParametrosJuego.VELOCIDAD_BASE_JUGADOR
-                * yo.getEstadisticas().getFactorVelocidad()
-                * yo.getMultiplicadorVelocidad();
+        double velocidad = ParametrosJuego.VELOCIDAD_BASE_JUGADOR * yo.getEstadisticas().getFactorVelocidad() * yo.getMultiplicadorVelocidad();
         partido.mover(numero(partido, yo), direccion * velocidad * dt);
     }
 

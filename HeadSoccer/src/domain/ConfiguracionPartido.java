@@ -20,8 +20,7 @@ public class ConfiguracionPartido implements Serializable {
      * @param goles goles necesarios para ganar
      * @throws ExcepcionDOPOSoccer si algún dato no es válido
      */
-    public ConfiguracionPartido(Modalidad modalidad, TipoPartido tipo, Resolucion resolucion, int tiempo, int goles)
-            throws ExcepcionDOPOSoccer {
+    public ConfiguracionPartido(Modalidad modalidad, TipoPartido tipo, Resolucion resolucion, int tiempo, int goles) throws ExcepcionDOPOSoccer {
         this(modalidad, tipo, resolucion, tiempo, goles, null);
     }
 
@@ -36,10 +35,7 @@ public class ConfiguracionPartido implements Serializable {
      * @param perfilIA perfil de comportamiento de la IA
      * @throws ExcepcionDOPOSoccer si algún dato no es válido
      */
-    public ConfiguracionPartido(Modalidad modalidad, TipoPartido tipo,
-                                Resolucion resolucion, int tiempo, int goles,
-                                PerfilIA perfilIA)
-            throws ExcepcionDOPOSoccer {
+    public ConfiguracionPartido(Modalidad modalidad, TipoPartido tipo, Resolucion resolucion, int tiempo, int goles, PerfilIA perfilIA) throws ExcepcionDOPOSoccer {
         if (modalidad == null) {
             throw new ExcepcionDOPOSoccer(ExcepcionDOPOSoccer.MODALIDAD_NULA);
         }
