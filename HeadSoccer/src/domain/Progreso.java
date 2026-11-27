@@ -329,8 +329,7 @@ public class Progreso implements Serializable {
      * @param perfil perfil del que se escriben los desbloqueos
      * @throws IOException si falla la escritura
      */
-    private void escribirDesbloqueos(BufferedWriter escritor,
-                                     PerfilJugador perfil) throws IOException {
+    private void escribirDesbloqueos(BufferedWriter escritor, PerfilJugador perfil) throws IOException {
         escribirDesbloqueos(escritor, perfil, PERSONAJE,
                 perfil.getPersonajesDesbloqueados());
         escribirDesbloqueos(escritor, perfil, BALON,
@@ -348,9 +347,7 @@ public class Progreso implements Serializable {
      * @param nombres nombres desbloqueados
      * @throws IOException si falla la escritura
      */
-    private void escribirDesbloqueos(BufferedWriter escritor, PerfilJugador perfil,
-                                     String tipo, Set<String> nombres)
-            throws IOException {
+    private void escribirDesbloqueos(BufferedWriter escritor, PerfilJugador perfil, String tipo, Set<String> nombres) throws IOException {
         List<String> ordenados = new ArrayList<>(nombres);
         Collections.sort(ordenados);
         for (String nombre : ordenados) {
@@ -372,10 +369,7 @@ public class Progreso implements Serializable {
      * @param porId perfiles temporales indexados por id
      * @param errores errores encontrados
      */
-    private void agregarPerfil(String[] campos, int numero,
-                               List<PerfilJugador> nuevos,
-                               Map<String, PerfilJugador> porId,
-                               List<String> errores) {
+    private void agregarPerfil(String[] campos, int numero, List<PerfilJugador> nuevos, Map<String, PerfilJugador> porId, List<String> errores) {
         if (campos.length != 8) {
             errores.add(error(numero, PERFIL,
                     "se esperaban 8 campos y se encontraron " + campos.length));

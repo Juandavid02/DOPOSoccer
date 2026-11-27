@@ -17,13 +17,12 @@ public final class ParametrosJuego {
 
     // Balón
     public static final int RADIO_BALON = 12;
+    public static final double RADIO_BALON_COLISION = 30;
+    public static final double RESTITUCION_COLISION = 0.6;
 
     // Arcos
     public static final int ANCHO_ARCO = 120;
     public static final int ALTO_ARCO = 220;
-
-    // Rampa invisible sobre cada arco: triángulo rectángulo con su lado alto
-    // contra la pared y su lado bajo hacia la cancha.
     public static final double ALTO_RAMPA_ARCO = 45;
     // Si el balón cae con menos velocidad que esta, no rebota y se resbala.
     public static final double UMBRAL_REBOTE_RAMPA = 90;
@@ -32,31 +31,21 @@ public final class ParametrosJuego {
     public static final double RADIO_JUGADOR = 20;
     /** Velocidad base de desplazamiento; las estadísticas la modifican. */
     public static final double VELOCIDAD_BASE_JUGADOR = 260;
-
-    // Círculos de colisión del personaje: cabeza y bota.
     public static final double RADIO_CABEZA_JUGADOR = 45;
     public static final double RADIO_BOTA_JUGADOR = 18;
     public static final double OFFSET_CABEZA_JUGADOR = -55;
     public static final double OFFSET_BOTA_X_JUGADOR = 10;
     public static final double OFFSET_BOTA_Y_JUGADOR = 8;
 
-    /** Radio visual del balón para calcular sus choques. */
-    public static final double RADIO_BALON_COLISION = 30;
-
-    public static final double RESTITUCION_COLISION = 0.6;
+    // Golpe
     /** Distancia a la que se puede patear el balón: pie, balón y tolerancia visual. */
     public static final double ALCANCE_PATADA = RADIO_BOTA_JUGADOR + RADIO_BALON_COLISION + 17;
-    /**
-     * Impulso vertical del salto. Con la gravedad actual el salto base sube
-     * unos 150 px, lo suficiente para que la bota supere la cabeza del rival
-     * (126 px) y el personaje pueda pasar al otro lado saltando.
-     */
     public static final double IMPULSO_SALTO_BASE = 600;
     public static final double POTENCIA_PATADA_BASE = 650;
     /** Componente hacia arriba de la patada para que el balón haga curva. */
     public static final double POTENCIA_LEVANTE_PATADA = 520;
 
-    // Estadísticas (rango y crecimiento)
+    // Estadísticas
     public static final int MIN_ESTADISTICA = 1;
     public static final int MAX_ESTADISTICA = 10;
     /** Valor de cada estadística en un perfil nuevo y en la IA de PvsM. */
@@ -67,12 +56,11 @@ public final class ParametrosJuego {
     // Vida y daño
     public static final int VIDA_BASE = 100;
     public static final int DANO_PATADA_BASE = 10;
-    /** Tiempo que el jugador queda aturdido al quedarse sin vida. */
     public static final double TIEMPO_ATURDIMIENTO = 3.0;
     /** Tolerancia extra para golpear al rival con la bota. */
     public static final double TOLERANCIA_GOLPE_PATADA = 10;
 
-    // Efectos de los tiros de poder
+    // Efectos
     /** Velocidad horizontal con la que el Aura Azul empuja al rival. */
     public static final double IMPULSO_EMPUJE = 900;
     /** Componente vertical del empuje. */
